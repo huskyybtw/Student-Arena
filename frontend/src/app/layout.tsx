@@ -1,5 +1,4 @@
 import type React from "react"
-import type { Metadata } from "next"
 import { Geist, Manrope } from "next/font/google"
 import "./globals.css"
 
@@ -14,12 +13,6 @@ const manrope = Manrope({
   display: "swap",
   variable: "--font-manrope",
 })
-
-export const metadata: Metadata = {
-  title: "LoL Student Arena - Competitive Gaming Platform",
-  description: "Faceit-style competitive platform for League of Legends students",
-  generator: "v0.app",
-}
 
 export default function RootLayout({
   children,

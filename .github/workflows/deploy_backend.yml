@@ -1,9 +1,10 @@
-name: Deploy to Render
+name: Deploy Backend to Render
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -15,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy service to Render
+      - name: Deploy backend
         uses: JorgeLNJunior/render-deploy@v1.4.5
         with:
           service_id: ${{ secrets.RENDER_SERVICE_ID }}
