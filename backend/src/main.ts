@@ -9,7 +9,7 @@ async function bootstrap() {
     .setTitle('Students-Arena-API')
     .setDescription('API description')
     .setVersion('1.0')
-    .addTag('api')
+    .addTag('main')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
