@@ -1,19 +1,24 @@
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { Request, Response } from 'express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, new ExpressAdapter());
 
   const config = new DocumentBuilder()
-    .setTitle('Students-Arena-API')
-    .setDescription('API description')
+    .setTitle('Student Arena API')
+    .setDescription('API Documentation')
     .setVersion('1.0')
-    .addTag('main')
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
 
-  await app.listen(process.env.PORT ?? 3000);
+  const document = SwaggerModule.createDocument(app, config);
+
+  app.getHttpAdapter().get('/api-json', (req: Request, res: Response) => {
+    res.json(document);
+  });
+
+  await app.listen(3000);
 }
 bootstrap();

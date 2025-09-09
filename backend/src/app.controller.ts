@@ -1,12 +1,47 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { AppService } from './app.service';
+import { ApiExcludeController } from '@nestjs/swagger';
 
+const scalarCustomCss = `
+  body { font-family: sans-serif; margin: 0; padding: 0; }
+`;
+
+@ApiExcludeController()
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('docs')
+  scalar(
+    @Query('url') url: string = 'http://localhost:3000/api-json',
+    @Query('proxyUrl') proxyUrl: string = 'https://proxy.scalar.com',
+    @Res() res: Response,
+  ) {
+    const html = `
+      <!doctype html>
+      <html>
+        <head>
+          <title>API Reference</title>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>${scalarCustomCss}</style>
+        </head>
+        <body>
+          <script
+            id="api-reference"
+            data-url="${url}"
+            data-proxy-url="${proxyUrl}">
+          </script>
+          <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+        </body>
+      </html>
+    `;
+    res.contentType('text/html');
+    res.send(html);
   }
 }
