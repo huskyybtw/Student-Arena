@@ -2,6 +2,7 @@ import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { AppService } from './app.service';
 import { ApiExcludeController } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 const scalarCustomCss = `
   body { font-family: sans-serif; margin: 0; padding: 0; }
@@ -10,7 +11,10 @@ const scalarCustomCss = `
 @ApiExcludeController()
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly configService: ConfigService,
+  ) {}
   @Get()
   getHello(): string {
     return this.appService.getHello();
@@ -18,10 +22,16 @@ export class AppController {
 
   @Get('docs')
   scalar(
-    @Query('url') url: string = 'http://localhost:3000/api-json',
+    @Query('url') url: string,
     @Query('proxyUrl') proxyUrl: string = 'https://proxy.scalar.com',
     @Res() res: Response,
   ) {
+    const apiJsonUrl =
+      url ||
+      this.configService.get<string>(
+        'API_JSON_URL',
+        'http://localhost:3000/api-json',
+      );
     const html = `
       <!doctype html>
       <html>
@@ -34,7 +44,7 @@ export class AppController {
         <body>
           <script
             id="api-reference"
-            data-url="${url}"
+            data-url="${apiJsonUrl}"
             data-proxy-url="${proxyUrl}">
           </script>
           <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
