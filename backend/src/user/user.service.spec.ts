@@ -24,7 +24,7 @@ describe('UserService', () => {
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany();
+    await prisma.clearDatabase();
     await prisma.$disconnect();
   });
 
@@ -51,6 +51,12 @@ describe('UserService', () => {
       await expect(
         service.create(userDataWithoutEmail as any),
       ).rejects.toThrow();
+    });
+
+    it('should throw on duplicate email', async () => {
+      const userData = validUser();
+      userData.email = createdUser.email;
+      await expect(service.create(userData)).rejects.toThrow();
     });
   });
 
@@ -86,6 +92,37 @@ describe('UserService', () => {
 
     it('should return null if user does not exist', async () => {
       const user = await service.findOne(99999);
+      expect(user).toBeNull();
+    });
+  });
+
+  describe('findUnique', () => {
+    it('should return a user by unique email', async () => {
+      const user = await service.findUnique({ email: createdUser.email });
+      expect(user).not.toBeNull();
+      expect(user).toEqual(
+        expect.objectContaining({
+          email: createdUser.email,
+          password: expect.any(String),
+          id: createdUser.id,
+        }),
+      );
+    });
+
+    it('should return a user by unique id', async () => {
+      const user = await service.findUnique({ id: createdUser.id });
+      expect(user).not.toBeNull();
+      expect(user).toEqual(
+        expect.objectContaining({
+          email: createdUser.email,
+          password: expect.any(String),
+          id: createdUser.id,
+        }),
+      );
+    });
+
+    it('should return null if user does not exist', async () => {
+      const user = await service.findUnique({ email: 'notfound@example.com' });
       expect(user).toBeNull();
     });
   });

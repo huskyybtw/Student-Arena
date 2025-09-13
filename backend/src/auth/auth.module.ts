@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { UserService } from '../user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
       secret: process.env.JWT_SECRET || 'super-secret-key',
     }),
   ],
-  providers: [AuthService, UserService, PrismaService],
+  providers: [AuthService, UserService, PrismaService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

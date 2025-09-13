@@ -5,6 +5,7 @@ import {
   NotFoundException,
   BadRequestException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
@@ -15,6 +16,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       switch (exception.code) {
         case 'P2025':
           throw new NotFoundException('Resource not found');
+        case 'P2002':
+          throw new ConflictException('Unique constraint failed');
         default:
           throw new BadRequestException(exception.message);
       }

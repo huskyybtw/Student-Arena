@@ -1,10 +1,21 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../common/current-user.decorator';
 import { User } from '@prisma/client';
 import { ApiTags, ApiBody, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { AuthCredentialsDto, AuthResponseDto, AuthUserDto } from './dto/auth.dto';
+import {
+  AuthCredentialsDto,
+  AuthResponseDto,
+  AuthUserDto,
+} from './dto/auth.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -17,6 +28,7 @@ export class AuthController {
     description: 'JWT access token and user info',
     type: AuthResponseDto,
   })
+  @HttpCode(200)
   @Post('login')
   async login(@Body() body: AuthCredentialsDto): Promise<AuthResponseDto> {
     return this.authService.login(body.email, body.password);
