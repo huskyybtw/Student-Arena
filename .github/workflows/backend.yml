@@ -26,11 +26,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate prisma types
+        run: npx prisma generate
+
       - name: Run ESLint
         run: npm run lint
 
       - name: Run tests
-        run: npm test
+        run: npm run test
 
       - name: Build
         run: npm run build
