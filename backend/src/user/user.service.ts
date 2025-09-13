@@ -27,7 +27,7 @@ export class UserService {
   }
 
   async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
-    let updateData = { ...data };
+    const updateData = { ...data };
     if (data.password) {
       updateData.password = await bcrypt.hash(data.password as string, 10);
     }

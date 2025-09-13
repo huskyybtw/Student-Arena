@@ -53,7 +53,7 @@ export class AuthController {
   })
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  async me(@CurrentUser() user: User): Promise<AuthUserDto> {
+  me(@CurrentUser() user: User): AuthUserDto {
     // Only return safe user fields
     return { id: user.id, email: user.email };
   }

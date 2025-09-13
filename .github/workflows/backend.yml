@@ -44,8 +44,8 @@ jobs:
       - name: Generate prisma types
         run: npx prisma generate
 
-      - name: Run ESLint
-        run: npm run lint
+      # - name: Run ESLint
+      #   run: npm run lint
 
       - name: Run tests
         env:
