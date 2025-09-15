@@ -7,6 +7,10 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
+  app.enableCors({
+    origin: true, // or specify your frontend URL: ['http://localhost:3001']
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Student Arena API')
