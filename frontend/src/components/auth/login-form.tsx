@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Lock, Mail } from "lucide-react";
 import { useAuthControllerLogin } from "@/lib/auth/auth";
-
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 interface LoginFormProps {
   onToggle: () => void;
 }
@@ -24,7 +25,7 @@ export function LoginForm({ onToggle }: LoginFormProps) {
     resolver: yupResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
-
+  const router = useRouter();
   const loginMutation = useAuthControllerLogin();
 
   const onSubmit = async (data: LoginFormData) => {
@@ -32,11 +33,11 @@ export function LoginForm({ onToggle }: LoginFormProps) {
       { data },
       {
         onSuccess: (response) => {
-          alert(response.data.accessToken);
+          Cookies.set("accessToken", response.data.accessToken);
           reset();
+          router.push("/settings");
         },
         onError: (error: any) => {
-          console.log(error);
           alert(error?.response?.data?.message || "Błąd logowania");
         },
       }

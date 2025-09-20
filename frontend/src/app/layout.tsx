@@ -2,7 +2,7 @@ import type React from "react";
 import { Geist, Manrope } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
-
+import { Toaster } from "@/components/ui/sonner";
 const geist = Geist({
   subsets: ["latin"],
   display: "swap",
@@ -27,6 +27,7 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground">
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

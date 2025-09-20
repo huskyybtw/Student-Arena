@@ -30,7 +30,7 @@ export class AppController {
       url ||
       this.configService.get<string>(
         'API_JSON_URL',
-        'http://localhost:3000/api-json',
+        'http://localhost:3001/api-json',
       );
     const html = `
       <!doctype html>

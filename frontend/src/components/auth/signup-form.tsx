@@ -8,7 +8,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { SignupFormData, signupSchema } from "@/app/auth/authSchema";
 import { useAuthControllerRegister } from "@/lib/auth/auth";
-
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 interface RegisterFormProps {
   onToggle: () => void;
 }
@@ -29,17 +30,18 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
       confirmPassword: "",
     },
   });
-  const singupMutation = useAuthControllerRegister()
+  const router = useRouter();
+  const singupMutation = useAuthControllerRegister();
   const onSubmit = async (data: SignupFormData) => {
     singupMutation.mutate(
       { data },
       {
         onSuccess: (response) => {
-          alert(response.data.accessToken);
+          Cookies.set("accessToken", response.data.accessToken);
           reset();
+          router.push("/settings");
         },
         onError: (error: any) => {
-          console.log(error);
           alert(error?.response?.data?.message || "Błąd logowania");
         },
       }
