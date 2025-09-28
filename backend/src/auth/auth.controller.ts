@@ -11,8 +11,11 @@ import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from '../common/current-user.decorator';
 import { User } from '@prisma/client';
 import { ApiTags, ApiBody, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { AuthCredentialsDto, AuthResponseDto } from './dto/auth.dto';
-import { UserResponseDto } from '../user/dto/user-response.dto';
+import {
+  AuthCredentialsDto,
+  AuthResponseDto,
+  AuthUserDto,
+} from './dto/auth.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -46,16 +49,12 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Authenticated user',
-    type: UserResponseDto,
+    type: AuthUserDto,
   })
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  me(@CurrentUser() user: User): UserResponseDto {
-    return {
-      id: user.id,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+  me(@CurrentUser() user: User): AuthUserDto {
+    // Only return safe user fields
+    return { id: user.id, email: user.email };
   }
 }

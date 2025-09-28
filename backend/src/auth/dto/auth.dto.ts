@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, MinLength } from 'class-validator';
-import { UserResponseDto } from '../../user/dto/user-response.dto';
 
 export class AuthCredentialsDto {
   @ApiProperty({
@@ -16,9 +15,17 @@ export class AuthCredentialsDto {
   password: string;
 }
 
+export class AuthUserDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 'user@example.com' })
+  email: string;
+}
+
 export class AuthResponseDto {
-  @ApiProperty({ type: UserResponseDto })
-  user: UserResponseDto;
+  @ApiProperty({ type: AuthUserDto })
+  user: AuthUserDto;
 
   @ApiProperty({ example: 'jwt-access-token' })
   accessToken: string;

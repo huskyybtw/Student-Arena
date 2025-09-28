@@ -13,20 +13,13 @@ import { School, Save, RotateCcw } from "lucide-react";
 
 export function StudentInfoCard({
   loading,
-}: // ...existing props...
-{
+  onSave,
+  onReset,
+}: {
   loading: boolean;
-  // ...existing prop types...
+  onSave: () => void;
+  onReset: () => void;
 }) {
-  // Internal save/reset handlers
-  const handleSave = () => {
-    // TODO: Implement save logic (e.g., API call, toast)
-    console.log("StudentInfoCard: save");
-  };
-  const handleReset = () => {
-    // TODO: Implement reset logic (clear fields, reset state)
-    console.log("StudentInfoCard: reset");
-  };
   return (
     <Card className="shadow-lg border-2">
       <CardHeader className="pb-4">
@@ -40,7 +33,7 @@ export function StudentInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={handleReset}
+              onClick={onReset}
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -48,7 +41,7 @@ export function StudentInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={handleSave}
+              onClick={onSave}
             >
               <Save className="h-5 w-5" />
             </Button>

@@ -47,8 +47,10 @@ describe('AuthService', () => {
       expect(result.accessToken).not.toBeNull();
       expect(result.accessToken).not.toBeUndefined();
 
-      expect(result.user.id).toEqual(expect.any(Number));
-      expect(result.user.email).toEqual(userData.email)
+      expect(result.user).toEqual({
+        id: expect.any(Number),
+        email: userData.email,
+      });
 
       const dbUser = await userService.findUnique({ email: userData.email });
       expect(dbUser).not.toBeNull();
@@ -72,8 +74,10 @@ describe('AuthService', () => {
       expect(result.accessToken).not.toBeNull();
       expect(result.accessToken).not.toBeUndefined();
 
-      expect(result.user.id).toEqual(expect.any(Number));
-      expect(result.user.email).toEqual(userData.email);
+      expect(result.user).toEqual({
+        id: expect.any(Number),
+        email: userData.email,
+      });
     });
 
     it('should throw UnauthorizedException if user does not exist', async () => {
