@@ -5,6 +5,7 @@ import {
   Get,
   UseGuards,
   HttpCode,
+  Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -16,11 +17,15 @@ import {
   AuthResponseDto,
   AuthUserDto,
 } from './dto/auth.dto';
+import { UserService } from '../user/user.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
 
   @ApiBody({ type: AuthCredentialsDto })
   @ApiResponse({
@@ -41,7 +46,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @Post('register')
-  async register(@Body() body: AuthCredentialsDto): Promise<AuthResponseDto> {
+  async register(@Body() body: AuthCredentialsDto){
     return this.authService.register(body.email, body.password);
   }
 
@@ -53,8 +58,23 @@ export class AuthController {
   })
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  me(@CurrentUser() user: User): AuthUserDto {
-    // Only return safe user fields
+  async me(@CurrentUser() user: User) {
     return { id: user.id, email: user.email };
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Update Authenticated user',
+    type: AuthUserDto,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('me')
+  async meUpdate(@CurrentUser() user: User, @Body() dto: AuthCredentialsDto) {
+    const updatedUser = await this.userService.update(user.id, dto);
+    return {
+      id : updatedUser.id,
+      email : updatedUser.email,
+    }
   }
 }

@@ -149,4 +149,40 @@ describe('AuthController (e2e)', () => {
         .expect(401);
     });
   });
+
+  describe('PATCH /auth/me', () => {
+    it('should update the authenticated user email', async () => {
+      const userData = validUser();
+      const registerRes = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(userData)
+        .expect(201);
+      const token = registerRes.body.accessToken;
+
+      const newEmail = 'updated_' + userData.email;
+      const updateRes = await request(app.getHttpServer())
+        .patch('/auth/me')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ email: newEmail, password: userData.password })
+        .expect(200);
+
+      expect(updateRes.body).toEqual({
+        id: expect.any(Number),
+        email: newEmail,
+      });
+
+      const dbUser = await prisma.user.findUnique({
+        where: { email: newEmail },
+      });
+      expect(dbUser).not.toBeNull();
+      expect(dbUser?.email).toBe(newEmail);
+    });
+
+    it('should return 401 if not authenticated (alternative path)', async () => {
+      await request(app.getHttpServer())
+        .patch('/auth/me')
+        .send({ email: 'test@example.com', password: 'password123' })
+        .expect(401);
+    });
+  });
 });
