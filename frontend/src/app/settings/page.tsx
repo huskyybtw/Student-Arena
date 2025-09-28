@@ -67,46 +67,23 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!isLoading && (isError || !user)) {
-      // router.replace("/auth");
+      router.replace("/auth");
       toast.error("Session expired. Please log in again.");
     }
   }, [user, isLoading, isError, router]);
-
-  // Skeletons and role logic are now handled inside GameInfoCard
-
-  const handleSave = (section: string) => {
-    // Save logic for specific section
-    console.log(`Saving ${section}`);
-  };
-
-  const handleReset = (section: string) => {
-    // Reset logic for specific section
-    console.log(`Resetting ${section}`);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       <NavBar />
       <main className="container mx-auto px-4 py-4">
         <div className="max-w-2xl mx-auto space-y-6">
-          <ProfileCard
-            loading={isLoading}
-            user={user}
-            onSave={() => handleSave("profile")}
-            onReset={() => handleReset("profile")}
-          />
-          <StudentInfoCard
-            loading={isLoading}
-            onSave={() => handleSave("student")}
-            onReset={() => handleReset("student")}
-          />
+          <ProfileCard loading={isLoading} user={user} />
+          <StudentInfoCard loading={isLoading} />
           <GameInfoCard
             loading={isLoading}
             mainRole={mainRole}
             secondaryRoles={secondaryRoles}
             onMainRoleChange={setMainRole}
-            onSave={() => handleSave("game")}
-            onReset={() => handleReset("game")}
           />
         </div>
       </main>

@@ -16,14 +16,19 @@ import { AuthUserDto } from "@/lib/model";
 export function ProfileCard({
   loading,
   user,
-  onSave,
-  onReset,
 }: {
   loading: boolean;
   user?: AuthUserDto | null;
-  onSave: () => void;
-  onReset: () => void;
 }) {
+
+  const handleSave = () => {
+    // TODO: Implement save logic (e.g., API call, toast)
+    console.log("ProfileCard: save");
+  };
+  const handleReset = () => {
+    // TODO: Implement reset logic (clear fields, reset state)
+    console.log("ProfileCard: reset");
+  };
   return (
     <Card className="shadow-lg border-2">
       <CardHeader className="pb-4">
@@ -37,7 +42,7 @@ export function ProfileCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onReset}
+              onClick={handleReset}
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -45,7 +50,7 @@ export function ProfileCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onSave}
+              onClick={handleSave}
             >
               <Save className="h-5 w-5" />
             </Button>

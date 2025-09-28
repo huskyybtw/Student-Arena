@@ -26,19 +26,28 @@ export function GameInfoCard({
   mainRole,
   secondaryRoles,
   onMainRoleChange,
-  onSave,
-  onReset,
 }: {
   loading: boolean;
   mainRole: string;
   secondaryRoles: string[];
   onMainRoleChange: (role: string) => void;
-  onSave: () => void;
-  onReset: () => void;
 }) {
   const roles = ["top", "jungle", "mid", "adc", "support"];
   const [localSecondaryRoles, setLocalSecondaryRoles] =
     useState<string[]>(secondaryRoles);
+
+  // Internal save/reset handlers
+  const handleSave = () => {
+    // TODO: Implement save logic (e.g., API call, toast)
+    console.log("GameInfoCard: save");
+  };
+  const handleReset = () => {
+    // TODO: Implement reset logic (clear fields, reset roles)
+    setLocalSecondaryRoles([]);
+    onMainRoleChange("");
+    // Optionally reset other local state
+    console.log("GameInfoCard: reset");
+  };
 
   const handleSecondaryRoleToggle = (role: string) => {
     setLocalSecondaryRoles((prev) =>
@@ -58,7 +67,7 @@ export function GameInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onReset}
+              onClick={handleReset}
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -66,7 +75,7 @@ export function GameInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onSave}
+              onClick={handleSave}
             >
               <Save className="h-5 w-5" />
             </Button>

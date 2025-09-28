@@ -55,6 +55,8 @@ describe('AuthController (e2e)', () => {
       expect(res.body.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       });
 
       // User should exist in DB
@@ -92,6 +94,8 @@ describe('AuthController (e2e)', () => {
       expect(res.body.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       });
     });
 
@@ -135,6 +139,8 @@ describe('AuthController (e2e)', () => {
       expect(res.body).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       });
     });
 
