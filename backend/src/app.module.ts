@@ -7,9 +7,11 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { RiotApiModule } from './riot-api/riot-api.module';
+import { RiotModule } from './riot/riot.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), PrismaModule, AuthModule, UserModule],
+  imports: [ConfigModule.forRoot(), PrismaModule, AuthModule, UserModule, RiotApiModule, RiotModule],
   controllers: [AppController, UserController],
   providers: [AppService, UserService],
 })

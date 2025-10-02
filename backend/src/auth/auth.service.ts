@@ -10,11 +10,23 @@ import { AuthResponseDto, AuthUserDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
+  /**
+   * Creates an instance of AuthService.
+   * @param jwtService JWT service for signing tokens
+   * @param userService User service for user operations
+   */
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
   ) {}
 
+  /**
+   * Authenticates a user and returns an access token and user info.
+   * @param email User's email
+   * @param password User's password
+   * @returns AuthResponseDto containing user and JWT access token
+   * @throws UnauthorizedException if credentials are invalid
+   */
   async login(email: string, password: string): Promise<AuthResponseDto> {
     const user = await this.userService.findUnique({ email });
     if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -33,6 +45,13 @@ export class AuthService {
     };
   }
 
+  /**
+   * Registers a new user and returns an access token and user info.
+   * @param email User's email
+   * @param password User's password
+   * @returns AuthResponseDto containing user and JWT access token
+   * @throws ConflictException if email is already in use
+   */
   async register(email: string, password: string): Promise<AuthResponseDto> {
     const existing = await this.userService.findUnique({ email });
     if (existing) throw new ConflictException('Email already in use');
