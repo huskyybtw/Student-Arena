@@ -14,9 +14,22 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String   // hashed
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String // hashed
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  playerAccount PlayerAccount?
+}
+
+model PlayerAccount {
+  id       Int    @id @default(autoincrement())
+  userId   Int    @unique
+  gameName String?
+  tagLine  String?
+  puuid    String?
+  profileIconId Int?
+  summonerLevel Int?
+
+  user User @relation(fields: [userId], references: [id])
 }
