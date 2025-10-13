@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Put } from '@nestjs/common';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CreatePlayerDto } from './dto/player-create.dto';
 import { PlayerResponseDto } from './dto/player-response.dto';
@@ -10,12 +10,20 @@ export class PlayerController {
 
   @ApiBody({ type: CreatePlayerDto })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'User registered and JWT access token returned',
     type: PlayerResponseDto,
   })
-  @Post('/')
-  async create(@Body() body: CreatePlayerDto) {
-    return this.playerService.create(body.email, body.password);
+  @Put('/')
+  async upsert(@Body() body: CreatePlayerDto) {
+    const result = await this.playerService.findOne({ userId: body.userId });
+    if (!result) {
+      return this.playerService.create(
+        body.userId,
+        body.gameName,
+        body.tagLine,
+      );
+    }
+    return this.playerService.update(body.userId, body.gameName, body.tagLine);
   }
 }
