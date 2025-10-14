@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { RiotService } from 'src/riot/riot.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { RiotService } from '../riot/riot.service';
 
 /**
  * Service for player-related business logic.
@@ -66,8 +66,9 @@ export class PlayerService {
         puuid: account.puuid ?? null,
         gameName: account.gameName ?? null,
         tagLine: account.tagLine ?? null,
-        profileIconId: String(profile.profileIconId),
-        summonerLevel: profile.summonerLevel,
+        profileIconId: profile.profileIconId,
+        summonerLevel: 
+        profile.summonerLevel,
       };
       return await this.prisma.playerAccount.create({ data });
     } catch (error) {

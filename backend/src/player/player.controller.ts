@@ -3,6 +3,8 @@ import { ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CreatePlayerDto } from './dto/player-create.dto';
 import { PlayerResponseDto } from './dto/player-response.dto';
 import { PlayerService } from './player.service';
+import { CurrentUser } from '../common/current-user.decorator';
+import { User } from '@prisma/client';
 
 @Controller('player')
 export class PlayerController {
@@ -15,15 +17,11 @@ export class PlayerController {
     type: PlayerResponseDto,
   })
   @Put('/')
-  async upsert(@Body() body: CreatePlayerDto) {
-    const result = await this.playerService.findOne({ userId: body.userId });
+  async upsert(@CurrentUser() user: User, @Body() body: CreatePlayerDto) {
+    const result = await this.playerService.findOne({ userId: user.id });
     if (!result) {
-      return this.playerService.create(
-        body.userId,
-        body.gameName,
-        body.tagLine,
-      );
+      return this.playerService.create(user.id, body.gameName, body.tagLine);
     }
-    return this.playerService.update(body.userId, body.gameName, body.tagLine);
+    return this.playerService.update(user.id, body.gameName, body.tagLine);
   }
 }
