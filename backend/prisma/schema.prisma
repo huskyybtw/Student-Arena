@@ -20,6 +20,9 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   playerAccount PlayerAccount?
+
+  teams      Team[] @relation("TeamMembers")
+  ownedTeams Team[] @relation("TeamOwner")
 }
 
 enum LeagueRole {
@@ -31,8 +34,8 @@ enum LeagueRole {
 }
 
 model PlayerAccount {
-  id            Int     @id @default(autoincrement())
-  userId        Int     @unique
+  id            Int        @id @default(autoincrement())
+  userId        Int        @unique
   description   String
   primaryRole   LeagueRole
   secondaryRole LeagueRole
@@ -46,12 +49,12 @@ model PlayerAccount {
 }
 
 model Team {
-  id            Int     @id @default(autoincrement())
-  ownerId Int
-  name  String
-  tag String
+  id          Int     @id @default(autoincrement())
+  ownerId     Int
+  name        String
+  tag         String
   description String?
-  
-  owner User @relation(fields: [ownerId], references: [id])
-  user User[] @relation(fields: [use])
+
+  owner   User   @relation("TeamOwner", fields: [ownerId], references: [id])
+  members User[] @relation("TeamMembers")
 }

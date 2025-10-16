@@ -24,4 +24,11 @@ export class CreatePlayerDto {
   })
   @IsEnum(LeagueRole)
   secondaryRole: LeagueRole;
+
+  @ApiProperty({
+    example: 'i like games',
+    description: 'description for users profile',
+  })
+  @IsString()
+  description: string;
 }

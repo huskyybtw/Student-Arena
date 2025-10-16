@@ -5,15 +5,26 @@ import { PlayerController } from './player.controller';
 import { PlayerService } from './player.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { validUser } from '../user/user.test-utils';
-import { RiotService } from 'src/riot/riot.service';
+import { RiotService } from '../riot/riot.service';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { LeagueRole } from '@prisma/client';
 
-export function validPlayer() {
+export function validPlayer(userId: number) {
   return {
-    userId: 1,
+    userId,
     gameName: 'TestName',
     tagLine: 'EUW',
+    primaryRole: LeagueRole.CARRY,
+    secondaryRole: LeagueRole.SUPPORT,
+    description: 'Test description',
   };
 }
+
+const mockHttpService = {};
+const mockConfigService = {
+  get: jest.fn().mockReturnValue('mock-api-key'),
+};
 
 describe('PlayerController (e2e)', () => {
   let app: INestApplication;
@@ -22,7 +33,13 @@ describe('PlayerController (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [PlayerController],
-      providers: [PlayerService, PrismaService, RiotService],
+      providers: [
+        PlayerService,
+        PrismaService,
+        RiotService,
+        { provide: HttpService, useValue: mockHttpService },
+        { provide: ConfigService, useValue: mockConfigService },
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -61,7 +78,7 @@ describe('PlayerController (e2e)', () => {
         .post('/auth/register')
         .send(userData);
 
-      const playerData = validPlayer();
+      const playerData = validPlayer(registerRes.body.userId);
       const token = registerRes.body.accessToken;
 
       const res = await request(app.getHttpServer())
