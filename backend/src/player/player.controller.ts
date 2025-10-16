@@ -20,8 +20,8 @@ export class PlayerController {
   async upsert(@CurrentUser() user: User, @Body() body: CreatePlayerDto) {
     const result = await this.playerService.findOne({ userId: user.id });
     if (!result) {
-      return this.playerService.create(user.id, body.gameName, body.tagLine);
+      return this.playerService.create(user.id, body);
     }
-    return this.playerService.update(user.id, body.gameName, body.tagLine);
+    return this.playerService.update(user.id, body);
   }
 }

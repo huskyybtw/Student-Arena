@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RiotService } from '../riot/riot.service';
+import { CreatePlayerDto } from './dto/player-create.dto';
 
 /**
  * Service for player-related business logic.
@@ -38,10 +39,10 @@ export class PlayerService {
    * @param tagLine - The new tag line
    * @returns The updated PlayerAccount
    */
-  async update(userId: number, gameName: string, tagLine: string) {
+  async update(userId: number, input: CreatePlayerDto) {
     return this.prisma.playerAccount.update({
       where: { userId },
-      data: { gameName, tagLine },
+      data: input,
     });
   }
 
@@ -53,7 +54,8 @@ export class PlayerService {
    * @returns The created PlayerAccount
    * @throws BadRequestException if creation fails or Riot API errors
    */
-  async create(userId: number, gameName: string, tagLine: string) {
+  async create(userId: number, input: CreatePlayerDto) {
+    const { gameName, tagLine, primaryRole, secondaryRole } = input;
     try {
       const account = await this.riotService.getAccountByGameName(
         gameName,
@@ -63,12 +65,9 @@ export class PlayerService {
 
       const data = {
         userId,
-        puuid: account.puuid ?? null,
-        gameName: account.gameName ?? null,
-        tagLine: account.tagLine ?? null,
+        ...input,
         profileIconId: profile.profileIconId,
-        summonerLevel: 
-        profile.summonerLevel,
+        summonerLevel: profile.summonerLevel,
       };
       return await this.prisma.playerAccount.create({ data });
     } catch (error) {
