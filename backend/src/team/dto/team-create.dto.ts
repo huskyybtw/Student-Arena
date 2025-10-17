@@ -11,16 +11,23 @@ import {
 export class TeamCreateDto {
   @ApiProperty({
     example: 'Test team name',
-    description: 'Example name for a team',
+    description: 'Name of the team',
   })
   @IsString()
   name: string;
 
   @ApiProperty({
     example: 'ABCDE',
-    description: 'Tag must be 5 characters long',
+    description: 'Tag of the team (max 5 characters)',
   })
   @IsString()
   @MaxLength(5)
   tag: string;
+
+  @ApiProperty({
+    example: 'very competitive team focused on climbing the ranks',
+    description: 'description displayed on the team detail page',
+  })
+  @IsString()
+  description: string;
 }

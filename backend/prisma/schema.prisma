@@ -49,11 +49,11 @@ model PlayerAccount {
 }
 
 model Team {
-  id          Int     @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   ownerId     Int
-  name        String
+  name        String @unique
   tag         String
-  description String?
+  description String
 
   owner   User   @relation("TeamOwner", fields: [ownerId], references: [id])
   members User[] @relation("TeamMembers")

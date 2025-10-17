@@ -36,7 +36,7 @@ describe('AuthController (e2e)', () => {
     prisma = moduleFixture.get<PrismaService>(PrismaService);
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await prisma.clearDatabase();
   });
 

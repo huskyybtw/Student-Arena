@@ -52,6 +52,8 @@ export function validProfileIcon() {
 describe('PlayerController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let token: string;
+  let user: any;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -71,6 +73,15 @@ describe('PlayerController (e2e)', () => {
   });
 
   beforeEach(async () => {
+    const userData = validUser();
+    const registerRes = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send(userData);
+    token = registerRes.body.accessToken;
+    user = registerRes.body.user;
+  });
+
+  afterEach(async () => {
     await prisma.clearDatabase();
   });
 
@@ -81,14 +92,7 @@ describe('PlayerController (e2e)', () => {
 
   describe('/player/ (PUT)', () => {
     it('should return 200 when creating a new player', async () => {
-      const userData = validUser();
-      const registerRes = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(userData);
-
       const playerData = validPlayer();
-      const token = registerRes.body.accessToken;
-
       const res = await request(app.getHttpServer())
         .put('/player/')
         .send(playerData)
@@ -99,14 +103,7 @@ describe('PlayerController (e2e)', () => {
     });
 
     it('should return 200 when updating a player', async () => {
-      const userData = validUser();
-      const registerRes = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(userData);
-
       const playerData = validPlayer();
-      const token = registerRes.body.accessToken;
-
       const resOriginal = await request(app.getHttpServer())
         .put('/player/')
         .send(playerData)
@@ -127,19 +124,18 @@ describe('PlayerController (e2e)', () => {
     });
 
     it('should return 404 when riot data is invalid', async () => {
-      const userData = validUser();
-      const registerRes = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(userData);
-
       const playerData = inValidPlayer();
-      const token = registerRes.body.accessToken;
-
       const res = await request(app.getHttpServer())
         .put('/player/')
         .send(playerData)
         .set('Authorization', `Bearer ${token}`)
         .expect(404);
+
+      await prisma.playerAccount
+        .findFirst({ where: { userId: user.id } })
+        .then((player) => {
+          expect(player).toBeNull();
+        });
     });
   });
 });
