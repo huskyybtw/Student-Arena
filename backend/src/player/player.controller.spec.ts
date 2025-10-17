@@ -13,9 +13,14 @@ import { LeagueRole } from '@prisma/client';
 import { AuthModule } from '../auth/auth.module';
 import { PlayerResponseDto } from './dto/player-response.dto';
 import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
+import { SummonerDto } from 'src/riot/dto/summoner.dto';
 
 export function validPuid() {
   return 'Wd5djJX2bD0wsNqz7JU0i6R59fUZxZThD--VLf5SIQziABg2agpahRiMjlPLuuqvFbEof0O4IegRwg';
+}
+
+export function inValidPuid() {
+  return 'Wd5djJX2bD0wsNqz7JU0i6R59fUZxZThD--VLf5SIQziABg2agpahRiMjlPLuuqvFbEof0O4Ieg123';
 }
 
 export function validPlayer() {
@@ -25,6 +30,22 @@ export function validPlayer() {
     primaryRole: LeagueRole.CARRY,
     secondaryRole: LeagueRole.SUPPORT,
     description: 'Test description',
+  };
+}
+
+export function inValidPlayer() {
+  return {
+    gameName: 'NonExistentGameName',
+    tagLine: '0000',
+    primaryRole: LeagueRole.CARRY,
+    secondaryRole: LeagueRole.SUPPORT,
+    description: 'Test description',
+  };
+}
+
+export function validProfileIcon() {
+  return {
+    profileIconId: 6923,
   };
 }
 
@@ -111,9 +132,7 @@ describe('PlayerController (e2e)', () => {
         .post('/auth/register')
         .send(userData);
 
-      const playerData = validPlayer();
-      playerData.gameName = 'NonExistentGameName';
-      playerData.tagLine = '000000';
+      const playerData = inValidPlayer();
       const token = registerRes.body.accessToken;
 
       const res = await request(app.getHttpServer())

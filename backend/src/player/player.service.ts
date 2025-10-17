@@ -17,9 +17,10 @@ export class PlayerService {
   /**
    * Finds a player account by userId or puuid.
    * At least one filter must be provided.
+   *
    * @param filters - Object with userId and/or puuid
    * @returns The found PlayerAccount or null if not found
-   * @throws BadRequestException if no filter is provided
+   * @throws BadRequestException - If no filter is provided
    */
   async findOne(filters: { userId?: number; puuid?: string }) {
     if (!filters.userId && !filters.puuid) {
@@ -34,10 +35,10 @@ export class PlayerService {
   }
 
   /**
-   * Updates a player's gameName and tagLine by userId.
+   * Updates a player's account data by userId.
+   *
    * @param userId - The user's ID
-   * @param gameName - The new game name
-   * @param tagLine - The new tag line
+   * @param input - The new player data (CreatePlayerDto)
    * @returns The updated PlayerAccount
    */
   async update(userId: number, input: CreatePlayerDto) {
@@ -48,12 +49,12 @@ export class PlayerService {
   }
 
   /**
-   * Creates a new player account using Riot API data and stores it in the database.
+   * Creates or updates a player account using Riot API data and stores it in the database.
+   *
    * @param userId - The user's ID
-   * @param gameName - The player's Riot game name
-   * @param tagLine - The player's Riot tag line
-   * @returns The created PlayerAccount
-   * @throws BadRequestException if creation fails or Riot API errors
+   * @param input - The player's Riot data (CreatePlayerDto)
+   * @returns The created or updated PlayerAccount
+   * @throws BadRequestException - If creation fails or Riot API errors
    */
   async upsert(userId: number, input: CreatePlayerDto) {
     const { gameName, tagLine } = input;
@@ -81,9 +82,10 @@ export class PlayerService {
    * Refreshes a player's account data from Riot API and updates the database record.
    * Finds the player by userId, fetches latest account and summoner data from Riot,
    * and updates the player account with the new data.
+   *
    * @param userId - The user's ID
    * @returns The updated PlayerAccount
-   * @throws BadRequestException if player is not found or has no puuid
+   * @throws BadRequestException - If player is not found or has no puuid
    */
   async refresh(userId: number) {
     const player = await this.prisma.playerAccount.findUnique({
