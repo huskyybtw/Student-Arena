@@ -16,7 +16,7 @@ export class AuthCredentialsDto {
   password: string;
 }
 
-export class AuthUserDto {
+export class AuthUserResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
@@ -25,8 +25,8 @@ export class AuthUserDto {
 }
 
 export class AuthResponseDto {
-  @ApiProperty({ type: AuthUserDto })
-  user: AuthUserDto;
+  @ApiProperty({ type: AuthUserResponseDto })
+  user: AuthUserResponseDto;
 
   @ApiProperty({ example: 'jwt-access-token' })
   accessToken: string;

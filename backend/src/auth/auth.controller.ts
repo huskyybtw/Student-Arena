@@ -15,7 +15,7 @@ import { ApiTags, ApiBody, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import {
   AuthCredentialsDto,
   AuthResponseDto,
-  AuthUserDto,
+  AuthUserResponseDto,
 } from './dto/auth.dto';
 import { UserService } from '../user/user.service';
 
@@ -46,7 +46,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @Post('register')
-  async register(@Body() body: AuthCredentialsDto){
+  async register(@Body() body: AuthCredentialsDto) {
     return this.authService.register(body.email, body.password);
   }
 
@@ -54,7 +54,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Authenticated user',
-    type: AuthUserDto,
+    type: AuthUserResponseDto,
   })
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
@@ -66,15 +66,15 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Update Authenticated user',
-    type: AuthUserDto,
+    type: AuthUserResponseDto,
   })
   @UseGuards(AuthGuard('jwt'))
   @Patch('me')
   async meUpdate(@CurrentUser() user: User, @Body() dto: AuthCredentialsDto) {
     const updatedUser = await this.userService.update(user.id, dto);
     return {
-      id : updatedUser.id,
-      email : updatedUser.email,
-    }
+      id: updatedUser.id,
+      email: updatedUser.email,
+    };
   }
 }
