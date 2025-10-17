@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
@@ -23,7 +24,7 @@ async function bootstrap() {
   app.getHttpAdapter().get('/api-json', (req: Request, res: Response) => {
     res.json(document);
   });
-
+  app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new PrismaExceptionFilter());
   await app.listen(3001);
 }

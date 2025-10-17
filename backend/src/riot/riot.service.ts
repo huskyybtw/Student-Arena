@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  BadGatewayException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, NotFoundError } from 'rxjs';
 import { RiotPlayerMetadata } from './interfaces/riot-player-meta';
 import { AccountDto } from './dto/account.dto';
 import { SummonerDto } from './dto/summoner.dto';
@@ -29,19 +35,31 @@ export class RiotService {
     gameName: string,
     tagLine: string,
   ): Promise<AccountDto> {
-    const response = await firstValueFrom(
-      this.httpService.get(
-        `/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
-        {
-          baseURL: this.baseUrl,
-          headers: {
-            'X-Riot-Token': this.apiKey,
-            'Content-Type': 'application/json',
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(
+          `/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
+          {
+            baseURL: this.baseUrl,
+            headers: {
+              'X-Riot-Token': this.apiKey,
+              'Content-Type': 'application/json',
+            },
           },
-        },
-      ),
-    );
-    return response.data;
+        ),
+      );
+      return response.data;
+    } catch (error: any) {
+      const baseMessage = 'Failed to retrive data from riot service ';
+      const message = error?.response?.data?.status?.message ?? '';
+      const status = error?.response?.data?.status?.status_code;
+      if (status && status === 404) {
+        throw new NotFoundException(baseMessage + message);
+      }
+      throw new BadGatewayException(
+        'Failed to retrive data from riot service ' + message,
+      );
+    }
   }
 
   /**
@@ -50,19 +68,31 @@ export class RiotService {
    * @returns Riot account data
    */
   async getAccountByPuuid(puuid: string): Promise<AccountDto> {
-    const response = await firstValueFrom(
-      this.httpService.get(
-        `/riot/account/v1/accounts/by-puuid/${encodeURIComponent(puuid)}`,
-        {
-          baseURL: this.baseUrl,
-          headers: {
-            'X-Riot-Token': this.apiKey,
-            'Content-Type': 'application/json',
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(
+          `/riot/account/v1/accounts/by-puuid/${encodeURIComponent(puuid)}`,
+          {
+            baseURL: this.baseUrl,
+            headers: {
+              'X-Riot-Token': this.apiKey,
+              'Content-Type': 'application/json',
+            },
           },
-        },
-      ),
-    );
-    return response.data;
+        ),
+      );
+      return response.data;
+    } catch (error: any) {
+      const baseMessage = 'Failed to retrive data from riot service ';
+      const message = error?.response?.data?.status?.message ?? '';
+      const status = error?.response?.data?.status?.status_code;
+      if (status && status === 404) {
+        throw new NotFoundException(baseMessage + message);
+      }
+      throw new BadGatewayException(
+        'Failed to retrive data from riot service ' + message,
+      );
+    }
   }
 
   /**
@@ -71,19 +101,31 @@ export class RiotService {
    * @returns Riot summoner data
    */
   async getSummonerByPuuid(puuid: string): Promise<SummonerDto> {
-    const response = await firstValueFrom(
-      this.httpService.get(
-        `/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(puuid)}`,
-        {
-          baseURL: this.summonerBaseUrl,
-          headers: {
-            'X-Riot-Token': this.apiKey,
-            'Content-Type': 'application/json',
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(
+          `/lol/summoner/v4/summoners/by-puuid/${encodeURIComponent(puuid)}`,
+          {
+            baseURL: this.summonerBaseUrl,
+            headers: {
+              'X-Riot-Token': this.apiKey,
+              'Content-Type': 'application/json',
+            },
           },
-        },
-      ),
-    );
-    return response.data;
+        ),
+      );
+      return response.data;
+    } catch (error: any) {
+      const baseMessage = 'Failed to retrive data from riot service ';
+      const message = error?.response?.data?.status?.message ?? '';
+      const status = error?.response?.data?.status?.status_code;
+      if (status && status === 404) {
+        throw new NotFoundException(baseMessage + message);
+      }
+      throw new BadGatewayException(
+        'Failed to retrive data from riot service ' + message,
+      );
+    }
   }
 
   /**

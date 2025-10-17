@@ -7,24 +7,26 @@ import { PrismaService } from '../prisma/prisma.service';
 import { validUser } from '../user/user.test-utils';
 import { RiotService } from '../riot/riot.service';
 import { HttpService } from '@nestjs/axios';
+import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { LeagueRole } from '@prisma/client';
+import { AuthModule } from '../auth/auth.module';
+import { PlayerResponseDto } from './dto/player-response.dto';
+import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
 
-export function validPlayer(userId: number) {
+export function validPuid() {
+  return 'Wd5djJX2bD0wsNqz7JU0i6R59fUZxZThD--VLf5SIQziABg2agpahRiMjlPLuuqvFbEof0O4IegRwg';
+}
+
+export function validPlayer() {
   return {
-    userId,
-    gameName: 'TestName',
-    tagLine: 'EUW',
+    gameName: 'Husky',
+    tagLine: '5607',
     primaryRole: LeagueRole.CARRY,
     secondaryRole: LeagueRole.SUPPORT,
     description: 'Test description',
   };
 }
-
-const mockHttpService = {};
-const mockConfigService = {
-  get: jest.fn().mockReturnValue('mock-api-key'),
-};
 
 describe('PlayerController (e2e)', () => {
   let app: INestApplication;
@@ -32,43 +34,28 @@ describe('PlayerController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AuthModule, HttpModule],
       controllers: [PlayerController],
-      providers: [
-        PlayerService,
-        PrismaService,
-        RiotService,
-        { provide: HttpService, useValue: mockHttpService },
-        { provide: ConfigService, useValue: mockConfigService },
-      ],
+      providers: [PlayerService, PrismaService, RiotService, ConfigService],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
     );
+    app.useGlobalFilters(new PrismaExceptionFilter());
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
   });
 
   beforeEach(async () => {
-    // Clean up player accounts if needed
-    if (prisma.playerAccount) {
-      await prisma.playerAccount.deleteMany();
-    }
+    await prisma.clearDatabase();
   });
 
   afterAll(async () => {
-    if (prisma && prisma.$disconnect) {
-      await prisma.$disconnect();
-    }
-    if (app) {
-      await app.close();
-    }
-  });
-
-  it('should be defined', () => {
-    expect(app).toBeDefined();
+    await prisma.clearDatabase();
+    await prisma.$disconnect();
   });
 
   describe('/player/ (PUT)', () => {
@@ -78,7 +65,7 @@ describe('PlayerController (e2e)', () => {
         .post('/auth/register')
         .send(userData);
 
-      const playerData = validPlayer(registerRes.body.userId);
+      const playerData = validPlayer();
       const token = registerRes.body.accessToken;
 
       const res = await request(app.getHttpServer())
@@ -86,15 +73,54 @@ describe('PlayerController (e2e)', () => {
         .send(playerData)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
+      const player = res.body as PlayerResponseDto;
+      expect(player.puuid).toEqual(validPuid());
     });
-    it('should return 200 when updating a player', () => {
-      // scenario: valid data, player updated
+
+    it('should return 200 when updating a player', async () => {
+      const userData = validUser();
+      const registerRes = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(userData);
+
+      const playerData = validPlayer();
+      const token = registerRes.body.accessToken;
+
+      const resOriginal = await request(app.getHttpServer())
+        .put('/player/')
+        .send(playerData)
+        .set('Authorization', `Bearer ${token}`);
+
+      const res = await request(app.getHttpServer())
+        .put('/player/')
+        .send({ ...playerData, description: 'Updated description' })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      const original = resOriginal.body as PlayerResponseDto;
+      const player = res.body as PlayerResponseDto;
+
+      expect(player.id).toEqual(original.id);
+      expect(player.puuid).toEqual(validPuid());
+      expect(player.description).toEqual('Updated description');
     });
-    it('should return 404 when player not found', () => {
-      // scenario: player does not exist
-    });
-    it('should return 400 on validation error', () => {
-      // scenario: invalid input data
+
+    it('should return 404 when riot data is invalid', async () => {
+      const userData = validUser();
+      const registerRes = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(userData);
+
+      const playerData = validPlayer();
+      playerData.gameName = 'NonExistentGameName';
+      playerData.tagLine = '000000';
+      const token = registerRes.body.accessToken;
+
+      const res = await request(app.getHttpServer())
+        .put('/player/')
+        .send(playerData)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(404);
     });
   });
 });

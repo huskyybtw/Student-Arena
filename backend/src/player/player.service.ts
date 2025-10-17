@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RiotService } from '../riot/riot.service';
 import { CreatePlayerDto } from './dto/player-create.dto';
+import { PlayerAccount, Prisma } from '@prisma/client';
 
 /**
  * Service for player-related business logic.
@@ -54,26 +55,50 @@ export class PlayerService {
    * @returns The created PlayerAccount
    * @throws BadRequestException if creation fails or Riot API errors
    */
-  async create(userId: number, input: CreatePlayerDto) {
-    const { gameName, tagLine, primaryRole, secondaryRole } = input;
-    try {
-      const account = await this.riotService.getAccountByGameName(
-        gameName,
-        tagLine,
-      );
-      const profile = await this.riotService.getSummonerByPuuid(account.puuid);
+  async upsert(userId: number, input: CreatePlayerDto) {
+    const { gameName, tagLine } = input;
+    const account = await this.riotService.getAccountByGameName(
+      gameName,
+      tagLine,
+    );
+    const profile = await this.riotService.getSummonerByPuuid(account.puuid);
 
-      const data = {
-        userId,
-        ...input,
-        profileIconId: profile.profileIconId,
-        summonerLevel: profile.summonerLevel,
-      };
-      return await this.prisma.playerAccount.create({ data });
-    } catch (error) {
-      throw new BadRequestException(
-        'Failed to create player: ' + (error?.message || 'Unknown error'),
-      );
+    const data = {
+      ...input,
+      puuid: account.puuid,
+      profileIconId: profile.profileIconId,
+      summonerLevel: profile.summonerLevel,
+    };
+
+    return await this.prisma.playerAccount.upsert({
+      where: { userId },
+      update: data,
+      create: { userId, ...data },
+    });
+  }
+
+  /**
+   * Refreshes a player's account data from Riot API and updates the database record.
+   * Finds the player by userId, fetches latest account and summoner data from Riot,
+   * and updates the player account with the new data.
+   * @param userId - The user's ID
+   * @returns The updated PlayerAccount
+   * @throws BadRequestException if player is not found or has no puuid
+   */
+  async refresh(userId: number) {
+    const player = await this.prisma.playerAccount.findUnique({
+      where: { userId },
+    });
+    if (!player?.puuid) {
+      throw new BadRequestException('Player not found');
     }
+    const response = await this.riotService.getPlayerMetadataByPuuid(
+      player.puuid,
+    );
+    const { account, summoner } = response;
+    return this.prisma.playerAccount.update({
+      where: { userId },
+      data: { ...account, ...summoner },
+    });
   }
 }

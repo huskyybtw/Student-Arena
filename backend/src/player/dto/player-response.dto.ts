@@ -11,6 +11,13 @@ export class PlayerResponseDto extends CreatePlayerDto {
   id: number;
 
   @ApiProperty({
+    example: '12345',
+    description: 'Unique identifier for the user account',
+  })
+  @IsNumber()
+  userId: number;
+
+  @ApiProperty({
     example: '12345-unique-puuid',
     description: 'Player unique identifier from Riot API',
   })

@@ -6,6 +6,7 @@ export class AuthCredentialsDto {
     example: 'user@example.com',
     description: 'User email address',
   })
+  @IsString()
   @IsEmail()
   email: string;
 

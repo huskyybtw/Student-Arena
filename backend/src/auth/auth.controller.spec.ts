@@ -8,6 +8,8 @@ import { UserService } from '../user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { validUser, createValidUser } from '../user/user.test-utils';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { AuthResponseDto } from './dto/auth.dto';
+import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -28,13 +30,14 @@ describe('AuthController (e2e)', () => {
     app.useGlobalPipes(
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
     );
+    app.useGlobalFilters(new PrismaExceptionFilter());
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
   });
 
   beforeEach(async () => {
-    await prisma.user.deleteMany();
+    await prisma.clearDatabase();
   });
 
   afterAll(async () => {

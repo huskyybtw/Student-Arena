@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePlayerDto } from './dto/player-create.dto';
 import { PlayerResponseDto } from './dto/player-response.dto';
@@ -23,10 +30,6 @@ export class PlayerController {
   @HttpCode(200)
   @Put('/')
   async upsert(@CurrentUser() user: User, @Body() body: CreatePlayerDto) {
-    const result = await this.playerService.findOne({ userId: user.id });
-    if (!result) {
-      return this.playerService.create(user.id, body);
-    }
-    return this.playerService.update(user.id, body);
+    return this.playerService.upsert(user.id, body);
   }
 }
