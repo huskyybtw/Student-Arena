@@ -86,7 +86,23 @@ describe('RiotService', () => {
     });
   });
   describe('getPlayerMetadataByPuuid', () => {
-    it('should pass if valid puuid is provided', async () => {});
-    it('should throw NotFoundException if invalid gameName and tagline is provided', async () => {});
+    it('should pass if valid puuid is provided', async () => {
+      const puuid = validPuid();
+      const player = validPlayer();
+      const response = await service.getPlayerMetadataByPuuid(puuid);
+      const { account, summoner } = response;
+
+      expect(response).toBeDefined();
+      expect(account.puuid).toEqual(puuid);
+      expect(account.gameName).toBe(player.gameName);
+      expect(account.tagLine).toBe(player.tagLine);
+      expect(summoner.profileIconId).toBe(validProfileIcon().profileIconId);
+    });
+    it('should throw BadRequestException if invalid puuid is provided', async () => {
+      const puuid = inValidPuid();
+      await expect(
+        service.getPlayerMetadataByPuuid(puuid),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
   });
 });

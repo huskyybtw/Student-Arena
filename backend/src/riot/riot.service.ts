@@ -95,7 +95,6 @@ export class RiotService {
       const baseMessage = 'Failed to retrive data from riot service ';
       const message = error?.response?.data?.status?.message ?? '';
       const status = error?.response?.data?.status?.status_code;
-      console.log(baseMessage + message);
       if (status === 404) {
         throw new NotFoundException(baseMessage + message);
       }
@@ -134,7 +133,6 @@ export class RiotService {
       const baseMessage = 'Failed to retrive data from riot service ';
       const message = error?.response?.data?.status?.message ?? '';
       const status = error?.response?.data?.status?.status_code;
-      console.log(baseMessage + message);
       if (status === 404) {
         throw new NotFoundException(baseMessage + message);
       }
