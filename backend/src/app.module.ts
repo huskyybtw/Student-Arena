@@ -21,6 +21,6 @@ import { TeamModule } from './team/team.module';
     TeamModule,
   ],
   controllers: [AppController],
-  providers: [AppService, UserService],
+  providers: [AppService],
 })
 export class AppModule {}

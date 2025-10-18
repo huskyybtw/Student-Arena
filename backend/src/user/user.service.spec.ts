@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { validUser, createValidUser } from './user.test-utils';
 import * as bcrypt from 'bcrypt';
+import { UserModule } from './user.module';
 
 describe('UserService', () => {
   let service: UserService;
@@ -11,7 +12,7 @@ describe('UserService', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService, PrismaService],
+      imports: [UserModule],
     }).compile();
 
     service = module.get<UserService>(UserService);

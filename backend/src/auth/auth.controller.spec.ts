@@ -1,15 +1,16 @@
-import { Test, TestingModule } from '@nestjs/testing';
+  import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { validUser, createValidUser } from '../user/user.test-utils';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthResponseDto } from './dto/auth.dto';
 import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
+import { AuthModule } from './auth.module';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -17,13 +18,7 @@ describe('AuthController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        JwtModule.register({
-          secret: process.env.JWT_SECRET || 'super-secret-key',
-        }),
-      ],
-      controllers: [AuthController],
-      providers: [AuthService, UserService, PrismaService, JwtStrategy],
+      imports: [AuthModule]
     }).compile();
 
     app = moduleFixture.createNestApplication();

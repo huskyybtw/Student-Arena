@@ -10,6 +10,7 @@ import { TeamResponseDto } from './dto/team-response.dto';
 import { TeamService } from './team.service';
 import { User } from '@prisma/client';
 import { AuthModule } from '../auth/auth.module';
+import { TeamModule } from './team.module';
 
 export function validTeamData(): TeamCreateDto {
   return { name: 'Team Alpha', tag: 'ALP', description: 'A sample team' };
@@ -27,9 +28,7 @@ describe('TeamController', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AuthModule],
-      providers: [PrismaService, TeamService],
-      controllers: [TeamController],
+      imports: [TeamModule],
     }).compile();
 
     app = module.createNestApplication();

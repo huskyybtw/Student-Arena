@@ -14,6 +14,7 @@ import { AuthModule } from '../auth/auth.module';
 import { PlayerResponseDto } from './dto/player-response.dto';
 import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
 import { SummonerDto } from 'src/riot/dto/summoner.dto';
+import { PlayerModule } from './player.module';
 
 export function validPuid() {
   return 'Wd5djJX2bD0wsNqz7JU0i6R59fUZxZThD--VLf5SIQziABg2agpahRiMjlPLuuqvFbEof0O4IegRwg';
@@ -57,9 +58,7 @@ describe('PlayerController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AuthModule, HttpModule],
-      controllers: [PlayerController],
-      providers: [PlayerService, PrismaService, RiotService, ConfigService],
+      imports: [PlayerModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
