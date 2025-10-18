@@ -133,7 +133,7 @@ describe('TeamController', () => {
 
       const team = res.body as TeamResponseDto;
 
-      expect(team).toBe(TeamTestFactory.response());
+      expect(team).toStrictEqual(TeamTestFactory.response());
       expect(team.members).toHaveLength(1);
     });
     it('should throw 400 if invalid data is provided', async () => {

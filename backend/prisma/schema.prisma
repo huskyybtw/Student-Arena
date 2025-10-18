@@ -34,6 +34,7 @@ model PlayerAccount {
   id            Int        @id @default(autoincrement())
   userId        Int        @unique
   description   String @default("")
+  rating Int  @default(1000)
   primaryRole   LeagueRole?
   secondaryRole LeagueRole?
   gameName      String?
@@ -54,6 +55,7 @@ model Team {
   name        String @unique
   tag         String
   description String @default("")
+  rating Int   @default(0)
 
   owner   PlayerAccount   @relation("TeamOwner", fields: [ownerId], references: [id])
   members PlayerAccount[] @relation("TeamMembers")

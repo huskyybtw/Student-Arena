@@ -1,6 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
-import { CreatePlayerDto } from './player-create.dto';
 import { LeagueRole } from '@prisma/client';
 
 export class PlayerResponseDto {
@@ -20,8 +18,13 @@ export class PlayerResponseDto {
     example: 'i like games',
     description: 'description for users profile',
   })
-  @IsString()
   description: string;
+
+  @ApiProperty({
+    example: 1000,
+    description: 'rating for a player',
+  })
+  rating: number;
 
   @ApiProperty({ example: 'Husky', description: 'Riot Games Player GameName' })
   gameName?: string | null;
@@ -33,14 +36,12 @@ export class PlayerResponseDto {
     example: LeagueRole.TOP,
     description: 'primary role declared by player',
   })
-  @IsEnum(LeagueRole)
   primaryRole?: LeagueRole | null;
 
   @ApiProperty({
     example: LeagueRole.MID,
     description: 'primary role declared by player',
   })
-  @IsEnum(LeagueRole)
   secondaryRole?: LeagueRole | null;
 
   @ApiProperty({

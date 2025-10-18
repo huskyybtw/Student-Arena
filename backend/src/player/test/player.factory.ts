@@ -23,6 +23,7 @@ export class PlayerTestFactory {
   }
   static response(): PlayerResponseDto {
     return {
+      rating: 1000,
       description: '',
       gameName: null,
       id: 1,
@@ -37,6 +38,7 @@ export class PlayerTestFactory {
   }
   static preCreated(): PlayerResponseDto {
     return {
+      rating: 1000,
       description: '',
       gameName: null,
       id: 1,

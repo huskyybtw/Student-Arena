@@ -13,9 +13,11 @@ export class TeamTestFactory {
   }
   static response(): TeamResponseDto {
     return {
+      id: 1,
       name: 'Team Alpha',
       tag: 'ALP',
       description: 'A sample team',
+      rating: 0,
       ownerId: PlayerTestFactory.response().id,
       members: [PlayerTestFactory.response()],
     };
