@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PlayerAccount } from '@prisma/client';
 import { IsEmail, IsString, MinLength } from 'class-validator';
+import { PlayerResponseDto } from 'src/player/dto/player-response.dto';
 
 export class AuthCredentialsDto {
   @ApiProperty({
@@ -22,6 +24,9 @@ export class AuthUserResponseDto {
 
   @ApiProperty({ example: 'user@example.com' })
   email: string;
+
+  @ApiProperty({ type: PlayerResponseDto })
+  playerAccount: PlayerResponseDto;
 }
 
 export class AuthResponseDto {

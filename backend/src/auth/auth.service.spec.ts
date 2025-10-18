@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { validUser, createValidUser } from '../user/user.test-utils';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthModule } from './auth.module';
+import { validPreCreatedPlayer } from 'src/player/player.controller.spec';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -46,6 +47,7 @@ describe('AuthService', () => {
       expect(result.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        playerAccount: validPreCreatedPlayer(),
       });
 
       const dbUser = await userService.findUnique({ email: userData.email });
@@ -72,6 +74,7 @@ describe('AuthService', () => {
       expect(result.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        playerAccount: validPreCreatedPlayer(),
       });
     });
 

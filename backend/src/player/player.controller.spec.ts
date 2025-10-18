@@ -9,12 +9,13 @@ import { RiotService } from '../riot/riot.service';
 import { HttpService } from '@nestjs/axios';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { LeagueRole } from '@prisma/client';
+import { LeagueRole, PlayerAccount } from '@prisma/client';
 import { AuthModule } from '../auth/auth.module';
 import { PlayerResponseDto } from './dto/player-response.dto';
 import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
 import { SummonerDto } from 'src/riot/dto/summoner.dto';
 import { PlayerModule } from './player.module';
+import { UserWithPlayer } from 'src/common/current-user.decorator';
 
 export function validPuid() {
   return 'Wd5djJX2bD0wsNqz7JU0i6R59fUZxZThD--VLf5SIQziABg2agpahRiMjlPLuuqvFbEof0O4IegRwg';
@@ -22,6 +23,21 @@ export function validPuid() {
 
 export function inValidPuid() {
   return 'Wd5djJX2bD0wsNqz7JU0i6R59fUZxZThD--VLf5SIQziABg2agpahRiMjlPLuuqvFbEof0O4Ieg123';
+}
+
+export function validPreCreatedPlayer() {
+  return {
+    description: '',
+    gameName: null,
+    id: 1,
+    primaryRole: null,
+    profileIconId: null,
+    puuid: null,
+    secondaryRole: null,
+    summonerLevel: null,
+    tagLine: null,
+    userId: 1,
+  };
 }
 
 export function validPlayer() {
@@ -54,7 +70,7 @@ describe('PlayerController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let token: string;
-  let user: any;
+  let user: UserWithPlayer;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

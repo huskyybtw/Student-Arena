@@ -11,6 +11,7 @@ import { TeamService } from './team.service';
 import { User } from '@prisma/client';
 import { AuthModule } from '../auth/auth.module';
 import { TeamModule } from './team.module';
+import { UserWithPlayer } from 'src/common/current-user.decorator';
 
 export function validTeamData(): TeamCreateDto {
   return { name: 'Team Alpha', tag: 'ALP', description: 'A sample team' };
@@ -24,7 +25,7 @@ describe('TeamController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let token: string;
-  let user: User;
+  let user: UserWithPlayer;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -70,8 +71,8 @@ describe('TeamController', () => {
         .expect(201);
 
       const team = res.body as TeamResponseDto;
-      console.log('Created team:', team);
-      expect(team.ownerId).toBe(user.id);
+
+      expect(team.ownerId).toBe(user.playerAccount.id);
       expect(team.name).toBe(teamData.name);
       expect(team.members).toHaveLength(1);
     });
@@ -91,7 +92,9 @@ describe('TeamController', () => {
     });
     it('should throw 409 if team with same name already exists', async () => {
       const initial = validTeamData();
-      await prisma.team.create({ data: { ownerId: user.id, ...initial } });
+      await prisma.team.create({
+        data: { ownerId: user.playerAccount.id, ...initial },
+      });
 
       const teamData = validTeamData();
 

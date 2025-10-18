@@ -10,7 +10,7 @@ import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePlayerDto } from './dto/player-create.dto';
 import { PlayerResponseDto } from './dto/player-response.dto';
 import { PlayerService } from './player.service';
-import { CurrentUser } from '../common/current-user.decorator';
+import { CurrentUser, UserWithPlayer } from '../common/current-user.decorator';
 import { User } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -29,7 +29,10 @@ export class PlayerController {
   })
   @HttpCode(200)
   @Put('/')
-  async upsert(@CurrentUser() user: User, @Body() body: CreatePlayerDto) {
+  async upsert(
+    @CurrentUser() user: UserWithPlayer,
+    @Body() body: CreatePlayerDto,
+  ) {
     return this.playerService.upsert(user.id, body);
   }
 }

@@ -49,6 +49,18 @@ export class PlayerService {
   }
 
   /**
+   * Creates a PlayerAccount for freashly created user.
+   *
+   * @param userId - The user's ID
+   * @returns The created PlayerAccount
+   */
+  async preCreate(userId: number) {
+    return this.prisma.playerAccount.create({
+      data: { userId, description: '' },
+    });
+  }
+
+  /**
    * Creates or updates a player account using Riot API data and stores it in the database.
    *
    * @param userId - The user's ID

@@ -7,7 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TeamService } from './team.service';
-import { CurrentUser } from '../common/current-user.decorator';
+import { CurrentUser, UserWithPlayer } from '../common/current-user.decorator';
 import { User } from '@prisma/client';
 import { TeamCreateDto } from './dto/team-create.dto';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -31,7 +31,10 @@ export class TeamController {
   })
   @HttpCode(201)
   @Post('/')
-  async create(@CurrentUser() user: User, @Body() body: TeamCreateDto) {
+  async create(
+    @CurrentUser() user: UserWithPlayer,
+    @Body() body: TeamCreateDto,
+  ) {
     return this.teamService.create(user.id, body);
   }
 }

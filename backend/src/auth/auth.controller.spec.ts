@@ -11,6 +11,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthResponseDto } from './dto/auth.dto';
 import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
 import { AuthModule } from './auth.module';
+import { validPreCreatedPlayer } from 'src/player/player.controller.spec';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -53,6 +54,7 @@ describe('AuthController (e2e)', () => {
       expect(res.body.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        playerAccount: validPreCreatedPlayer(),
       });
 
       // User should exist in DB
@@ -89,6 +91,7 @@ describe('AuthController (e2e)', () => {
       expect(res.body.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        playerAccount: validPreCreatedPlayer(),
       });
     });
 
@@ -128,10 +131,10 @@ describe('AuthController (e2e)', () => {
         .get('/auth/me')
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
-
       expect(res.body).toEqual({
         id: expect.any(Number),
         email: userData.email,
+        playerAccount: validPreCreatedPlayer(),
       });
     });
 
@@ -162,10 +165,10 @@ describe('AuthController (e2e)', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ email: newEmail, password: userData.password })
         .expect(200);
-
       expect(updateRes.body).toEqual({
         id: expect.any(Number),
         email: newEmail,
+        playerAccount: validPreCreatedPlayer(),
       });
 
       const dbUser = await prisma.user.findUnique({

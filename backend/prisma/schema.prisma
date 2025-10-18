@@ -20,9 +20,6 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   playerAccount PlayerAccount?
-
-  teams      Team[] @relation("TeamMembers")
-  ownedTeams Team[] @relation("TeamOwner")
 }
 
 enum LeagueRole {
@@ -45,6 +42,9 @@ model PlayerAccount {
   profileIconId Int?
   summonerLevel Int?
 
+  teams      Team[] @relation("TeamMembers")
+  ownedTeams Team[] @relation("TeamOwner")
+
   user User @relation(fields: [userId], references: [id])
 }
 
@@ -55,6 +55,6 @@ model Team {
   tag         String
   description String
 
-  owner   User   @relation("TeamOwner", fields: [ownerId], references: [id])
-  members User[] @relation("TeamMembers")
+  owner   PlayerAccount   @relation("TeamOwner", fields: [ownerId], references: [id])
+  members PlayerAccount[] @relation("TeamMembers")
 }
