@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { UserService } from '../user.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { validUser, createValidUser } from './user.test-utils';
 import * as bcrypt from 'bcrypt';
-import { UserModule } from './user.module';
+import { UserModule } from '../user.module';
 import { afterEach, before } from 'node:test';
 
 describe('UserService', () => {

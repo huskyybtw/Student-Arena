@@ -1,12 +1,11 @@
+import { UserService } from 'src/user/user.service';
+import { AuthService } from '../auth.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { JwtModule } from '@nestjs/jwt';
-import { UserService } from '../user/user.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { validUser, createValidUser } from '../user/user.test-utils';
+import { AuthModule } from '../auth.module';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
-import { AuthModule } from './auth.module';
-import { validPreCreatedPlayer } from 'src/player/player.controller.spec';
+import { createValidUser, validUser } from 'src/user/test/user.test-utils';
+import { PlayerTestFactory } from 'src/player/test/player.factory';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -47,7 +46,7 @@ describe('AuthService', () => {
       expect(result.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
-        playerAccount: validPreCreatedPlayer(),
+        playerAccount: PlayerTestFactory.preCreated(),
       });
 
       const dbUser = await userService.findUnique({ email: userData.email });
@@ -74,7 +73,7 @@ describe('AuthService', () => {
       expect(result.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
-        playerAccount: validPreCreatedPlayer(),
+        playerAccount: PlayerTestFactory.preCreated(),
       });
     });
 

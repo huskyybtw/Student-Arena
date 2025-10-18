@@ -9,6 +9,15 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
+/**
+ * Exception filter to handle and translate Prisma ORM errors into appropriate HTTP exceptions.
+ *
+ * - P2025: NotFoundException (resource not found)
+ * - P2002: ConflictException (unique constraint failed)
+ * - PrismaClientValidationError: BadRequestException (validation error)
+ * - Other Prisma errors: BadRequestException
+ * - All other errors: InternalServerErrorException
+ */
 @Catch(Prisma.PrismaClientKnownRequestError, Prisma.PrismaClientValidationError)
 export class PrismaExceptionFilter implements ExceptionFilter {
   catch(exception: Error, _host: ArgumentsHost) {

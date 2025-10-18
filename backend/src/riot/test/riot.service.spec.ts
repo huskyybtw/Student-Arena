@@ -1,16 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RiotService } from './riot.service';
+import { RiotService } from '../riot.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
-import {
-  validPuid,
-  validPlayer,
-  inValidPlayer,
-  validProfileIcon,
-  inValidPuid,
-} from '../player/player.controller.spec';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { RiotModule } from './riot.module';
+import { RiotModule } from '../riot.module';
+import { PlayerTestFactory } from 'src/player/test/player.factory';
 
 describe('RiotService', () => {
   let service: RiotService;
@@ -29,19 +23,19 @@ describe('RiotService', () => {
 
   describe('getAccountByGameName', () => {
     it('should pass if valid gameName and tagline is provided', async () => {
-      const player = validPlayer();
+      const player = PlayerTestFactory.valid();
       const response = await service.getAccountByGameName(
         player.gameName,
         player.tagLine,
       );
 
       expect(response).toBeDefined();
-      expect(response.puuid).toEqual(validPuid());
+      expect(response.puuid).toEqual(PlayerTestFactory.validPuid());
       expect(response.gameName).toBe(player.gameName);
       expect(response.tagLine).toBe(player.tagLine);
     });
     it('should throw NotFoundException if invalid gameName and tagline is provided', async () => {
-      const invalidPlayer = inValidPlayer();
+      const invalidPlayer = PlayerTestFactory.invalid();
       const invalidGameName = invalidPlayer.gameName;
       const invalidTagLine = invalidPlayer.tagLine;
       await expect(
@@ -51,17 +45,17 @@ describe('RiotService', () => {
   });
   describe('getAccountByPuuid', () => {
     it('should pass if valid puuid is provided', async () => {
-      const player = validPlayer();
-      const puuid = validPuid();
+      const player = PlayerTestFactory.valid();
+      const puuid = PlayerTestFactory.validPuid();
       const response = await service.getAccountByPuuid(puuid);
 
       expect(response).toBeDefined();
-      expect(response.puuid).toEqual(validPuid());
+      expect(response.puuid).toEqual(PlayerTestFactory.validPuid());
       expect(response.gameName).toBe(player.gameName);
       expect(response.tagLine).toBe(player.tagLine);
     });
     it('should throw BadRequestException if puuid is provided', async () => {
-      const puuid = inValidPuid();
+      const puuid = PlayerTestFactory.inValidPuid();
 
       await expect(service.getAccountByPuuid(puuid)).rejects.toBeInstanceOf(
         BadRequestException,
@@ -70,16 +64,16 @@ describe('RiotService', () => {
   });
   describe('getSummonerByPuuid', () => {
     it('should pass if valid puuid is provided', async () => {
-      const profileIcon = validProfileIcon();
-      const puuid = validPuid();
+      const profileIcon = PlayerTestFactory.profileIcon();
+      const puuid = PlayerTestFactory.validPuid();
       const response = await service.getSummonerByPuuid(puuid);
 
       expect(response).toBeDefined();
-      expect(response.puuid).toEqual(validPuid());
+      expect(response.puuid).toEqual(PlayerTestFactory.validPuid());
       expect(response.profileIconId).toBe(profileIcon.profileIconId);
     });
     it('should throw BadRequestException if invalid gameName and tagline is provided', async () => {
-      const puuid = inValidPuid();
+      const puuid = PlayerTestFactory.inValidPuid();
       await expect(service.getSummonerByPuuid(puuid)).rejects.toBeInstanceOf(
         BadRequestException,
       );
@@ -87,8 +81,8 @@ describe('RiotService', () => {
   });
   describe('getPlayerMetadataByPuuid', () => {
     it('should pass if valid puuid is provided', async () => {
-      const puuid = validPuid();
-      const player = validPlayer();
+      const puuid = PlayerTestFactory.validPuid();
+      const player = PlayerTestFactory.valid();
       const response = await service.getPlayerMetadataByPuuid(puuid);
       const { account, summoner } = response;
 
@@ -96,10 +90,12 @@ describe('RiotService', () => {
       expect(account.puuid).toEqual(puuid);
       expect(account.gameName).toBe(player.gameName);
       expect(account.tagLine).toBe(player.tagLine);
-      expect(summoner.profileIconId).toBe(validProfileIcon().profileIconId);
+      expect(summoner.profileIconId).toBe(
+        PlayerTestFactory.profileIcon().profileIconId,
+      );
     });
     it('should throw BadRequestException if invalid puuid is provided', async () => {
-      const puuid = inValidPuid();
+      const puuid = PlayerTestFactory.inValidPuid();
       await expect(
         service.getPlayerMetadataByPuuid(puuid),
       ).rejects.toBeInstanceOf(BadRequestException);

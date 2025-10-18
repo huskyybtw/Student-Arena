@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
+import { AuthController } from '../auth.controller';
+import { AuthService } from '../auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { UserService } from '../user/user.service';
+import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { validUser, createValidUser } from '../user/user.test-utils';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { AuthResponseDto } from './dto/auth.dto';
-import { PrismaExceptionFilter } from '../common/filters/prisma-exception.filter';
-import { AuthModule } from './auth.module';
-import { validPreCreatedPlayer } from 'src/player/player.controller.spec';
+import { validUser, createValidUser } from 'src/user/test/user.test-utils';
+import { JwtStrategy } from '../strategies/jwt.strategy';
+import { AuthResponseDto } from '../dto/auth.dto';
+import { PrismaExceptionFilter } from 'src/common/filters/prisma-exception.filter';
+import { AuthModule } from '../auth.module';
+import { PlayerTestFactory } from 'src/player/test/player.factory';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
@@ -54,7 +54,7 @@ describe('AuthController (e2e)', () => {
       expect(res.body.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
-        playerAccount: validPreCreatedPlayer(),
+        playerAccount: PlayerTestFactory.preCreated(),
       });
 
       // User should exist in DB
@@ -91,7 +91,7 @@ describe('AuthController (e2e)', () => {
       expect(res.body.user).toEqual({
         id: expect.any(Number),
         email: userData.email,
-        playerAccount: validPreCreatedPlayer(),
+        playerAccount: PlayerTestFactory.preCreated(),
       });
     });
 
@@ -134,7 +134,7 @@ describe('AuthController (e2e)', () => {
       expect(res.body).toEqual({
         id: expect.any(Number),
         email: userData.email,
-        playerAccount: validPreCreatedPlayer(),
+        playerAccount: PlayerTestFactory.preCreated(),
       });
     });
 
@@ -168,7 +168,7 @@ describe('AuthController (e2e)', () => {
       expect(updateRes.body).toEqual({
         id: expect.any(Number),
         email: newEmail,
-        playerAccount: validPreCreatedPlayer(),
+        playerAccount: PlayerTestFactory.preCreated(),
       });
 
       const dbUser = await prisma.user.findUnique({
