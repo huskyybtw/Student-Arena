@@ -3,7 +3,7 @@ import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 export const validUser = (): Prisma.UserCreateInput => ({
-  email: `test@example.com`,
+  email: `${Date.now()}-${Math.random()}@example.com`,
   password: 'testpassword',
 });
 

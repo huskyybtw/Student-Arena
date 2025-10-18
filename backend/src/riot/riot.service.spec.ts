@@ -10,14 +10,14 @@ import {
   inValidPuid,
 } from '../player/player.controller.spec';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { RiotModule } from './riot.module';
 
 describe('RiotService', () => {
   let service: RiotService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule, ConfigModule],
-      providers: [RiotService],
+      imports: [RiotModule],
     }).compile();
 
     service = module.get<RiotService>(RiotService);

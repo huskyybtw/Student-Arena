@@ -133,7 +133,9 @@ describe('PlayerController (e2e)', () => {
       await prisma.playerAccount
         .findFirst({ where: { userId: user.id } })
         .then((player) => {
-          expect(player).toBeNull();
+          expect(player?.gameName).toBeNull();
+          expect(player?.tagLine).toBeNull();
+          expect(player?.puuid).toBeNull();
         });
     });
   });

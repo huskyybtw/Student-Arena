@@ -1,4 +1,4 @@
-  import { Test, TestingModule } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AuthController } from './auth.controller';
@@ -18,7 +18,7 @@ describe('AuthController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AuthModule]
+      imports: [AuthModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -63,12 +63,11 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should return 409 if user already exists', async () => {
-      const userData = validUser();
-      await createValidUser(prisma);
+      const userData = await createValidUser(prisma);
 
       const res = await request(app.getHttpServer())
         .post('/auth/register')
-        .send(userData)
+        .send({ email: userData.email, password: userData.password })
         .expect(409);
 
       expect(res.body.message).toMatch(/email/i);

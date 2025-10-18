@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { validUser, createValidUser } from './user.test-utils';
 import * as bcrypt from 'bcrypt';
 import { UserModule } from './user.module';
+import { afterEach, before } from 'node:test';
 
 describe('UserService', () => {
   let service: UserService;
@@ -20,8 +21,11 @@ describe('UserService', () => {
   });
 
   beforeEach(async () => {
-    await prisma.user.deleteMany();
     createdUser = await createValidUser(prisma);
+  });
+
+  afterEach(async () => {
+    await prisma.clearDatabase();
   });
 
   afterAll(async () => {

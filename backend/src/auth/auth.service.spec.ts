@@ -5,20 +5,16 @@ import { UserService } from '../user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { validUser, createValidUser } from '../user/user.test-utils';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { AuthModule } from './auth.module';
 
 describe('AuthService', () => {
   let service: AuthService;
   let userService: UserService;
   let prisma: PrismaService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        JwtModule.register({
-          secret: process.env.JWT_SECRET || 'super-secret-key',
-        }),
-      ],
-      providers: [AuthService, UserService, PrismaService],
+      imports: [AuthModule],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
@@ -26,8 +22,8 @@ describe('AuthService', () => {
     prisma = module.get<PrismaService>(PrismaService);
   });
 
-  beforeEach(async () => {
-    await prisma.user.deleteMany();
+  afterEach(async () => {
+    await prisma.clearDatabase();
   });
 
   afterAll(async () => {
@@ -57,8 +53,7 @@ describe('AuthService', () => {
     });
 
     it('should throw ConflictException if user already exists', async () => {
-      const userData = validUser();
-      await createValidUser(prisma);
+      const userData = await createValidUser(prisma);
       await expect(
         service.register(userData.email, userData.password),
       ).rejects.toThrow(ConflictException);

@@ -37,8 +37,8 @@ model PlayerAccount {
   id            Int        @id @default(autoincrement())
   userId        Int        @unique
   description   String
-  primaryRole   LeagueRole
-  secondaryRole LeagueRole
+  primaryRole   LeagueRole?
+  secondaryRole LeagueRole?
   gameName      String?
   tagLine       String?
   puuid         String?
