@@ -22,7 +22,10 @@ export class PlayerService {
    * @returns The found PlayerAccount or null if not found
    * @throws BadRequestException - If no filter is provided
    */
-  async findOne(filters: { userId?: number; puuid?: string }) {
+  async findOne(filters: {
+    userId?: number;
+    puuid?: string;
+  }): Promise<PlayerAccount | null> {
     if (!filters.userId && !filters.puuid) {
       throw new BadRequestException();
     }
@@ -41,7 +44,7 @@ export class PlayerService {
    * @param input - The new player data (CreatePlayerDto)
    * @returns The updated PlayerAccount
    */
-  async update(userId: number, input: CreatePlayerDto) {
+  async update(userId: number, input: CreatePlayerDto): Promise<PlayerAccount> {
     return this.prisma.playerAccount.update({
       where: { userId },
       data: input,
@@ -54,7 +57,7 @@ export class PlayerService {
    * @param userId - The user's ID
    * @returns The created PlayerAccount
    */
-  async preCreate(userId: number) {
+  async preCreate(userId: number): Promise<PlayerAccount> {
     return this.prisma.playerAccount.create({
       data: { userId, description: '' },
     });
@@ -68,7 +71,7 @@ export class PlayerService {
    * @returns The created or updated PlayerAccount
    * @throws BadRequestException - If creation fails or Riot API errors
    */
-  async upsert(userId: number, input: CreatePlayerDto) {
+  async upsert(userId: number, input: CreatePlayerDto): Promise<PlayerAccount> {
     const { gameName, tagLine } = input;
     const account = await this.riotService.getAccountByGameName(
       gameName,
@@ -99,7 +102,7 @@ export class PlayerService {
    * @returns The updated PlayerAccount
    * @throws BadRequestException - If player is not found or has no puuid
    */
-  async refresh(userId: number) {
+  async refresh(userId: number): Promise<PlayerAccount> {
     const player = await this.prisma.playerAccount.findUnique({
       where: { userId },
     });

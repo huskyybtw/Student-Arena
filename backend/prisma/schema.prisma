@@ -33,7 +33,7 @@ enum LeagueRole {
 model PlayerAccount {
   id            Int        @id @default(autoincrement())
   userId        Int        @unique
-  description   String
+  description   String @default("")
   primaryRole   LeagueRole?
   secondaryRole LeagueRole?
   gameName      String?
@@ -53,7 +53,7 @@ model Team {
   ownerId     Int
   name        String @unique
   tag         String
-  description String
+  description String @default("")
 
   owner   PlayerAccount   @relation("TeamOwner", fields: [ownerId], references: [id])
   members PlayerAccount[] @relation("TeamMembers")

@@ -32,7 +32,8 @@ export class PlayerController {
   async upsert(
     @CurrentUser() user: UserWithPlayer,
     @Body() body: CreatePlayerDto,
-  ) {
-    return this.playerService.upsert(user.id, body);
+  ) : Promise<PlayerResponseDto> {
+    const response =  await this.playerService.upsert(user.id, body);
+    return response;
   }
 }
