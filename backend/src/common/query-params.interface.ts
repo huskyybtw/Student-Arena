@@ -28,7 +28,7 @@ export class QueryParams {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page?: number;
+  page: number = 1;
 
   /**
    * Number of items per page
@@ -38,7 +38,7 @@ export class QueryParams {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  limit?: number;
+  limit: number = 10;
 
   /**
    * Offset for pagination (alternative to page)
@@ -48,7 +48,7 @@ export class QueryParams {
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  offset?: number;
+  offset?: number = 0;
 
   /**
    * Search term for filtering results (applies to name, tag, etc.)
@@ -79,5 +79,5 @@ export class QueryParams {
   })
   @IsOptional()
   @IsIn(['asc', 'desc'])
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: string;
 }

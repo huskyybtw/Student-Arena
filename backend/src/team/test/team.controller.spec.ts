@@ -73,7 +73,7 @@ describe('TeamController', () => {
       const list = res.body as TeamResponseDto[];
       expect(list).toBeInstanceOf(Array);
       expect(list).toHaveLength(1);
-      expect(list[0]).toBe(TeamTestFactory.response());
+      expect(list[0]).toStrictEqual(TeamTestFactory.response());
     });
     it('should return a paginated list of teams sorted by rating', async () => {
       const teamSecondData = TeamTestFactory.valid();
@@ -94,7 +94,7 @@ describe('TeamController', () => {
       const list = res.body as TeamResponseDto[];
       expect(list).toBeInstanceOf(Array);
       expect(list).toHaveLength(2);
-      expect(list[0]).toBe(TeamTestFactory.response());
+      expect(list[0]).toStrictEqual(TeamTestFactory.response());
     });
     it('should return only teams that current user belongs to', async () => {
       const res = await request(app.getHttpServer())
@@ -107,7 +107,7 @@ describe('TeamController', () => {
       const list = res.body as TeamResponseDto[];
       expect(list).toBeInstanceOf(Array);
       expect(list).toHaveLength(1);
-      expect(list[0]).toBe(TeamTestFactory.response());
+      expect(list[0]).toStrictEqual(TeamTestFactory.response());
     });
     it('should return only teams that matches search term', async () => {
       const res = await request(app.getHttpServer())
@@ -118,7 +118,7 @@ describe('TeamController', () => {
       const list = res.body as TeamResponseDto[];
       expect(list).toBeInstanceOf(Array);
       expect(list).toHaveLength(1);
-      expect(list[0]).toBe(TeamTestFactory.response());
+      expect(list[0]).toStrictEqual(TeamTestFactory.response());
     });
   });
 
