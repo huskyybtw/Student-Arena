@@ -1,4 +1,6 @@
 import {
+  BadGatewayException,
+  BadRequestException,
   Body,
   Controller,
   ForbiddenException,
@@ -6,6 +8,7 @@ import {
   HttpCode,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -70,7 +73,7 @@ export class TeamController {
   @HttpCode(200)
   @Patch('/:id')
   async update(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: UserWithPlayer,
     @Body() body: TeamUpdateDto,
   ) {
@@ -83,6 +86,9 @@ export class TeamController {
       throw new ForbiddenException("You don't have access to update this team");
     }
 
+    if (body.ownerId && !team.members.some((m) => m.id === body.ownerId)) {
+      throw new BadRequestException('New owner must be a member of the team');
+    }
     return await this.teamService.update(id, body);
   }
 }

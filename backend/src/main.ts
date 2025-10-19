@@ -17,6 +17,7 @@ async function bootstrap() {
     .setTitle('Student Arena API')
     .setDescription('API Documentation')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

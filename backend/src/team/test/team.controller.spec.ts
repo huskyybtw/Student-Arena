@@ -241,7 +241,6 @@ describe('TeamController', () => {
         .send({ ...teamData, ownerId: 9999 })
         .set('Authorization', `Bearer ${token}`)
         .expect(400);
-
       const response = await prisma.team.findUnique({
         where: { id: team.id },
         include: { members: true },
@@ -251,21 +250,27 @@ describe('TeamController', () => {
       expect(response?.members).toHaveLength(1);
     });
     it('should throw 403 if trying to change a team settings for a team player is not owning', async () => {
+      const userData = validUser();
+      await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ ...userData, email: 'new@gmail.com' });
+
       const teamData = TeamTestFactory.valid();
+
       const secondTeam = await prisma.team.create({
         data: {
           ...teamData,
           name: 'existing name',
-          ownerId: 4,
-          members: { connect: { id: 4 } },
+          ownerId: 2,
+          members: { connect: { id: 2 } },
         },
+        include: { members: true },
       });
       const res = await request(app.getHttpServer())
         .patch(`/teams/${secondTeam.id}`)
-        .send({ teamData, name: 'updated name' })
+        .send({ ...teamData, name: 'updated name' })
         .set('Authorization', `Bearer ${token}`)
         .expect(403);
-
       const response = await prisma.team.findUnique({
         where: { id: secondTeam.id },
         include: { members: true },

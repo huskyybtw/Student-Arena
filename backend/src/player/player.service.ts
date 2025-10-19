@@ -29,11 +29,17 @@ export class PlayerService {
     if (!filters.userId && !filters.puuid) {
       throw new BadRequestException();
     }
+
+    const where: Prisma.PlayerAccountWhereInput = {};
+
+    if (filters.userId) {
+      where.userId = filters.userId;
+    }
+    if (filters.puuid) {
+      where.puuid = filters.puuid;
+    }
     return this.prisma.playerAccount.findFirst({
-      where: {
-        ...(filters.userId ? { userId: filters.userId } : {}),
-        ...(filters.puuid ? { puuid: filters.puuid } : {}),
-      },
+      where,
     });
   }
 

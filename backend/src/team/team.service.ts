@@ -8,12 +8,14 @@ import { PlayerAccount, Prisma, Team } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { TeamCreateDto } from './dto/team-create.dto';
 import { TeamQueryParams } from './interfaces/team-filter.params';
+import { TeamUpdateDto } from './dto/team-update.dto';
+import { PlayerService } from 'src/player/player.service';
 
 @Injectable()
 export class TeamService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly playerService: PlayerAccount,
+    private readonly playerService: PlayerService,
   ) {}
 
   async findMany(
@@ -70,12 +72,18 @@ export class TeamService {
     });
   }
 
-  async update(teamId: number, input: TeamCreateDto): Promise<Team> {
-    // if input.owner check if player exsits
-    // if not throw error 400
+  async update(teamId: number, input: TeamUpdateDto): Promise<Team> {
+    if (input.ownerId) {
+      const player = await this.playerService.findOne({
+        userId: input.ownerId,
+      });
+
+      if (!player) throw new BadRequestException('New owner does not exist');
+    }
     return await this.prisma.team.update({
       where: { id: teamId },
       data: { ...input },
+      include: { members: true },
     });
   }
 }
