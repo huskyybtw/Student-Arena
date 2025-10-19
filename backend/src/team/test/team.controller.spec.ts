@@ -3,7 +3,7 @@ import { TeamController } from '../team.controller';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PrismaExceptionFilter } from '../../common/filters/prisma-exception.filter';
-import { validUser } from '../../user/test/user.test-utils';
+import { createValidUser, validUser } from '../../user/test/user.test-utils';
 import * as request from 'supertest';
 import { TeamCreateDto } from '../dto/team-create.dto';
 import { TeamResponseDto } from '../dto/team-response.dto';
@@ -55,14 +55,17 @@ describe('TeamController', () => {
   });
 
   describe('/teams/ (GET)', () => {
-    let team: TeamResponseDto;
+    let team: Team;
     beforeEach(async () => {
       const teamData = TeamTestFactory.valid();
-      const res = await request(app.getHttpServer())
-        .post('/teams/')
-        .send(teamData)
-        .set('Authorization', `Bearer ${token}`);
-      team = res.body as TeamResponseDto;
+      team = await prisma.team.create({
+        data: {
+          ...teamData,
+          ownerId: user.playerAccount.id,
+          members: { connect: { id: user.playerAccount.id } },
+        },
+        include: { members: true },
+      });
     });
 
     it('should return a paginated list of teams', async () => {
@@ -177,7 +180,101 @@ describe('TeamController', () => {
     });
   });
   describe('/teams/:id (GET)', () => {});
-  describe('/teams/:id (PATCH)', () => {});
+  describe('/teams/:id (PATCH)', () => {
+    let team: Team;
+    beforeEach(async () => {
+      const teamData = TeamTestFactory.valid();
+      team = await prisma.team.create({
+        data: {
+          ...teamData,
+          ownerId: user.playerAccount.id,
+          members: { connect: { id: user.playerAccount.id } },
+        },
+        include: { members: true },
+      });
+    });
+
+    it('should update team data', async () => {
+      const teamData = TeamTestFactory.valid();
+      const res = await request(app.getHttpServer())
+        .patch(`/teams/${team.id}`)
+        .send({ ...teamData, name: 'updated name' })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      const response = res.body as TeamResponseDto;
+
+      expect(response).toStrictEqual({
+        ...TeamTestFactory.response(),
+        name: 'updated name',
+      });
+      expect(response.members).toHaveLength(1);
+    });
+    it('should throw 409 if trying to change a name to alredy present one', async () => {
+      const teamData = TeamTestFactory.valid();
+      await prisma.team.create({
+        data: {
+          ...teamData,
+          name: 'existing name',
+          ownerId: user.playerAccount.id,
+          members: { connect: { id: user.playerAccount.id } },
+        },
+      });
+      const res = await request(app.getHttpServer())
+        .patch(`/teams/${team.id}`)
+        .send({ ...teamData, name: 'existing name' })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(409);
+
+      const response = await prisma.team.findUnique({
+        where: { id: team.id },
+        include: { members: true },
+      });
+
+      expect(response).toStrictEqual(TeamTestFactory.response());
+      expect(response?.members).toHaveLength(1);
+    });
+    it('should throw 400 if trying to change a owner to non exsisting player', async () => {
+      const teamData = TeamTestFactory.valid();
+      const res = await request(app.getHttpServer())
+        .patch(`/teams/${team.id}`)
+        .send({ ...teamData, ownerId: 9999 })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(400);
+
+      const response = await prisma.team.findUnique({
+        where: { id: team.id },
+        include: { members: true },
+      });
+
+      expect(response).toStrictEqual(TeamTestFactory.response());
+      expect(response?.members).toHaveLength(1);
+    });
+    it('should throw 403 if trying to change a team settings for a team player is not owning', async () => {
+      const teamData = TeamTestFactory.valid();
+      const secondTeam = await prisma.team.create({
+        data: {
+          ...teamData,
+          name: 'existing name',
+          ownerId: 4,
+          members: { connect: { id: 4 } },
+        },
+      });
+      const res = await request(app.getHttpServer())
+        .patch(`/teams/${secondTeam.id}`)
+        .send({ teamData, name: 'updated name' })
+        .set('Authorization', `Bearer ${token}`)
+        .expect(403);
+
+      const response = await prisma.team.findUnique({
+        where: { id: secondTeam.id },
+        include: { members: true },
+      });
+
+      expect(response).toStrictEqual(secondTeam);
+      expect(response?.members).toHaveLength(1);
+    });
+  });
   describe('/teams/:id (DELETE)', () => {});
   describe('/teams/:id/members/ (POST)', () => {});
   describe('/teams/:id/members/ (DELETE)', () => {});
