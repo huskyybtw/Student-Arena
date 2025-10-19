@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { RiotModule } from './riot/riot.module';
 import { PlayerModule } from './player/player.module';
 import { TeamModule } from './team/team.module';
+import { RatingModule } from './rating/rating.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TeamModule } from './team/team.module';
     RiotModule,
     PlayerModule,
     TeamModule,
+    RatingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
