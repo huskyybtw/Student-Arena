@@ -18,6 +18,11 @@ export class TeamService {
     private readonly playerService: PlayerService,
   ) {}
 
+  /**
+   * Find many teams based on query parameters.
+   * @param params Query parameters for filtering, sorting, and pagination
+   * @returns Array of teams with their members
+   */
   async findMany(
     params: TeamQueryParams,
   ): Promise<Array<Team & { members: PlayerAccount[] }>> {
@@ -46,6 +51,11 @@ export class TeamService {
     });
   }
 
+  /**
+   * Find a single team by its ID, including members.
+   * @param id Team ID
+   * @returns The team with members, or null if not found
+   */
   async findOne(
     id: number,
   ): Promise<(Team & { members: PlayerAccount[] }) | null> {
@@ -54,6 +64,12 @@ export class TeamService {
       include: { members: true },
     });
   }
+  /**
+   * Create a new team and connect the owner as a member.
+   * @param playerId The player account ID of the owner
+   * @param input Data for creating the team
+   * @returns The created team with members
+   */
   async create(
     playerId: number,
     input: TeamCreateDto,
@@ -72,6 +88,13 @@ export class TeamService {
     });
   }
 
+  /**
+   * Update an existing team.
+   * @param teamId The team ID
+   * @param input Data for updating the team
+   * @returns The updated team with members
+   * @throws BadRequestException if new owner does not exist
+   */
   async update(teamId: number, input: TeamUpdateDto): Promise<Team> {
     if (input.ownerId) {
       const player = await this.playerService.findOne({
@@ -83,6 +106,19 @@ export class TeamService {
     return await this.prisma.team.update({
       where: { id: teamId },
       data: { ...input },
+      include: { members: true },
+    });
+  }
+
+  /**
+   * Remove (delete) a team by its ID.
+   * @param teamId The team ID
+   * @returns The deleted team object
+   * @throws PrismaClientKnownRequestError (P2025) if not found
+   */
+  async remove(teamId: number): Promise<Team> {
+    return await this.prisma.team.delete({
+      where: { id: teamId },
       include: { members: true },
     });
   }

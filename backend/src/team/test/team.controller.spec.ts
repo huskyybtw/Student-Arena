@@ -14,12 +14,14 @@ import { TeamModule } from '../team.module';
 import { UserWithPlayer } from 'src/common/current-user.decorator';
 import { TeamQueryParams } from '../interfaces/team-filter.params';
 import { TeamTestFactory } from './team.factory';
+import e from 'express';
 
 describe('TeamController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let token: string;
   let user: UserWithPlayer;
+  let team: Team;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,6 +45,16 @@ describe('TeamController', () => {
       .send(userData);
     token = registerRes.body.accessToken;
     user = registerRes.body.user;
+
+    const teamData = TeamTestFactory.valid();
+    team = await prisma.team.create({
+      data: {
+        ...teamData,
+        ownerId: user.playerAccount.id,
+        members: { connect: { id: user.playerAccount.id } },
+      },
+      include: { members: true },
+    });
   });
 
   afterEach(async () => {
@@ -55,19 +67,6 @@ describe('TeamController', () => {
   });
 
   describe('/teams/ (GET)', () => {
-    let team: Team;
-    beforeEach(async () => {
-      const teamData = TeamTestFactory.valid();
-      team = await prisma.team.create({
-        data: {
-          ...teamData,
-          ownerId: user.playerAccount.id,
-          members: { connect: { id: user.playerAccount.id } },
-        },
-        include: { members: true },
-      });
-    });
-
     it('should return a paginated list of teams', async () => {
       const res = await request(app.getHttpServer())
         .get('/teams/')
@@ -126,6 +125,9 @@ describe('TeamController', () => {
   });
 
   describe('/teams/ (POST)', () => {
+    beforeEach(async () => {
+      await prisma.team.deleteMany();
+    });
     it('should create a team', async () => {
       const teamData = TeamTestFactory.valid();
       const res = await request(app.getHttpServer())
@@ -136,7 +138,10 @@ describe('TeamController', () => {
 
       const team = res.body as TeamResponseDto;
 
-      expect(team).toStrictEqual(TeamTestFactory.response());
+      expect(team).toStrictEqual({
+        ...TeamTestFactory.response(),
+        id: expect.any(Number),
+      });
       expect(team.members).toHaveLength(1);
     });
     it('should throw 400 if invalid data is provided', async () => {
@@ -179,21 +184,30 @@ describe('TeamController', () => {
         .expect(401);
     });
   });
-  describe('/teams/:id (GET)', () => {});
-  describe('/teams/:id (PATCH)', () => {
-    let team: Team;
-    beforeEach(async () => {
-      const teamData = TeamTestFactory.valid();
-      team = await prisma.team.create({
-        data: {
-          ...teamData,
-          ownerId: user.playerAccount.id,
-          members: { connect: { id: user.playerAccount.id } },
-        },
-        include: { members: true },
-      });
-    });
+  describe('/teams/:id (GET)', () => {
+    it('should return team data for a given id', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/teams/${team.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
 
+      const response = res.body as TeamResponseDto;
+
+      expect(response).toStrictEqual(TeamTestFactory.response());
+      expect(response.members).toHaveLength(1);
+    });
+    it('should return 404 if team doesnt exsist', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/teams/${team.id + 999}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(404);
+
+      const response = res.body as TeamResponseDto;
+
+      expect(response).not.toStrictEqual(TeamTestFactory.response());
+    });
+  });
+  describe('/teams/:id (PATCH)', () => {
     it('should update team data', async () => {
       const teamData = TeamTestFactory.valid();
       const res = await request(app.getHttpServer())
@@ -280,7 +294,51 @@ describe('TeamController', () => {
       expect(response?.members).toHaveLength(1);
     });
   });
-  describe('/teams/:id (DELETE)', () => {});
+  describe('/teams/:id (DELETE)', () => {
+    it('should delete the team and return 200', async () => {
+      const res = await request(app.getHttpServer())
+        .delete(`/teams/${team.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+      const response = res.body as TeamResponseDto;
+
+      expect(response).toStrictEqual(TeamTestFactory.response());
+      expect(response?.members).toHaveLength(1);
+    });
+    it('should throw 403 if trying to delete the team you are not owning', async () => {
+      const userData = validUser();
+      const res = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ ...userData, email: 'new@gmail.com' });
+
+      const user = res.body as UserWithPlayer;
+      const otherToken = res.body.accessToken;
+      await request(app.getHttpServer())
+        .delete(`/teams/${team.id}`)
+        .set('Authorization', `Bearer ${otherToken}`)
+        .expect(403);
+      const response = await prisma.team.findUnique({
+        where: { id: team.id },
+        include: { members: true },
+      });
+
+      expect(response).toStrictEqual(team);
+      expect(response?.members).toHaveLength(1);
+    });
+    it('should throw 404 if trying to delete the team that does not exsist', async () => {
+      await request(app.getHttpServer())
+        .delete(`/teams/${team.id + 1}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(404);
+      const response = await prisma.team.findUnique({
+        where: { id: team.id },
+        include: { members: true },
+      });
+
+      expect(response).toStrictEqual(team);
+      expect(response?.members).toHaveLength(1);
+    });
+  });
   describe('/teams/:id/members/ (POST)', () => {});
   describe('/teams/:id/members/ (DELETE)', () => {});
   describe('/teams/:id/members/:id (POST)', () => {});

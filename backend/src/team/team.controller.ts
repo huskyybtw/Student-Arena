@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -49,6 +50,21 @@ export class TeamController {
     return this.teamService.findMany(params);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieve a team data for a given id',
+    type: TeamResponseDto,
+  })
+  @HttpCode(200)
+  @Get('/:id')
+  async team(@Param('id', ParseIntPipe) id: number): Promise<TeamResponseDto> {
+    const team = await this.teamService.findOne(id);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+    return team as TeamResponseDto;
+  }
+
   @ApiBody({ type: TeamCreateDto })
   @ApiResponse({
     status: 201,
@@ -76,7 +92,7 @@ export class TeamController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: UserWithPlayer,
     @Body() body: TeamUpdateDto,
-  ) {
+  ): Promise<TeamResponseDto> {
     const team = await this.teamService.findOne(id);
     if (!team) {
       throw new NotFoundException('Team not found');
@@ -89,6 +105,28 @@ export class TeamController {
     if (body.ownerId && !team.members.some((m) => m.id === body.ownerId)) {
       throw new BadRequestException('New owner must be a member of the team');
     }
-    return await this.teamService.update(id, body);
+    return (await this.teamService.update(id, body)) as TeamResponseDto;
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'delete a team data for a given id',
+    type: TeamResponseDto,
+  })
+  @HttpCode(200)
+  @Delete('/:id')
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: UserWithPlayer,
+  ): Promise<TeamResponseDto> {
+    const team = await this.teamService.findOne(id);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+
+    if (team.ownerId !== user.playerAccount.id) {
+      throw new ForbiddenException("You don't have access to update this team");
+    }
+    return (await this.teamService.remove(id)) as TeamResponseDto;
   }
 }
