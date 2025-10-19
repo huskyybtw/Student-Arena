@@ -15,7 +15,6 @@ import { UserWithPlayer } from 'src/common/current-user.decorator';
 import { TeamQueryParams } from '../interfaces/team-filter.params';
 import { TeamTestFactory } from './team.factory';
 import e from 'express';
-
 describe('TeamController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -339,8 +338,4 @@ describe('TeamController', () => {
       expect(response?.members).toHaveLength(1);
     });
   });
-  describe('/teams/:id/members/ (POST)', () => {});
-  describe('/teams/:id/members/ (DELETE)', () => {});
-  describe('/teams/:id/members/:id (POST)', () => {});
-  describe('/teams/:id/members/:id (DELETE)', () => {});
 });

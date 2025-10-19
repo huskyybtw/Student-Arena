@@ -1,3 +1,4 @@
+import { PlayerTestFactory } from 'src/player/test/player.factory';
 import { PlayerResponseDto } from '../../player/dto/player-response.dto';
 import { TeamCreateDto } from './team-create.dto';
 import { ApiProperty } from '@nestjs/swagger';
@@ -18,7 +19,7 @@ export class TeamResponseDto extends TeamCreateDto {
   @ApiProperty({
     description: 'The list of team members',
     type: [PlayerResponseDto],
-    example: [],
+    example: [PlayerTestFactory.response()],
   })
   members: PlayerResponseDto[];
 }
