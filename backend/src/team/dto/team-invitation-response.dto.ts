@@ -30,7 +30,7 @@ export class TeamInvitationResponseDto {
     example: 'pending',
     description: 'Status of the invitation (pending, accepted, declined)',
   })
-  status: 'pending' | 'accepted' | 'declined';
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
 
   @ApiProperty({
     type: TeamResponseDto,

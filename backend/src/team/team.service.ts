@@ -10,6 +10,7 @@ import { TeamCreateDto } from './dto/team-create.dto';
 import { TeamQueryParams } from './interfaces/team-filter.params';
 import { TeamUpdateDto } from './dto/team-update.dto';
 import { PlayerService } from 'src/player/player.service';
+import { TeamWithRelations } from './types/team-included.type';
 
 @Injectable()
 export class TeamService {
@@ -23,9 +24,7 @@ export class TeamService {
    * @param params Query parameters for filtering, sorting, and pagination
    * @returns Array of teams with their members
    */
-  async findMany(
-    params: TeamQueryParams,
-  ): Promise<Array<Team & { members: PlayerAccount[] }>> {
+  async findMany(params: TeamQueryParams): Promise<Array<TeamWithRelations>> {
     const { filters } = params;
     const where: Prisma.TeamWhereInput = {};
     if (params.search) {
@@ -56,9 +55,7 @@ export class TeamService {
    * @param id Team ID
    * @returns The team with members, or null if not found
    */
-  async findOne(
-    id: number,
-  ): Promise<(Team & { members: PlayerAccount[] }) | null> {
+  async findOne(id: number): Promise<TeamWithRelations | null> {
     return await this.prisma.team.findUnique({
       where: { id },
       include: { members: true },
@@ -73,7 +70,7 @@ export class TeamService {
   async create(
     playerId: number,
     input: TeamCreateDto,
-  ): Promise<Team & { members: PlayerAccount[] }> {
+  ): Promise<TeamWithRelations> {
     return await this.prisma.team.create({
       data: {
         ...input,

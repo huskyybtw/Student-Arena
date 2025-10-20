@@ -63,14 +63,17 @@ model Team {
   invitations TeamInvitation[]
 }
 
+enum InvitationStatus {
+  REQUESTED
+  PENDING
+}
+
 model TeamInvitation {
-  id        Int      @id @default(autoincrement())
+  id        Int              @id @default(autoincrement())
   teamId    Int
   playerId  Int
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-  // TODO : use enum
-  status    String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  createdAt DateTime         @default(now())
+  status    InvitationStatus
 
   team   Team          @relation(fields: [teamId], references: [id])
   player PlayerAccount @relation(fields: [playerId], references: [id])

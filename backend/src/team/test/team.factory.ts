@@ -32,9 +32,9 @@ export class TeamTestFactory {
       id: 1,
       teamId: 1,
       playerId: 2,
-      createdAt: new Date('2025-10-19T12:00:00.000Z'),
-      expiresAt: new Date('2025-10-20T12:00:00.000Z'),
-      status: 'pending',
+      createdAt: expect.any(Date) as Date,
+      expiresAt: expect.any(Date) as Date,
+      status: TeamInvitation,
       team: TeamTestFactory.response(),
       player: PlayerTestFactory.response(),
     };

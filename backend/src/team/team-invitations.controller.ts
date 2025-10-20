@@ -1,8 +1,12 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
@@ -32,10 +36,11 @@ export class TeamInvitationsController {
   @HttpCode(200)
   @Get('/')
   async getTeamInvitations(
-    @CurrentUser() user: UserWithPlayer,
     @Param('teamId', ParseIntPipe) teamId: number,
   ): Promise<TeamInvitationResponseDto[]> {
-    return (await this.teamInvitationService.findMany()) as TeamInvitationResponseDto[];
+    return (await this.teamInvitationService.findMany(
+      teamId,
+    )) as TeamInvitationResponseDto[];
   }
   /**
    * Create a new invitation for a team member.
@@ -45,8 +50,24 @@ export class TeamInvitationsController {
   async createInvitation(
     @CurrentUser() user: UserWithPlayer,
     @Param('teamId', ParseIntPipe) teamId: number,
+    @Param('id', ParseIntPipe) playerId: number,
   ): Promise<TeamInvitationResponseDto> {
-    return (await this.teamInvitationService.create()) as TeamInvitationResponseDto;
+    const team = await this.teamService.findOne(teamId);
+    if (!team) {
+      throw new NotFoundException('Team not found');
+    }
+
+    if (team.ownerId !== user.playerAccount.id) {
+      throw new ForbiddenException('Only team owners can create invitations');
+    }
+
+    if (team.members.some((member) => member.id === playerId)) {
+      throw new BadRequestException('User is already a member of the team');
+    }
+    return (await this.teamInvitationService.create(
+      teamId,
+      playerId,
+    )) as TeamInvitationResponseDto;
   }
   /**
    * Update an existing invitation for a team member.
@@ -57,8 +78,30 @@ export class TeamInvitationsController {
   async updateInvitation(
     @CurrentUser() user: UserWithPlayer,
     @Param('teamId', ParseIntPipe) teamId: number,
+    @Param('id', ParseIntPipe) playerId: number,
   ): Promise<TeamInvitationResponseDto> {
-    return (await this.teamInvitationService.accept()) as TeamInvitationResponseDto;
+    const invitations = await this.teamInvitationService.findMany(teamId);
+    const team = await this.teamService.findOne(teamId);
+    if (!invitations.some((inv) => inv.playerId === playerId)) {
+      throw new BadRequestException(
+        `User with id ${playerId} doesnt have and pending invite for ${teamId}`,
+      );
+    }
+    if (user.playerAccount.id === playerId) {
+      return (await this.teamInvitationService.accept(
+        teamId,
+        playerId,
+      )) as TeamInvitationResponseDto;
+    }
+    if (!team || team.ownerId !== user.playerAccount.id) {
+      throw new ForbiddenException(
+        'You dont have permisions to revoke the invitation',
+      );
+    }
+    return (await this.teamInvitationService.revoke(
+      teamId,
+      playerId,
+    )) as TeamInvitationResponseDto;
   }
   /**
    * Request an invitation to join a team.
@@ -67,10 +110,23 @@ export class TeamInvitationsController {
   @Put('/:id')
   async requestInvitation(
     @Param('teamId', ParseIntPipe) teamId: number,
+    @Param('id', ParseIntPipe) playerId: number,
     @CurrentUser() user: UserWithPlayer,
   ): Promise<TeamInvitationResponseDto> {
-    const team = await this.teamService.findOne(Number(user.playerAccount.id));
-    return (await this.teamInvitationService.request()) as TeamInvitationResponseDto;
+    const team = await this.teamService.findOne(teamId);
+    if (playerId === user.playerAccount.id) {
+      throw new BadRequestException(
+        'You cannot request an invitation for your self',
+      );
+    }
+    if (team?.members.some((member) => member.id === playerId)) {
+      throw new BadRequestException('User is already a member of the team');
+    }
+
+    return (await this.teamInvitationService.request(
+      teamId,
+      playerId,
+    )) as TeamInvitationResponseDto;
   }
   /**
    * Get all invitations for a team.
@@ -80,8 +136,12 @@ export class TeamInvitationsController {
   async getInvitations(
     @CurrentUser() user: UserWithPlayer,
     @Param('teamId', ParseIntPipe) teamId: number,
+    @Param('id', ParseIntPipe) playerId: number,
   ): Promise<TeamInvitationResponseDto> {
-    return (await this.teamInvitationService.findOne()) as TeamInvitationResponseDto;
+    return (await this.teamInvitationService.findForOne(
+      teamId,
+      playerId,
+    )) as TeamInvitationResponseDto;
   }
   /**
    * Remove or leave a team.
@@ -90,8 +150,27 @@ export class TeamInvitationsController {
   @Delete('/:id')
   async removeMember(
     @CurrentUser() user: UserWithPlayer,
+    @Param('id', ParseIntPipe) playerId: number,
     @Param('teamId', ParseIntPipe) teamId: number,
   ): Promise<TeamResponseDto> {
-    return (await this.teamInvitationService.leave()) as TeamResponseDto;
+    const team = await this.teamService.findOne(teamId);
+    if (!team || !team.members.some((member) => member.id === playerId)) {
+      throw new BadRequestException('There are no member with this id');
+    }
+    if (team.ownerId === playerId) {
+      throw new ForbiddenException('You cant leave a team while being a owner');
+    }
+    if (
+      user.playerAccount.id !== playerId &&
+      team.ownerId !== user.playerAccount.id
+    ) {
+      throw new ForbiddenException(
+        'You dont have perrmisions to kick players from the team',
+      );
+    }
+    return (await this.teamInvitationService.leave(
+      teamId,
+      playerId,
+    )) as TeamResponseDto;
   }
 }

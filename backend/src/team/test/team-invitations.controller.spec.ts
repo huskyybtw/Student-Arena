@@ -16,7 +16,7 @@ import { TeamQueryParams } from '../interfaces/team-filter.params';
 import { TeamTestFactory } from './team.factory';
 import e from 'express';
 
-describe.skip('TeamController', () => {
+describe('TeamController', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let token: string;
@@ -100,11 +100,11 @@ describe.skip('TeamController', () => {
     await prisma.$disconnect();
   });
 
-  describe('/teams/:id/invite/ (GET)', () => {
+  describe.only('/teams/:id/invite/ (GET)', () => {
     it('should return 200 when there are no invitations for this team', async () => {
       await prisma.teamInvitation.deleteMany();
       const res = await request(app.getHttpServer())
-        .get('/teams/' + team.id + '/invite/')
+        .get('/teams/' + team.id + '/invitations/')
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
@@ -114,7 +114,7 @@ describe.skip('TeamController', () => {
 
     it('should return 200 and only invitations for a given team', async () => {
       const res = await request(app.getHttpServer())
-        .get('/teams/' + team.id + '/invite/')
+        .get('/teams/' + team.id + '/invitations/')
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
@@ -127,12 +127,12 @@ describe.skip('TeamController', () => {
       );
     });
   });
-  describe('/teams/:id/invite/:id (GET)', () => {
+  describe('/teams/:id/invitations/:id (GET)', () => {
     it('should return only invitations for a given player in a given team', async () => {
       // add aditional invitation to verify filtering
 
       const res = await request(app.getHttpServer())
-        .get(`/teams/${team.id}/invite/${user.playerAccount.id}`)
+        .get(`/teams/${team.id}/invitations/${user.playerAccount.id}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
@@ -146,15 +146,15 @@ describe.skip('TeamController', () => {
         },
       });
       const res = await request(app.getHttpServer())
-        .get(`/teams/${team.id}/invite/${user.playerAccount.id}`)
+        .get(`/teams/${team.id}/invitations/${user.playerAccount.id}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
       expect(res.body).toBeInstanceOf(Array);
       expect(res.body.length).toBe(0);
     });
   });
-  describe('/teams/:id/invite/:id (POST)', () => {
-    it('should return 201 and invite a player to a team', async () => {
+  describe('/teams/:id/invitations/:id (POST)', () => {
+    it('should return 201 and invitations a player to a team', async () => {
       await prisma.teamInvitation.deleteMany({
         where: {
           teamId: team.id,
@@ -162,36 +162,36 @@ describe.skip('TeamController', () => {
         },
       });
       const res = await request(app.getHttpServer())
-        .post(`/teams/${team.id}/invite/${user.playerAccount.id}`)
+        .post(`/teams/${team.id}/invitations/${user.playerAccount.id}`)
         .set('Authorization', `Bearer ${token}`)
         .send(TeamTestFactory.validInvitation().expiresAt)
         .expect(201);
       expect(res.body).toMatchObject(TeamTestFactory.invitationResponse());
     });
-    it('should return 403 when trying to invite a player to unowned team', async () => {
+    it('should return 403 when trying to invitations a player to unowned team', async () => {
       await prisma.teamInvitation.deleteMany();
       await request(app.getHttpServer())
-        .post(`/teams/${team.id}/invite/${secondUser.playerAccount.id}`)
+        .post(`/teams/${team.id}/invitations/${secondUser.playerAccount.id}`)
         .set('Authorization', `Bearer ${secondToken}`)
         .send(TeamTestFactory.validInvitation().expiresAt)
         .expect(403);
     });
-    it('should return 409 when trying to invite alredy inviated player', async () => {
+    it('should return 409 when trying to invitations alredy inviated player', async () => {
       await request(app.getHttpServer())
-        .post(`/teams/${secondTeam.id}/invite/${user.playerAccount.id}`)
+        .post(`/teams/${secondTeam.id}/invitations/${user.playerAccount.id}`)
         .set('Authorization', `Bearer ${token}`)
         .send(TeamTestFactory.validInvitation().expiresAt)
         .expect(409);
     });
   });
-  // describe('/teams/:id/invite/:id (PATCH)', () => {
-  //   it('if logged as a invited user should accept the invitation', async () => {});
+  // describe('/teams/:id/invitations/:id (PATCH)', () => {
+  //   it('if logged as a invitationsd user should accept the invitation', async () => {});
   //   it('if logged as a inviting user should revoke the invitation', async () => {});
   // });
-  describe('/teams/:id/invite/:id (PUT)', () => {
-    it('if logged as a invited user should accept the invitation', async () => {
+  describe('/teams/:id/invitations/:id (PUT)', () => {
+    it('if logged as a invitationsd user should accept the invitation', async () => {
       const res = await request(app.getHttpServer())
-        .put(`/teams/${team.id}/invite/${secondUser.playerAccount.id}`)
+        .put(`/teams/${team.id}/invitations/${secondUser.playerAccount.id}`)
         .set('Authorization', `Bearer ${secondToken}`)
         .expect(200);
       const invitation = res.body as TeamInvitation;
@@ -202,7 +202,7 @@ describe.skip('TeamController', () => {
     });
     it('if logged as a inviting user should revoke the invitation', async () => {
       const res = await request(app.getHttpServer())
-        .put(`/teams/${team.id}/invite/${secondUser.playerAccount.id}`)
+        .put(`/teams/${team.id}/invitations/${secondUser.playerAccount.id}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
       const invitation = res.body as TeamInvitation;
@@ -212,7 +212,7 @@ describe.skip('TeamController', () => {
       });
     });
   });
-  describe('/teams/:id/invite/:id (DELETE)', () => {
+  describe('/teams/:id/invitations/:id (DELETE)', () => {
     beforeEach(async () => {
       await prisma.team.update({
         where: { id: team.id },
@@ -221,7 +221,7 @@ describe.skip('TeamController', () => {
     });
     it('should return 200 and remove a player from a team when current user is a player it self or team owner', async () => {
       const res = await request(app.getHttpServer())
-        .delete(`/teams/${team.id}/invite/${user.playerAccount.id}`)
+        .delete(`/teams/${team.id}/invitations/${user.playerAccount.id}`)
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
@@ -239,13 +239,13 @@ describe.skip('TeamController', () => {
     });
     it('should return 403 when current user is wants to remove a player from unowned team', async () => {
       await request(app.getHttpServer())
-        .delete(`/teams/${team.id}/invite/${user.playerAccount.id}`)
+        .delete(`/teams/${team.id}/invitations/${user.playerAccount.id}`)
         .set('Authorization', `Bearer ${secondUser}`)
         .expect(403);
     });
     it('should return 400 when trying to leave a team when player is the team owner', async () => {
       await request(app.getHttpServer())
-        .delete(`/teams/${secondTeam.id}/invite/${user.playerAccount.id}`)
+        .delete(`/teams/${secondTeam.id}/invitations/${user.playerAccount.id}`)
         .set('Authorization', `Bearer ${user.playerAccount.id}`)
         .expect(400);
 
