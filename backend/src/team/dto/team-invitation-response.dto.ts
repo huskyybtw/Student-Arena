@@ -21,12 +21,6 @@ export class TeamInvitationResponseDto {
   createdAt: Date;
 
   @ApiProperty({
-    example: '2025-10-20T12:00:00.000Z',
-    description: 'Expiration date of the invitation',
-  })
-  expiresAt: Date;
-
-  @ApiProperty({
     example: 'pending',
     description: 'Status of the invitation (pending, accepted, declined)',
   })

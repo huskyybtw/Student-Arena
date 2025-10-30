@@ -1,4 +1,4 @@
-import { TeamInvitation } from '@prisma/client';
+import { InvitationStatus, TeamInvitation } from '@prisma/client';
 import { TeamCreateDto } from '../dto/team-create.dto';
 import { TeamResponseDto } from '../dto/team-response.dto';
 import { PlayerTestFactory } from 'src/player/test/player.factory';
@@ -33,8 +33,7 @@ export class TeamTestFactory {
       teamId: 1,
       playerId: 2,
       createdAt: expect.any(Date) as Date,
-      expiresAt: expect.any(Date) as Date,
-      status: TeamInvitation,
+      status: InvitationStatus.PENDING,
       team: TeamTestFactory.response(),
       player: PlayerTestFactory.response(),
     };
@@ -47,7 +46,6 @@ export class TeamTestFactory {
     return {
       teamId: 1,
       playerId: 2,
-      expiresAt: new Date('2025-10-20T12:00:00.000Z'),
     };
   }
 }
