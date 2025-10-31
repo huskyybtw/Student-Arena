@@ -3,6 +3,7 @@ import { TeamResponseDto } from './team-response.dto';
 import { PlayerResponseDto } from 'src/player/dto/player-response.dto';
 import { TeamTestFactory } from '../test/team.factory';
 import { PlayerTestFactory } from 'src/player/test/player.factory';
+import { InvitationStatus } from '@prisma/client';
 
 export class TeamInvitationResponseDto {
   @ApiProperty({ example: 1, description: 'Invitation ID' })
@@ -22,9 +23,9 @@ export class TeamInvitationResponseDto {
 
   @ApiProperty({
     example: 'pending',
-    description: 'Status of the invitation (pending, accepted, declined)',
+    description: 'Status of the invitation',
   })
-  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+  status: InvitationStatus;
 
   @ApiProperty({
     type: TeamResponseDto,

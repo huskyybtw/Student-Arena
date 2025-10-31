@@ -7,7 +7,7 @@ import { UserWithPlayer } from 'src/common/current-user.decorator';
 import { PrismaExceptionFilter } from 'src/common/filters/prisma-exception.filter';
 import { validUser } from 'src/user/test/user.test-utils';
 import * as request from 'supertest';
-import { PlayerPosting } from '@prisma/client';
+import { PlayerPosting, PostingStatus } from '@prisma/client';
 import { PlayerPostingFactory } from './posting.factory';
 import { PlayerPostingResponseDto } from '../dto/posting-response.dto';
 

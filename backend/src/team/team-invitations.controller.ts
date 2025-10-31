@@ -15,7 +15,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { TeamInvitationsService } from './team-invitations.service';
 import { Http2ServerRequest } from 'http2';
 import { CurrentUser, UserWithPlayer } from 'src/common/current-user.decorator';
@@ -24,7 +30,7 @@ import { TeamResponseDto } from './dto/team-response.dto';
 import { TeamInvitationResponseDto } from './dto/team-invitation-response.dto';
 import { TeamService } from './team.service';
 
-@ApiTags('teams')
+@ApiTags('teams-invitations')
 @Controller('teams/:teamId/invitations')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -33,6 +39,16 @@ export class TeamInvitationsController {
     private readonly teamInvitationService: TeamInvitationsService,
     private readonly teamService: TeamService,
   ) {}
+  @ApiParam({
+    name: 'teamId',
+    description: 'ID of the team',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of invitations retrieved successfully',
+    type: [TeamInvitationResponseDto],
+  })
   @HttpCode(200)
   @Get('/')
   async getTeamInvitations(
@@ -42,9 +58,33 @@ export class TeamInvitationsController {
       teamId,
     )) as TeamInvitationResponseDto[];
   }
-  /**
-   * Create a new invitation for a team member.
-   */
+  @ApiParam({
+    name: 'teamId',
+    description: 'ID of the team',
+    type: Number,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the player to invite',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Invitation created successfully',
+    type: TeamInvitationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Player is already a team member',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only team owners can create invitations',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Team not found',
+  })
   @HttpCode(201)
   @Post('/:id')
   async createInvitation(
@@ -69,10 +109,30 @@ export class TeamInvitationsController {
       playerId,
     )) as TeamInvitationResponseDto;
   }
-  /**
-   * Update an existing invitation for a team member.
-   * Used to accept or decline an invitation.
-   */
+  @ApiParam({
+    name: 'teamId',
+    description: 'ID of the team',
+    type: Number,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the player',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Invitation accepted or revoked successfully',
+    type: TeamInvitationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'No pending invitation exists',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'User does not have permission to accept or revoke this invitation',
+  })
   @HttpCode(200)
   @Patch('/:id')
   async updateInvitation(
@@ -103,9 +163,26 @@ export class TeamInvitationsController {
       playerId,
     )) as TeamInvitationResponseDto;
   }
-  /**
-   * Request an invitation to join a team.
-   */
+  @ApiParam({
+    name: 'teamId',
+    description: 'ID of the team to join',
+    type: Number,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the player requesting to join',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Join request created successfully',
+    type: TeamInvitationResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Cannot request invitation for yourself or player is already a member',
+  })
   @HttpCode(200)
   @Put('/:id')
   async requestInvitation(
@@ -128,24 +205,54 @@ export class TeamInvitationsController {
       playerId,
     )) as TeamInvitationResponseDto;
   }
-  /**
-   * Get all invitations for a team.
-   */
+  @ApiParam({
+    name: 'teamId',
+    description: 'ID of the team (unused in query, but required in route)',
+    type: Number,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the player',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of invitations retrieved successfully',
+    type: [TeamInvitationResponseDto],
+  })
   @HttpCode(200)
   @Get('/:id')
   async getInvitations(
     @CurrentUser() user: UserWithPlayer,
-    @Param('teamId', ParseIntPipe) teamId: number,
     @Param('id', ParseIntPipe) playerId: number,
-  ): Promise<TeamInvitationResponseDto> {
+  ): Promise<TeamInvitationResponseDto[]> {
     return (await this.teamInvitationService.findForOne(
-      teamId,
       playerId,
-    )) as TeamInvitationResponseDto;
+    )) as TeamInvitationResponseDto[];
   }
-  /**
-   * Remove or leave a team.
-   */
+  @ApiParam({
+    name: 'teamId',
+    description: 'ID of the team',
+    type: Number,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the player to remove',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Member removed successfully',
+    type: TeamResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Player is not a member or owner cannot leave team',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'User does not have permission to remove this member',
+  })
   @HttpCode(200)
   @Delete('/:id')
   async removeMember(

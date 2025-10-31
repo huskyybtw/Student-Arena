@@ -12,12 +12,6 @@ export class TeamPostingResponseDto extends TeamPostingCreateDto {
   id: number;
 
   @ApiProperty({
-    example: 1,
-    description: 'ID of the team that created the posting',
-  })
-  teamId: number;
-
-  @ApiProperty({
     example: PostingStatus.OPEN,
     description: 'Current status of the posting',
     enum: PostingStatus,

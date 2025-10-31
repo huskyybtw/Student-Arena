@@ -4,6 +4,7 @@ import {
   IsArray,
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -22,6 +23,7 @@ export class TeamPostingCreateDto {
     description: 'Title of the team posting',
   })
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @ApiProperty({
@@ -50,6 +52,7 @@ export class PlayerPostingCreateDto {
     description: 'Title of the player posting',
   })
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @ApiProperty({

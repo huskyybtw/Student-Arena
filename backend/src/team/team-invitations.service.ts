@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PlayerAccount, Team, TeamInvitation } from '@prisma/client';
+import {
+  InvitationStatus,
+  PlayerAccount,
+  Team,
+  TeamInvitation,
+} from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { TeamTestFactory } from './test/team.factory';
 import { TeamInvitationWithRelations } from './types/team-invitation-included.type';
 import { TeamWithRelations } from './types/team-included.type';
 
@@ -9,43 +13,152 @@ import { TeamWithRelations } from './types/team-included.type';
 export class TeamInvitationsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Find all invitations for a specific team
+   */
   async findMany(teamId: number): Promise<TeamInvitationWithRelations[]> {
     return this.prisma.teamInvitation.findMany({
       where: { teamId },
-      include: { team: true, player: true },
+      include: {
+        team: { include: { members: true } },
+        player: true,
+      },
     });
   }
-  async findForOne(
-    teamId: number,
-    playerId: number,
-  ): Promise<TeamInvitationWithRelations[]> {
-    return TeamTestFactory.invitationResponse();
+
+  /**
+   * Find all invitations for a given player
+   */
+  async findForOne(playerId: number): Promise<TeamInvitationWithRelations[]> {
+    return this.prisma.teamInvitation.findMany({
+      where: {
+        playerId,
+      },
+      include: {
+        team: { include: { members: true } },
+        player: true,
+      },
+    });
   }
+
+  /**
+   * Create a new team invitation (owner invites player)
+   */
   async create(
     teamId: number,
     playerId: number,
-  ): Promise<TeamInvitationWithRelations[]> {
-    return TeamTestFactory.invitationResponse();
+  ): Promise<TeamInvitationWithRelations> {
+    return this.prisma.teamInvitation.create({
+      data: {
+        teamId,
+        playerId,
+        status: InvitationStatus.PENDING,
+      },
+      include: {
+        team: { include: { members: true } },
+        player: true,
+      },
+    });
   }
+
+  /**
+   * Accept an invitation and add player to team
+   */
   async accept(
     teamId: number,
     playerId: number,
-  ): Promise<TeamInvitationWithRelations[]> {
-    return TeamTestFactory.invitationResponse();
+  ): Promise<TeamInvitationWithRelations> {
+    // Fetch invitation with relations first (findFirstOrThrow will throw P2025 if not found)
+    const invitation = await this.prisma.teamInvitation.findFirstOrThrow({
+      where: {
+        teamId,
+        playerId,
+      },
+      include: {
+        team: { include: { members: true } },
+        player: true,
+      },
+    });
+
+    // Add player to team members
+    await this.prisma.team.update({
+      where: { id: teamId },
+      data: {
+        members: {
+          connect: { id: playerId },
+        },
+      },
+    });
+
+    // Delete the invitation after accepting
+    await this.prisma.teamInvitation.delete({
+      where: { id: invitation.id },
+    });
+
+    // Return the invitation we fetched earlier
+    return invitation;
   }
+
+  /**
+   * Revoke/decline an invitation
+   */
   async revoke(
     teamId: number,
     playerId: number,
-  ): Promise<TeamInvitationWithRelations[]> {
-    return TeamTestFactory.invitationResponse();
+  ): Promise<TeamInvitationWithRelations> {
+    // Fetch invitation with relations first (findFirstOrThrow will throw P2025 if not found)
+    const invitation = await this.prisma.teamInvitation.findFirstOrThrow({
+      where: {
+        teamId,
+        playerId,
+      },
+      include: {
+        team: { include: { members: true } },
+        player: true,
+      },
+    });
+
+    // Delete the invitation
+    await this.prisma.teamInvitation.delete({
+      where: { id: invitation.id },
+    });
+
+    // Return the invitation we fetched earlier
+    return invitation;
   }
+
+  /**
+   * Create a join request (player requests to join team)
+   */
   async request(
     teamId: number,
     playerId: number,
-  ): Promise<TeamInvitationWithRelations[]> {
-    return TeamTestFactory.invitationResponse();
+  ): Promise<TeamInvitationWithRelations> {
+    return this.prisma.teamInvitation.create({
+      data: {
+        teamId,
+        playerId,
+        status: InvitationStatus.REQUESTED,
+      },
+      include: {
+        team: { include: { members: true } },
+        player: true,
+      },
+    });
   }
+
+  /**
+   * Remove a player from a team
+   */
   async leave(teamId: number, playerId: number): Promise<TeamWithRelations> {
-    return TeamTestFactory.response();
+    return this.prisma.team.update({
+      where: { id: teamId },
+      data: {
+        members: {
+          disconnect: { id: playerId },
+        },
+      },
+      include: { members: true },
+    });
   }
 }

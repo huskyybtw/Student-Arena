@@ -35,8 +35,22 @@ export class TeamPostingFactory {
       rolesNeeded: [LeagueRole.CARRY, LeagueRole.SUPPORT],
       description: 'Competitive team seeking skilled players',
       status: PostingStatus.OPEN,
-      createdAt: expect.any(Date) as Date,
-      updatedAt: expect.any(Date) as Date,
+      createdAt: expect.any(String) as any,
+      updatedAt: expect.any(String) as any,
+      team: TeamTestFactory.response(),
+    };
+  }
+
+  static example(): TeamPostingResponseDto {
+    return {
+      id: 1,
+      teamId: 1,
+      title: 'Looking for Carry and Support',
+      rolesNeeded: [LeagueRole.CARRY, LeagueRole.SUPPORT],
+      description: 'Competitive team seeking skilled players',
+      status: PostingStatus.OPEN,
+      createdAt: new Date('2024-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
       team: TeamTestFactory.response(),
     };
   }
@@ -63,8 +77,21 @@ export class PlayerPostingFactory {
       title: 'Experienced Mid Laner Looking for Team',
       description: 'Diamond player with 3 years of competitive experience',
       status: PostingStatus.OPEN,
-      createdAt: expect.any(Date) as Date,
-      updatedAt: expect.any(Date) as Date,
+      createdAt: expect.any(String) as any,
+      updatedAt: expect.any(String) as any,
+      player: PlayerTestFactory.response(),
+    };
+  }
+
+  static example(): PlayerPostingResponseDto {
+    return {
+      id: 1,
+      playerId: 1,
+      title: 'Experienced Mid Laner Looking for Team',
+      description: 'Diamond player with 3 years of competitive experience',
+      status: PostingStatus.OPEN,
+      createdAt: new Date('2024-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
       player: PlayerTestFactory.response(),
     };
   }
