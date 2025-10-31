@@ -3,12 +3,20 @@ import { LeagueRole } from '@prisma/client';
 import {
   IsArray,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
 
 export class TeamPostingCreateDto {
+  @ApiProperty({
+    example: 1,
+    description: 'ID of the team creating the posting',
+  })
+  @IsInt()
+  teamId: number;
+
   @ApiProperty({
     example: 'Looking for ADC and Support',
     description: 'Title of the team posting',

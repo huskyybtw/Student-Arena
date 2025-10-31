@@ -14,7 +14,6 @@ import { TeamModule } from '../team.module';
 import { UserWithPlayer } from 'src/common/current-user.decorator';
 import { TeamQueryParams } from '../interfaces/team-filter.params';
 import { TeamTestFactory } from './team.factory';
-import e from 'express';
 describe('TeamController', () => {
   let app: INestApplication;
   let prisma: PrismaService;

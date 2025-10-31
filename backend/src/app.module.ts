@@ -11,6 +11,7 @@ import { PlayerModule } from './player/player.module';
 import { TeamModule } from './team/team.module';
 import { RatingModule } from './rating/rating.module';
 import { PostingModule } from './posting/posting.module';
+import { TeamPostingController } from './posting/team-posting.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { PostingModule } from './posting/posting.module';
     RatingModule,
     PostingModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, TeamPostingController],
   providers: [AppService],
 })
 export class AppModule {}
