@@ -10,6 +10,7 @@ import { RiotModule } from './riot/riot.module';
 import { PlayerModule } from './player/player.module';
 import { TeamModule } from './team/team.module';
 import { RatingModule } from './rating/rating.module';
+import { PostingModule } from './posting/posting.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RatingModule } from './rating/rating.module';
     PlayerModule,
     TeamModule,
     RatingModule,
+    PostingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
