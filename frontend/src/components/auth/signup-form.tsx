@@ -5,8 +5,8 @@ import { Label } from "@/components/ui/label";
 import { User, School, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { SignupFormData, signupSchema } from "@/app/auth/authSchema";
-import { useAuthControllerRegister } from "@/lib/auth/auth";
+import { SignupFormData, signupSchema } from "@/lib/validators/authSchema";
+import { useAuthControllerRegister } from "@/lib/api/auth/auth";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 interface RegisterFormProps {

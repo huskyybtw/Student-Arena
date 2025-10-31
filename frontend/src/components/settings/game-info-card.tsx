@@ -18,32 +18,42 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Gamepad2, Save, RotateCcw } from "lucide-react";
-
 import { useState } from "react";
+import { toast } from "sonner";
 
-export function GameInfoCard({
-  loading,
-  mainRole,
-  secondaryRoles,
-  onMainRoleChange,
-  onSave,
-  onReset,
-}: {
-  loading: boolean;
-  mainRole: string;
-  secondaryRoles: string[];
-  onMainRoleChange: (role: string) => void;
-  onSave: () => void;
-  onReset: () => void;
-}) {
+export function GameInfoCard({ loading }: { loading: boolean }) {
   const roles = ["top", "jungle", "mid", "adc", "support"];
-  const [localSecondaryRoles, setLocalSecondaryRoles] =
-    useState<string[]>(secondaryRoles);
+  const [mainRole, setMainRole] = useState("");
+  const [secondaryRoles, setSecondaryRoles] = useState<string[]>([]);
+  const [bio, setBio] = useState("");
+  const [summonerName, setSummonerName] = useState("");
+  const [tagLine, setTagLine] = useState("");
 
   const handleSecondaryRoleToggle = (role: string) => {
-    setLocalSecondaryRoles((prev) =>
+    setSecondaryRoles((prev) =>
       prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
     );
+  };
+
+  const handleSave = () => {
+    // TODO: Implement save logic with API call
+    console.log("Saving game info", {
+      mainRole,
+      secondaryRoles,
+      bio,
+      summonerName,
+      tagLine,
+    });
+    toast.success("Dane gracza zaktualizowane");
+  };
+
+  const handleReset = () => {
+    setMainRole("");
+    setSecondaryRoles([]);
+    setBio("");
+    setSummonerName("");
+    setTagLine("");
+    toast.info("Zresetowano zmiany");
   };
   return (
     <Card className="shadow-lg border-2">
@@ -58,7 +68,7 @@ export function GameInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onReset}
+              onClick={handleReset}
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -66,7 +76,7 @@ export function GameInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onSave}
+              onClick={handleSave}
             >
               <Save className="h-5 w-5" />
             </Button>
@@ -87,6 +97,8 @@ export function GameInfoCard({
             <Textarea
               id="bio"
               placeholder="Opowiedz coś o sobie..."
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
               className="min-h-[80px] bg-background border-2 border-border focus:border-primary resize-none"
             />
           )}
@@ -101,27 +113,27 @@ export function GameInfoCard({
             ) : (
               <Input
                 id="summonerName"
-                defaultValue="ProGamer2024"
+                value={summonerName}
+                onChange={(e) => setSummonerName(e.target.value)}
+                placeholder="ProGamer2024"
                 className="h-11 bg-background border-2 border-border focus:border-primary"
               />
             )}
           </div>
           <div className="space-y-1">
-            <Label htmlFor="server" className="text-sm font-medium">
-              Serwer
+            <Label htmlFor="tagLine" className="text-sm font-medium">
+              Tag Line
             </Label>
             {loading ? (
               <Skeleton className="h-11 w-full rounded-xl" />
             ) : (
-              <Select defaultValue="eune">
-                <SelectTrigger className="h-11 bg-background border-2 border-border focus:border-primary data-[state=open]:border-primary">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="eune">EUNE</SelectItem>
-                  <SelectItem value="euw">EUW</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="tagLine"
+                value={tagLine}
+                onChange={(e) => setTagLine(e.target.value)}
+                placeholder="#EUW1"
+                className="h-11 bg-background border-2 border-border focus:border-primary"
+              />
             )}
           </div>
         </div>
@@ -140,8 +152,8 @@ export function GameInfoCard({
                       ? "border-primary bg-primary/10 text-primary shadow-md"
                       : "border-border bg-background hover:border-primary/50 hover:bg-muted/50"
                   }`}
-                  onClick={() => onMainRoleChange(role)}
-                  disabled={localSecondaryRoles.includes(role)}
+                  onClick={() => setMainRole(role)}
+                  disabled={secondaryRoles.includes(role)}
                 >
                   <span className="text-2xl">{role}</span>
                   <span className="text-xs font-medium">{role}</span>
@@ -167,7 +179,7 @@ export function GameInfoCard({
                   key={role}
                   type="button"
                   className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
-                    localSecondaryRoles.includes(role)
+                    secondaryRoles.includes(role)
                       ? "border-primary bg-primary/10 text-primary shadow-md"
                       : "border-border bg-background hover:border-primary/50 hover:bg-muted/50"
                   }`}
@@ -176,7 +188,7 @@ export function GameInfoCard({
                 >
                   <span className="text-2xl">{role}</span>
                   <span className="text-xs font-medium">{role}</span>
-                  {localSecondaryRoles.includes(role) && (
+                  {secondaryRoles.includes(role) && (
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />
                   )}
                 </button>

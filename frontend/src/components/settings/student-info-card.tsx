@@ -10,16 +10,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { School, Save, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export function StudentInfoCard({
-  loading,
-  onSave,
-  onReset,
-}: {
-  loading: boolean;
-  onSave: () => void;
-  onReset: () => void;
-}) {
+export function StudentInfoCard({ loading }: { loading: boolean }) {
+  const [university, setUniversity] = useState("");
+  const [faculty, setFaculty] = useState("");
+  const [year, setYear] = useState("");
+  const [studentId, setStudentId] = useState("");
+
+  const handleSave = () => {
+    // TODO: Implement save logic with API call
+    console.log("Saving student info", {
+      university,
+      faculty,
+      year,
+      studentId,
+    });
+    toast.success("Dane studenckie zaktualizowane");
+  };
+
+  const handleReset = () => {
+    setUniversity("");
+    setFaculty("");
+    setYear("");
+    setStudentId("");
+    toast.info("Zresetowano zmiany");
+  };
   return (
     <Card className="shadow-lg border-2">
       <CardHeader className="pb-4">
@@ -33,7 +50,7 @@ export function StudentInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onReset}
+              onClick={handleReset}
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -41,7 +58,7 @@ export function StudentInfoCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onSave}
+              onClick={handleSave}
             >
               <Save className="h-5 w-5" />
             </Button>
@@ -63,6 +80,8 @@ export function StudentInfoCard({
               <Input
                 id="university"
                 placeholder="np. Uniwersytet Warszawski"
+                value={university}
+                onChange={(e) => setUniversity(e.target.value)}
                 className="h-11 bg-background border-2 border-border focus:border-primary"
               />
             )}
@@ -77,6 +96,8 @@ export function StudentInfoCard({
               <Input
                 id="faculty"
                 placeholder="np. Informatyka"
+                value={faculty}
+                onChange={(e) => setFaculty(e.target.value)}
                 className="h-11 bg-background border-2 border-border focus:border-primary"
               />
             )}
@@ -96,6 +117,8 @@ export function StudentInfoCard({
                 type="number"
                 min="1"
                 max="5"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
                 className="h-11 bg-background border-2 border-border focus:border-primary"
               />
             )}
@@ -110,6 +133,8 @@ export function StudentInfoCard({
               <Input
                 id="studentId"
                 placeholder="123456"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
                 className="h-11 bg-background border-2 border-border focus:border-primary"
               />
             )}

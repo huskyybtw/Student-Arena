@@ -5,9 +5,8 @@
  * API Documentation
  * OpenAPI spec version: 1.0
  */
-import type { AuthUserDto } from './authUserDto';
 
-export interface AuthResponseDto {
-  user: AuthUserDto;
-  accessToken: string;
-}
+/**
+ * Player unique identifier from Riot API
+ */
+export type PlayerResponseDtoPuuid = { [key: string]: unknown };

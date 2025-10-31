@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export interface AuthUserDto {
-  id: number;
-  email: string;
-}
+/**
+ * Summoner level of the player
+ */
+export type PlayerResponseDtoSummonerLevel = { [key: string]: unknown };

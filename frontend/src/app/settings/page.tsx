@@ -4,11 +4,10 @@ import { NavBar } from "@/components/ui/nav-bar";
 import { ProfileCard } from "@/components/settings/profile-card";
 import { StudentInfoCard } from "@/components/settings/student-info-card";
 import { GameInfoCard } from "@/components/settings/game-info-card";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/lib/hooks/current-user";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const RoleIcon = ({
   role,
@@ -60,54 +59,17 @@ const RoleIcon = ({
 };
 
 export default function SettingsPage() {
-  const [mainRole, setMainRole] = useState<string>("");
-  const [secondaryRoles, setSecondaryRoles] = useState<string[]>([]);
   const router = useRouter();
   const { user, isLoading, isError } = useCurrentUser();
-
-  useEffect(() => {
-    if (!isLoading && (isError || !user)) {
-      // router.replace("/auth");
-      toast.error("Session expired. Please log in again.");
-    }
-  }, [user, isLoading, isError, router]);
-
-  // Skeletons and role logic are now handled inside GameInfoCard
-
-  const handleSave = (section: string) => {
-    // Save logic for specific section
-    console.log(`Saving ${section}`);
-  };
-
-  const handleReset = (section: string) => {
-    // Reset logic for specific section
-    console.log(`Resetting ${section}`);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       <NavBar />
       <main className="container mx-auto px-4 py-4">
         <div className="max-w-2xl mx-auto space-y-6">
-          <ProfileCard
-            loading={isLoading}
-            user={user}
-            onSave={() => handleSave("profile")}
-            onReset={() => handleReset("profile")}
-          />
-          <StudentInfoCard
-            loading={isLoading}
-            onSave={() => handleSave("student")}
-            onReset={() => handleReset("student")}
-          />
-          <GameInfoCard
-            loading={isLoading}
-            mainRole={mainRole}
-            secondaryRoles={secondaryRoles}
-            onMainRoleChange={setMainRole}
-            onSave={() => handleSave("game")}
-            onReset={() => handleReset("game")}
-          />
+          <ProfileCard loading={isLoading} user={user} />
+          <StudentInfoCard loading={isLoading} />
+          <GameInfoCard loading={isLoading} />
         </div>
       </main>
     </div>

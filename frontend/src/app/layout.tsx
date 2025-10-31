@@ -1,8 +1,11 @@
+"use client";
 import type React from "react";
 import { Geist, Manrope } from "next/font/google";
 import "./globals.css";
-import Providers from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/providers/auth-provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
 const geist = Geist({
   subsets: ["latin"],
   display: "swap",
@@ -20,13 +23,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [queryClient] = useState(() => new QueryClient());
   return (
     <html
       lang="en"
       className={`${geist.variable} ${manrope.variable} antialiased dark`}
     >
       <body className="bg-background text-foreground">
-        <Providers>{children}</Providers>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>

@@ -35,12 +35,14 @@ export class PlayerResponseDto {
   @ApiProperty({
     example: LeagueRole.TOP,
     description: 'primary role declared by player',
+    enum: LeagueRole,
   })
   primaryRole?: LeagueRole | null;
 
   @ApiProperty({
     example: LeagueRole.MID,
     description: 'primary role declared by player',
+    enum: LeagueRole,
   })
   secondaryRole?: LeagueRole | null;
 

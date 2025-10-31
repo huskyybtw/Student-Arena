@@ -14,6 +14,7 @@ export class CreatePlayerDto {
   @ApiProperty({
     example: LeagueRole.TOP,
     description: 'primary role declared by player',
+    enum: LeagueRole,
   })
   @IsEnum(LeagueRole)
   primaryRole: LeagueRole;
@@ -21,6 +22,7 @@ export class CreatePlayerDto {
   @ApiProperty({
     example: LeagueRole.MID,
     description: 'primary role declared by player',
+    enum: LeagueRole,
   })
   @IsEnum(LeagueRole)
   secondaryRole: LeagueRole;

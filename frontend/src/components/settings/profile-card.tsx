@@ -11,19 +11,33 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User, Mail, Lock, Save, RotateCcw } from "lucide-react";
-import { AuthUserDto } from "@/lib/model";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AuthUserResponseDto } from "@/lib/api/model";
 
 export function ProfileCard({
   loading,
   user,
-  onSave,
-  onReset,
 }: {
   loading: boolean;
-  user?: AuthUserDto | null;
-  onSave: () => void;
-  onReset: () => void;
+  user?: AuthUserResponseDto | null;
 }) {
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
+  const handleSave = () => {
+    // TODO: Implement save logic with API call
+    console.log("Saving profile", { email, currentPassword, newPassword });
+    toast.success("Profil zaktualizowany");
+  };
+
+  const handleReset = () => {
+    setEmail(user?.email ?? "");
+    setCurrentPassword("");
+    setNewPassword("");
+    toast.info("Zresetowano zmiany");
+  };
   return (
     <Card className="shadow-lg border-2">
       <CardHeader className="pb-4">
@@ -37,7 +51,7 @@ export function ProfileCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onReset}
+              onClick={handleReset}
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -45,7 +59,7 @@ export function ProfileCard({
               size="sm"
               variant="ghost"
               className="h-9 px-3"
-              onClick={onSave}
+              onClick={handleSave}
             >
               <Save className="h-5 w-5" />
             </Button>
@@ -83,7 +97,8 @@ export function ProfileCard({
               <Input
                 id="email"
                 type="email"
-                defaultValue={user?.email ?? ""}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 h-11 bg-background border-2 border-border focus:border-primary"
               />
             )}
@@ -102,6 +117,8 @@ export function ProfileCard({
                 <Input
                   id="currentPassword"
                   type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                   className="pl-10 h-11 bg-background border-2 border-border focus:border-primary"
                 />
               )}
@@ -119,6 +136,8 @@ export function ProfileCard({
                 <Input
                   id="newPassword"
                   type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   className="pl-10 h-11 bg-background border-2 border-border focus:border-primary"
                 />
               )}

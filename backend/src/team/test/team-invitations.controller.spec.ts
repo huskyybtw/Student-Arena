@@ -129,7 +129,6 @@ describe('TeamInvitationController', () => {
   });
   describe('/teams/:id/invitations/:id (GET)', () => {
     it('should return only invitations for a given player in a given team', async () => {
-      // add aditional invitation to verify filtering
 
       const res = await request(app.getHttpServer())
         .get(`/teams/${team.id}/invitations/${user.playerAccount.id}`)

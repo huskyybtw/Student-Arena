@@ -34,7 +34,7 @@ import type {
 import type {
   AuthCredentialsDto,
   AuthResponseDto,
-  AuthUserDto
+  AuthUserResponseDto
 } from '.././model';
 
 
@@ -153,7 +153,7 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
     }
     export const authControllerMe = (
      options?: AxiosRequestConfig
- ): Promise<AxiosResponse<AuthUserDto>> => {
+ ): Promise<AxiosResponse<AuthUserResponseDto>> => {
     
     
     return axios.get(
@@ -230,3 +230,59 @@ export function useAuthControllerMe<TData = Awaited<ReturnType<typeof authContro
 
 
 
+export const authControllerMeUpdate = (
+    authCredentialsDto: AuthCredentialsDto, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<AuthUserResponseDto>> => {
+    
+    
+    return axios.patch(
+      `http://localhost:3001/auth/me`,
+      authCredentialsDto,options
+    );
+  }
+
+
+
+export const getAuthControllerMeUpdateMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerMeUpdate>>, TError,{data: AuthCredentialsDto}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof authControllerMeUpdate>>, TError,{data: AuthCredentialsDto}, TContext> => {
+
+const mutationKey = ['authControllerMeUpdate'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerMeUpdate>>, {data: AuthCredentialsDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authControllerMeUpdate(data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthControllerMeUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerMeUpdate>>>
+    export type AuthControllerMeUpdateMutationBody = AuthCredentialsDto
+    export type AuthControllerMeUpdateMutationError = AxiosError<unknown>
+
+    export const useAuthControllerMeUpdate = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerMeUpdate>>, TError,{data: AuthCredentialsDto}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authControllerMeUpdate>>,
+        TError,
+        {data: AuthCredentialsDto},
+        TContext
+      > => {
+
+      const mutationOptions = getAuthControllerMeUpdateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    

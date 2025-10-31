@@ -24,6 +24,7 @@ export class TeamInvitationResponseDto {
   @ApiProperty({
     example: 'pending',
     description: 'Status of the invitation',
+    enum: InvitationStatus,
   })
   status: InvitationStatus;
 

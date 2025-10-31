@@ -68,7 +68,6 @@ export class TeamInvitationsService {
     teamId: number,
     playerId: number,
   ): Promise<TeamInvitationWithRelations> {
-    // Fetch invitation with relations first (findFirstOrThrow will throw P2025 if not found)
     const invitation = await this.prisma.teamInvitation.findFirstOrThrow({
       where: {
         teamId,
@@ -80,7 +79,6 @@ export class TeamInvitationsService {
       },
     });
 
-    // Add player to team members
     await this.prisma.team.update({
       where: { id: teamId },
       data: {
@@ -90,12 +88,10 @@ export class TeamInvitationsService {
       },
     });
 
-    // Delete the invitation after accepting
     await this.prisma.teamInvitation.delete({
       where: { id: invitation.id },
     });
 
-    // Return the invitation we fetched earlier
     return invitation;
   }
 
@@ -106,7 +102,6 @@ export class TeamInvitationsService {
     teamId: number,
     playerId: number,
   ): Promise<TeamInvitationWithRelations> {
-    // Fetch invitation with relations first (findFirstOrThrow will throw P2025 if not found)
     const invitation = await this.prisma.teamInvitation.findFirstOrThrow({
       where: {
         teamId,
@@ -118,12 +113,10 @@ export class TeamInvitationsService {
       },
     });
 
-    // Delete the invitation
     await this.prisma.teamInvitation.delete({
       where: { id: invitation.id },
     });
 
-    // Return the invitation we fetched earlier
     return invitation;
   }
 

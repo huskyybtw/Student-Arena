@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 
-export * from './authCredentialsDto';
-export * from './authResponseDto';
-export * from './authUserDto';
+/**
+ * Riot Games Player TagLine
+ */
+export type PlayerResponseDtoTagLine = { [key: string]: unknown };
