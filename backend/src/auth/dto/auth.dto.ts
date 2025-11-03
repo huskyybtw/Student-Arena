@@ -5,14 +5,14 @@ import { PlayerResponseDto } from 'src/player/dto/player-response.dto';
 
 export class AuthCredentialsDto {
   @ApiProperty({
-    example: 'user@example.com',
+    example: 'marek@example.com',
     description: 'User email address',
   })
   @IsString()
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'strongPassword123', description: 'User password' })
+  @ApiProperty({ example: 'strongpassword', description: 'User password' })
   @IsString()
   @MinLength(6)
   password: string;
@@ -22,7 +22,7 @@ export class AuthUserResponseDto {
   @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 'user@example.com' })
+  @ApiProperty({ example: 'marek@example.com' })
   email: string;
 
   @ApiProperty({ type: PlayerResponseDto })

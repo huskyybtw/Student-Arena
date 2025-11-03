@@ -9,7 +9,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter());
   app.enableCors({
-    origin: true, 
+    origin: true,
     credentials: true,
   });
 
@@ -25,7 +25,14 @@ async function bootstrap() {
   app.getHttpAdapter().get('/api-json', (req: Request, res: Response) => {
     res.json(document);
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
   app.useGlobalFilters(new PrismaExceptionFilter());
   await app.listen(3001);
 }

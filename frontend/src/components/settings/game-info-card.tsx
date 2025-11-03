@@ -74,8 +74,8 @@ export function GameInfoCard({
     if (user?.playerAccount) {
       reset({
         bio: user.playerAccount.description || "",
-        summonerName: user.playerAccount.gameName || "",
-        tagLine: user.playerAccount.tagLine || "",
+        summonerName: user.playerAccount.gameName ?? "",
+        tagLine: user.playerAccount.tagLine ?? "",
         primaryRole: user.playerAccount.primaryRole || undefined,
         secondaryRole: user.playerAccount.secondaryRole || undefined,
       });
@@ -109,8 +109,8 @@ export function GameInfoCard({
   const handleReset = () => {
     reset({
       bio: user?.playerAccount?.description || "",
-      summonerName: user?.playerAccount?.gameName || "",
-      tagLine: user?.playerAccount?.tagLine || "",
+      summonerName: user?.playerAccount?.gameName ?? "",
+      tagLine: user?.playerAccount?.tagLine ?? "",
       primaryRole: user?.playerAccount?.primaryRole || undefined,
       secondaryRole: user?.playerAccount?.secondaryRole || undefined,
     });

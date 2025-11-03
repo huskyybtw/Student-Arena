@@ -52,7 +52,7 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground">
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
+          <LayoutContent>{children}</LayoutContent>
         </QueryClientProvider>
         <Toaster />
       </body>

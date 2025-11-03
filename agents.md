@@ -214,6 +214,42 @@ export default function SettingsPage() {
 }
 ```
 
+### Loading States
+
+- Always use **Skeleton** components from `@/components/ui/skeleton` for loading states
+- Skeletons should match the dimensions and layout of the actual content
+- Never use plain text like "Loading..." or spinners for data fetching components
+
+**Example:**
+
+```typescript
+import { Skeleton } from "@/components/ui/skeleton";
+
+// For input fields
+{
+  isLoading ? (
+    <Skeleton className="h-11 w-full rounded-xl" />
+  ) : (
+    <Input {...props} />
+  );
+}
+
+// For cards or complex layouts
+{
+  isLoading ? (
+    <Card>
+      <CardContent className="p-6">
+        <Skeleton className="h-12 w-12 rounded-lg" />
+        <Skeleton className="h-6 w-3/4 mt-4" />
+        <Skeleton className="h-4 w-1/2 mt-2" />
+      </CardContent>
+    </Card>
+  ) : (
+    <Card>{/* Actual content */}</Card>
+  );
+}
+```
+
 ### Type Generation
 
 - Run `npm run orval` after any backend DTO changes
