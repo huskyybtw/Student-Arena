@@ -9,6 +9,7 @@ import { SignupFormData, signupSchema } from "@/lib/validators/authSchema";
 import { useAuthControllerRegister } from "@/lib/api/auth/auth";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 interface RegisterFormProps {
   onToggle: () => void;
 }
@@ -41,7 +42,7 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
           router.push("/settings");
         },
         onError: (error: any) => {
-          alert(error?.response?.data?.message || "Błąd logowania");
+          toast.error(error?.response?.data?.message || "Błąd rejestracji");
         },
       }
     );

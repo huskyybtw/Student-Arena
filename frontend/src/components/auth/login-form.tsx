@@ -11,6 +11,7 @@ import { Lock, Mail } from "lucide-react";
 import { useAuthControllerLogin } from "@/lib/api/auth/auth";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 interface LoginFormProps {
   onToggle: () => void;
 }
@@ -38,7 +39,7 @@ export function LoginForm({ onToggle }: LoginFormProps) {
           router.push("/settings");
         },
         onError: (error: any) => {
-          alert(error?.response?.data?.message || "Błąd logowania");
+          toast.error(error?.response?.data?.message || "Błąd logowania");
         },
       }
     );

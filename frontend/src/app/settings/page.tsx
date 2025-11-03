@@ -6,8 +6,8 @@ import { StudentInfoCard } from "@/components/settings/student-info-card";
 import { GameInfoCard } from "@/components/settings/game-info-card";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useCurrentUser } from "@/lib/hooks/current-user";
 import { toast } from "sonner";
+import { useCurrentUser } from "@/lib/providers/auth-provider";
 
 const RoleIcon = ({
   role,

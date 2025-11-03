@@ -30,11 +30,9 @@ export default function RootLayout({
       className={`${geist.variable} ${manrope.variable} antialiased dark`}
     >
       <body className="bg-background text-foreground">
-        <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
         <Toaster />
       </body>
     </html>
