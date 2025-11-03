@@ -1,10 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Crown, Settings } from "lucide-react";
-import Link from "next/link";
 import { useCurrentUser } from "@/lib/providers/auth-provider";
 import { useTeamControllerTeams } from "@/lib/api/teams/teams";
+import { TeamCard } from "./team-card";
 
 export function MyTeams() {
   const { user } = useCurrentUser();
@@ -40,61 +38,7 @@ export function MyTeams() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {teams.map((team) => {
         const isOwner = team.ownerId === user?.id;
-
-        return (
-          <Card
-            key={team.id}
-            className="bg-card/80 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all"
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center">
-                    <Users className="h-6 w-6 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-lg">{team.name}</h3>
-                      {isOwner && <Crown className="h-4 w-4 text-yellow-500" />}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      [{team.tag}]
-                    </p>
-                  </div>
-                </div>
-                {isOwner && (
-                  <Link href={`/teams/${team.id}`}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 bg-transparent"
-                    >
-                      <Settings className="h-4 w-4" />
-                      Zarządzaj
-                    </Button>
-                  </Link>
-                )}
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="text-muted-foreground">Rating</p>
-                    <p className="font-semibold">{team.rating}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Członkowie</p>
-                    <p className="font-semibold">{team.members.length}/5</p>
-                  </div>
-                </div>
-                <Link href={`/teams/${team.id}`}>
-                  <Button variant="ghost" size="sm">
-                    Zobacz
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        );
+        return <TeamCard key={team.id} team={team} isOwner={isOwner} />;
       })}
     </div>
   );
@@ -104,7 +48,7 @@ function MyTeamsLoadingSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {[1, 2].map((i) => (
-        <Card key={i} className="bg-card/80 backdrop-blur-sm border-border/50">
+        <Card key={i} className="bg-card border-border">
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">

@@ -66,7 +66,7 @@ export function CreateTeamDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button variant="default" className="gap-2">
           <Plus className="h-4 w-4" />
           Stwórz Drużynę
         </Button>
@@ -123,12 +123,12 @@ export function CreateTeamDialog() {
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => setIsOpen(false)}
             >
               Anuluj
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button variant="default" type="submit" disabled={isSubmitting}>
               Stwórz Drużynę
             </Button>
           </DialogFooter>

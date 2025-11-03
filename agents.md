@@ -250,6 +250,34 @@ import { Skeleton } from "@/components/ui/skeleton";
 }
 ```
 
+### Styling Guidelines
+
+**Card Backgrounds:**
+
+- Use **solid backgrounds** (`bg-card`) instead of transparent ones (`bg-card/80`)
+- Transparent backgrounds make buttons and text hard to see
+- Use `border-border` for proper border visibility
+
+**Button Variants:**
+
+- Use existing button variants from the design system
+- `variant="default"` - Primary actions (e.g., "Aplikuj", "Stwórz")
+- `variant="secondary"` - Secondary actions (e.g., "Zarządzaj", "Filtry")
+- `variant="outline"` - Tertiary actions or cancel buttons
+- Avoid custom hover classes - use built-in variant hover states
+
+**Example:**
+
+```typescript
+// Card with solid background
+<Card className="bg-card border-border hover:border-primary/50 transition-all">
+
+// Buttons using existing variants
+<Button variant="default">Primary Action</Button>
+<Button variant="secondary">Secondary Action</Button>
+<Button variant="outline">Cancel</Button>
+```
+
 ### Type Generation
 
 - Run `npm run orval` after any backend DTO changes
