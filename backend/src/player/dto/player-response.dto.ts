@@ -26,16 +26,27 @@ export class PlayerResponseDto {
   })
   rating: number;
 
-  @ApiProperty({ example: 'Husky', description: 'Riot Games Player GameName' })
+  @ApiProperty({
+    example: 'Husky',
+    description: 'Riot Games Player GameName',
+    type: String,
+    nullable: true,
+  })
   gameName?: string | null;
 
-  @ApiProperty({ example: '5607', description: 'Riot Games Player TagLine' })
+  @ApiProperty({
+    example: '5607',
+    description: 'Riot Games Player TagLine',
+    type: String,
+    nullable: true,
+  })
   tagLine?: string | null;
 
   @ApiProperty({
     example: LeagueRole.TOP,
     description: 'primary role declared by player',
     enum: LeagueRole,
+    nullable: true,
   })
   primaryRole?: LeagueRole | null;
 
@@ -43,18 +54,31 @@ export class PlayerResponseDto {
     example: LeagueRole.MID,
     description: 'primary role declared by player',
     enum: LeagueRole,
+    nullable: true,
   })
   secondaryRole?: LeagueRole | null;
 
   @ApiProperty({
     example: '12345-unique-puuid',
     description: 'Player unique identifier from Riot API',
+    type: String,
+    nullable: true,
   })
   puuid?: string | null;
 
-  @ApiProperty({ example: 123, description: 'Profile icon ID of the player' })
+  @ApiProperty({
+    example: 123,
+    description: 'Profile icon ID of the player',
+    type: Number,
+    nullable: true,
+  })
   profileIconId?: number | null;
 
-  @ApiProperty({ example: 30, description: 'Summoner level of the player' })
+  @ApiProperty({
+    example: 30,
+    description: 'Summoner level of the player',
+    type: Number,
+    nullable: true,
+  })
   summonerLevel?: number | null;
 }

@@ -35,16 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setTokenState(newToken);
   };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cookieToken = Cookies.get("accessToken");
-      if (cookieToken) {
-        setTokenState(cookieToken);
-      }
-    }
-  }, []);
-
+  
   useEffect(() => {
     const interceptorId = axios.interceptors.request.use((config) => {
       if (token && config.headers) {

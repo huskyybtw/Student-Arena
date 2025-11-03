@@ -1,6 +1,5 @@
 "use client";
 
-import { NavBar } from "@/components/ui/nav-bar";
 import { ProfileCard } from "@/components/settings/profile-card";
 import { StudentInfoCard } from "@/components/settings/student-info-card";
 import { GameInfoCard } from "@/components/settings/game-info-card";
@@ -59,19 +58,15 @@ const RoleIcon = ({
 };
 
 export default function SettingsPage() {
-  const router = useRouter();
-  const { user, isLoading, isError } = useCurrentUser();
+  const { user, isLoading } = useCurrentUser();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      <NavBar />
-      <main className="container mx-auto px-4 py-4">
-        <div className="max-w-2xl mx-auto space-y-6">
-          <ProfileCard loading={isLoading} user={user} />
-          <StudentInfoCard loading={isLoading} />
-          <GameInfoCard loading={isLoading} />
-        </div>
-      </main>
-    </div>
+    <main className="container mx-auto px-4 py-4">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <ProfileCard loading={isLoading} user={user} />
+        <StudentInfoCard loading={isLoading} user={user} />
+        <GameInfoCard loading={isLoading} user={user} />
+      </div>
+    </main>
   );
 }

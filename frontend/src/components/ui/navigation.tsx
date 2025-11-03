@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Settings, Trophy } from "lucide-react";
 import Link from "next/link";
 
-export function NavBar() {
+export function Navigation() {
   return (
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-4 py-4">

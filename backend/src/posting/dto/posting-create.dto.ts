@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { LeagueRole } from '@prisma/client';
 import {
   IsArray,
@@ -36,10 +36,10 @@ export class TeamPostingCreateDto {
   @IsEnum(LeagueRole, { each: true })
   rolesNeeded: LeagueRole[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'We are a competitive team looking for dedicated players',
     description: 'Detailed description of the posting',
-    required: false,
+    type: String,
   })
   @IsString()
   @IsOptional()
@@ -55,10 +55,10 @@ export class PlayerPostingCreateDto {
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Diamond player with 3 years of competitive experience',
     description: 'Detailed description of the posting',
-    required: false,
+    type: String,
   })
   @IsString()
   @IsOptional()

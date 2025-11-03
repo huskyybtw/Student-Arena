@@ -38,6 +38,7 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
       {
         onSuccess: (response) => {
           Cookies.set("accessToken", response.data.accessToken);
+          toast.success("Konto utworzone pomyślnie!");
           reset();
           router.push("/settings");
         },

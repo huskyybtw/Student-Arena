@@ -5,13 +5,8 @@
  * API Documentation
  * OpenAPI spec version: 1.0
  */
-import type { PlayerResponseDtoGameName } from './playerResponseDtoGameName';
-import type { PlayerResponseDtoTagLine } from './playerResponseDtoTagLine';
 import type { PlayerResponseDtoPrimaryRole } from './playerResponseDtoPrimaryRole';
 import type { PlayerResponseDtoSecondaryRole } from './playerResponseDtoSecondaryRole';
-import type { PlayerResponseDtoPuuid } from './playerResponseDtoPuuid';
-import type { PlayerResponseDtoProfileIconId } from './playerResponseDtoProfileIconId';
-import type { PlayerResponseDtoSummonerLevel } from './playerResponseDtoSummonerLevel';
 
 export interface PlayerResponseDto {
   /** Unique identifier for the player account */
@@ -22,18 +17,39 @@ export interface PlayerResponseDto {
   description: string;
   /** rating for a player */
   rating: number;
-  /** Riot Games Player GameName */
-  gameName: PlayerResponseDtoGameName;
-  /** Riot Games Player TagLine */
-  tagLine: PlayerResponseDtoTagLine;
-  /** primary role declared by player */
+  /**
+   * Riot Games Player GameName
+   * @nullable
+   */
+  gameName: string | null;
+  /**
+   * Riot Games Player TagLine
+   * @nullable
+   */
+  tagLine: string | null;
+  /**
+   * primary role declared by player
+   * @nullable
+   */
   primaryRole: PlayerResponseDtoPrimaryRole;
-  /** primary role declared by player */
+  /**
+   * primary role declared by player
+   * @nullable
+   */
   secondaryRole: PlayerResponseDtoSecondaryRole;
-  /** Player unique identifier from Riot API */
-  puuid: PlayerResponseDtoPuuid;
-  /** Profile icon ID of the player */
-  profileIconId: PlayerResponseDtoProfileIconId;
-  /** Summoner level of the player */
-  summonerLevel: PlayerResponseDtoSummonerLevel;
+  /**
+   * Player unique identifier from Riot API
+   * @nullable
+   */
+  puuid: string | null;
+  /**
+   * Profile icon ID of the player
+   * @nullable
+   */
+  profileIconId: number | null;
+  /**
+   * Summoner level of the player
+   * @nullable
+   */
+  summonerLevel: number | null;
 }

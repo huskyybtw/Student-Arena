@@ -35,6 +35,7 @@ export function LoginForm({ onToggle }: LoginFormProps) {
       {
         onSuccess: (response) => {
           Cookies.set("accessToken", response.data.accessToken);
+          toast.success("Zalogowano pomyślnie!");
           reset();
           router.push("/settings");
         },

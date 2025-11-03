@@ -4,8 +4,11 @@ import { Geist, Manrope } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/providers/auth-provider";
+import { Navigation } from "@/components/ui/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+
 const geist = Geist({
   subsets: ["latin"],
   display: "swap",
@@ -17,6 +20,24 @@ const manrope = Manrope({
   display: "swap",
   variable: "--font-manrope",
 });
+
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isGuestRoute = pathname === "/" || pathname.startsWith("/auth");
+
+  if (isGuestRoute) {
+    return <>{children}</>;
+  }
+
+  return (
+    <AuthProvider>
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+        <Navigation />
+        {children}
+      </div>
+    </AuthProvider>
+  );
+}
 
 export default function RootLayout({
   children,

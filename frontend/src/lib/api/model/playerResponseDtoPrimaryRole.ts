@@ -8,8 +8,9 @@
 
 /**
  * primary role declared by player
+ * @nullable
  */
-export type PlayerResponseDtoPrimaryRole = typeof PlayerResponseDtoPrimaryRole[keyof typeof PlayerResponseDtoPrimaryRole];
+export type PlayerResponseDtoPrimaryRole = typeof PlayerResponseDtoPrimaryRole[keyof typeof PlayerResponseDtoPrimaryRole] | null;
 
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
