@@ -14,12 +14,14 @@ import { EditPostingDialog } from "@/components/posting/edit-posting-dialog";
 import { DeletePostingDialog } from "@/components/posting/delete-posting-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 export function TeamPosting() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const { user } = useCurrentUser();
+  const router = useRouter();
 
   const { data: postingsData, isLoading } = useTeamPostingControllerPostings({
     search: searchTerm,
@@ -143,7 +145,8 @@ export function TeamPosting() {
             return (
               <div
                 key={post.id}
-                className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-muted/30 transition-colors text-sm"
+                className="grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-muted/30 transition-colors text-sm cursor-pointer"
+                onClick={() => router.push(`/teams/${post.team.id}`)}
               >
                 <div className="col-span-3">
                   <p className="font-medium text-foreground">{post.title}</p>
@@ -168,7 +171,10 @@ export function TeamPosting() {
                 <div className="col-span-2">
                   <p className="text-xs text-muted-foreground">{updatedAt}</p>
                 </div>
-                <div className="col-span-3 flex items-center justify-center gap-2">
+                <div
+                  className="col-span-3 flex items-center justify-center gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {isMyTeamPosting ? (
                     <>
                       <EditPostingDialog
