@@ -6,13 +6,22 @@
  * OpenAPI spec version: 1.0
  */
 import {
-  useMutation
+  useMutation,
+  useQuery
 } from '@tanstack/react-query';
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
+  QueryFunction,
+  QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult
 } from '@tanstack/react-query';
 
 import axios from 'axios';
@@ -24,10 +33,92 @@ import type {
 
 import type {
   CreatePlayerDto,
+  PlayerControllerPlayersParams,
   PlayerResponseDto
 } from '.././model';
 
 
+
+
+
+export const playerControllerPlayers = (
+    params?: PlayerControllerPlayersParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<PlayerResponseDto[]>> => {
+    
+    
+    return axios.get(
+      `http://localhost:3001/player`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+export const getPlayerControllerPlayersQueryKey = (params?: PlayerControllerPlayersParams,) => {
+    return [`http://localhost:3001/player`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getPlayerControllerPlayersQueryOptions = <TData = Awaited<ReturnType<typeof playerControllerPlayers>>, TError = AxiosError<unknown>>(params?: PlayerControllerPlayersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof playerControllerPlayers>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPlayerControllerPlayersQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof playerControllerPlayers>>> = ({ signal }) => playerControllerPlayers(params, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof playerControllerPlayers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PlayerControllerPlayersQueryResult = NonNullable<Awaited<ReturnType<typeof playerControllerPlayers>>>
+export type PlayerControllerPlayersQueryError = AxiosError<unknown>
+
+
+export function usePlayerControllerPlayers<TData = Awaited<ReturnType<typeof playerControllerPlayers>>, TError = AxiosError<unknown>>(
+ params: undefined |  PlayerControllerPlayersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof playerControllerPlayers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof playerControllerPlayers>>,
+          TError,
+          Awaited<ReturnType<typeof playerControllerPlayers>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePlayerControllerPlayers<TData = Awaited<ReturnType<typeof playerControllerPlayers>>, TError = AxiosError<unknown>>(
+ params?: PlayerControllerPlayersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof playerControllerPlayers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof playerControllerPlayers>>,
+          TError,
+          Awaited<ReturnType<typeof playerControllerPlayers>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePlayerControllerPlayers<TData = Awaited<ReturnType<typeof playerControllerPlayers>>, TError = AxiosError<unknown>>(
+ params?: PlayerControllerPlayersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof playerControllerPlayers>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function usePlayerControllerPlayers<TData = Awaited<ReturnType<typeof playerControllerPlayers>>, TError = AxiosError<unknown>>(
+ params?: PlayerControllerPlayersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof playerControllerPlayers>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPlayerControllerPlayersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
 
 
 

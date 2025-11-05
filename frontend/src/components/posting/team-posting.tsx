@@ -5,19 +5,26 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
 import { SearchBar } from "@/components/ui/search-bar";
+import { Pagination } from "@/components/ui/pagination";
 import { ApplyToTeamButton } from "@/components/teams/apply-to-team-button";
 import { useTeamPostingControllerPostings } from "@/lib/api/postings/postings";
 import { useCurrentUser } from "@/lib/providers/auth-provider";
 import { useTeamControllerTeams } from "@/lib/api/teams/teams";
 import { EditPostingDialog } from "@/components/posting/edit-posting-dialog";
 import { DeletePostingDialog } from "@/components/posting/delete-posting-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function TeamPosting() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const { user } = useCurrentUser();
 
   const { data: postingsData, isLoading } = useTeamPostingControllerPostings({
     search: searchTerm,
+    page: currentPage,
+    limit: itemsPerPage,
   });
 
   const { data: myTeamsData } = useTeamControllerTeams(
@@ -47,9 +54,45 @@ export function TeamPosting() {
             Filtry
           </Button>
         </div>
-        <div className="text-center py-8 text-muted-foreground">
-          Ładowanie ogłoszeń...
-        </div>
+
+        {/* Loading skeletons */}
+        <Card className="bg-card border-border overflow-hidden">
+          <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-muted/30 text-xs font-medium text-muted-foreground border-b border-border">
+            <div className="col-span-3">Drużyna</div>
+            <div className="col-span-2">Poszukiwane Role</div>
+            <div className="col-span-2">Opis</div>
+            <div className="col-span-2">Zaktualizowano</div>
+            <div className="col-span-3 text-center">Akcja</div>
+          </div>
+          <CardContent className="p-0 divide-y divide-border">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="grid grid-cols-12 gap-4 px-4 py-4 items-center"
+              >
+                <div className="col-span-3 space-y-2">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <div className="col-span-2">
+                  <div className="flex gap-1">
+                    <Skeleton className="h-6 w-12" />
+                    <Skeleton className="h-6 w-12" />
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <Skeleton className="h-4 w-full" />
+                </div>
+                <div className="col-span-2">
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <div className="col-span-3 flex items-center justify-center gap-2">
+                  <Skeleton className="h-9 w-24" />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -59,7 +102,10 @@ export function TeamPosting() {
       <div className="flex gap-3">
         <SearchBar
           value={searchTerm}
-          onChange={setSearchTerm}
+          onChange={(value) => {
+            setSearchTerm(value);
+            setCurrentPage(1);
+          }}
           placeholder="Szukaj ogłoszeń drużyn..."
           icon={<Search className="h-4 w-4" />}
           className="flex-1"
@@ -156,6 +202,16 @@ export function TeamPosting() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {!isLoading && filteredPosts.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredPosts.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

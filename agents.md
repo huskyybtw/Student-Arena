@@ -250,6 +250,45 @@ import { Skeleton } from "@/components/ui/skeleton";
 }
 ```
 
+### Reusable UI Components
+
+**Global Components** (located in `@/components/ui/`):
+
+- **SearchBar**: Debounced search input with icon support
+- **TabSwitcher**: Generic tab switching component with type safety
+- **Pagination**: Global pagination component for all lists/tables
+- **Skeleton**: Loading state placeholders
+- **RoleSelector**: League of Legends role selection
+- **ConfirmationDialog**: Reusable confirmation dialogs for destructive actions
+
+**Pagination Component Usage:**
+
+```typescript
+import { Pagination } from "@/components/ui/pagination";
+
+<Pagination
+  currentPage={currentPage}
+  totalItems={totalItems}
+  itemsPerPage={itemsPerPage}
+  onPageChange={setCurrentPage}
+/>;
+```
+
+**SearchBar Component Usage:**
+
+```typescript
+import { SearchBar } from "@/components/ui/search-bar";
+import { Search } from "lucide-react";
+
+<SearchBar
+  value={searchTerm}
+  onChange={setSearchTerm}
+  placeholder="Szukaj..."
+  icon={<Search className="h-4 w-4" />}
+  debounce={300}
+/>;
+```
+
 ### Styling Guidelines
 
 **Card Backgrounds:**
@@ -262,9 +301,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 - Use existing button variants from the design system
 - `variant="default"` - Primary actions (e.g., "Aplikuj", "Stwórz")
-- `variant="secondary"` - Secondary actions (e.g., "Zarządzaj", "Filtry")
+- `variant="secondary"` - Secondary actions (e.g., "Zarządzaj", "Filtry", "Edytuj", "Usuń")
 - `variant="outline"` - Tertiary actions or cancel buttons
 - Avoid custom hover classes - use built-in variant hover states
+- **Consistency**: Action buttons in the same context should use the same variant and size for visual harmony
 
 **UI Component Visibility (Concise UI Principle):**
 
@@ -298,3 +338,146 @@ import { Skeleton } from "@/components/ui/skeleton";
 - Generated types are in `src/lib/api/model/`
 - Do NOT manually edit generated files
 - Use generated enums instead of hardcoding values
+
+### Backend Search Implementation
+
+**Requirements:**
+
+- Implement server-side search filtering for better performance
+- Use Prisma `where` clauses with `OR` conditions for multi-field search
+- Always use case-insensitive matching with `mode: 'insensitive'`
+- Use `contains` for partial matching
+
+**Example:**
+
+```typescript
+import { Prisma } from '@prisma/client';
+
+async findMany(params: QueryParams) {
+  const where: Prisma.PlayerPostingWhereInput = {};
+
+  if (params.search) {
+    where.OR = [
+      { title: { contains: params.search, mode: 'insensitive' } },
+      { description: { contains: params.search, mode: 'insensitive' } },
+      { player: { gameName: { contains: params.search, mode: 'insensitive' } } },
+      { player: { tagLine: { contains: params.search, mode: 'insensitive' } } },
+    ];
+  }
+
+  return await this.prisma.playerPosting.findMany({
+    where,
+    skip: (params.page - 1) * params.limit,
+    take: params.limit,
+    orderBy: { [String(params.sortBy || 'createdAt')]: params.sortOrder || 'desc' },
+    include: { player: true },
+  });
+}
+```
+
+**Frontend Integration:**
+
+- Always pass search parameter (even empty string) to ensure query refetch
+- Don't use conditional parameters with `undefined` - this breaks React Query caching
+
+```typescript
+// ✅ CORRECT
+const { data } = useQuery({ search: searchTerm });
+
+// ❌ WRONG - breaks refetch on search clear
+const { data } = useQuery(searchTerm ? { search: searchTerm } : undefined);
+```
+
+### CRUD Patterns
+
+**Unified Dialog Components:**
+
+- Prefer unified components with type props over separate components for similar functionality
+- Reduces code duplication and maintenance burden
+- Use conditional rendering based on type parameter
+
+**Example:**
+
+```typescript
+interface EditPostingDialogProps {
+  type: "team" | "player";
+  postingId: number;
+  // ... other props
+}
+
+export function EditPostingDialog({ type, ...props }: EditPostingDialogProps) {
+  // Type-based conditional logic
+  if (type === "team") {
+    updateTeamMutation.mutate(data);
+  } else {
+    updatePlayerMutation.mutate(data);
+  }
+}
+```
+
+**Confirmation Dialogs:**
+
+- Create reusable confirmation dialogs for destructive actions
+- Support customizable title, description, buttons, and variants
+- Always use for delete operations
+
+**Query Invalidation:**
+
+- Invalidate related queries after mutations to refresh data
+- Add to mutation's `onSuccess` callback
+
+```typescript
+const mutation = useMutation({
+  mutation: {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postingsList"] });
+      toast.success("Operation successful");
+    },
+  },
+});
+```
+
+### Table/List Layout Guidelines
+
+**Column Alignment:**
+
+- **Text content columns**: Left-aligned (natural reading flow)
+- **Action buttons column**: Center-aligned for visual balance
+- **Date columns**: Left-aligned to match headers
+- Use Tailwind utilities: `text-center` on header, `justify-center` on flex container
+
+**Action Buttons:**
+
+- Show edit/delete buttons only for items owned by current user
+- For items not owned, show appropriate interaction buttons (e.g., "Zaproś", "Aplikuj")
+- Use same styling for all action buttons in a table (variant, size, gap)
+
+**Ownership Checking:**
+
+- Player postings: Check `user?.playerAccount?.id === post.playerId`
+- Team postings: Fetch user's teams and check `myTeams.some(team => team.id === post.teamId)`
+
+**Example:**
+
+```typescript
+// Fetch user's teams for ownership check
+const { data: myTeamsData } = useTeamControllerTeams(
+  user?.playerAccount?.id ? { members: [user.playerAccount.id] } : undefined
+);
+const myTeams = myTeamsData?.data || [];
+
+// Check ownership
+const isMyTeamPosting = myTeams.some((team) => team.id === post.team.id);
+
+// Render appropriate buttons
+<div className="col-span-3 flex items-center justify-center gap-2">
+  {isMyTeamPosting ? (
+    <>
+      <EditPostingDialog type="team" {...editProps} />
+      <DeletePostingDialog type="team" {...deleteProps} />
+    </>
+  ) : (
+    <Button variant="default">Apply</Button>
+  )}
+</div>;
+```

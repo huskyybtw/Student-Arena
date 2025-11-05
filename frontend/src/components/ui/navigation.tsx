@@ -33,7 +33,7 @@ export function Navigation() {
                 <Link href="/posting">Tablica</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/rankings">Rankingi</Link>
+                <Link href="/ratings">Rankingi</Link>
               </Button>
             </nav>
           </div>

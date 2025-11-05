@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RiotService } from '../riot/riot.service';
 import { CreatePlayerDto } from './dto/player-create.dto';
 import { PlayerAccount, Prisma } from '@prisma/client';
+import { QueryParams } from '../common/query-params.interface';
 
 /**
  * Service for player-related business logic.
@@ -13,6 +14,31 @@ export class PlayerService {
     private readonly prisma: PrismaService,
     private readonly riotService: RiotService,
   ) {}
+
+  /**
+   * Find many player accounts based on query parameters.
+   * @param params Query parameters for filtering, sorting, and pagination
+   * @returns Array of player accounts
+   */
+  async findMany(params: QueryParams): Promise<PlayerAccount[]> {
+    const where: Prisma.PlayerAccountWhereInput = {};
+
+    if (params.search) {
+      where.OR = [
+        { gameName: { contains: params.search, mode: 'insensitive' } },
+        { tagLine: { contains: params.search, mode: 'insensitive' } },
+      ];
+    }
+
+    return await this.prisma.playerAccount.findMany({
+      where,
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      orderBy: {
+        [String(params.sortBy || 'id')]: params.sortOrder || 'asc',
+      },
+    });
+  }
 
   /**
    * Finds a player account by userId or puuid.

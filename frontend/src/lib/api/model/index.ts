@@ -12,6 +12,8 @@ export * from './authUserResponseDto';
 export * from './createPlayerDto';
 export * from './createPlayerDtoPrimaryRole';
 export * from './createPlayerDtoSecondaryRole';
+export * from './playerControllerPlayersParams';
+export * from './playerControllerPlayersSortOrder';
 export * from './playerPostingControllerPostingsParams';
 export * from './playerPostingControllerPostingsSortOrder';
 export * from './playerPostingCreateDto';

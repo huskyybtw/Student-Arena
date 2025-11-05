@@ -31,8 +31,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-        <Navigation />
+      <Navigation />
+      <div className="min-h-screen bg-gradient-to-br from-background via-30% via-background to-muted/87">
         {children}
       </div>
     </AuthProvider>

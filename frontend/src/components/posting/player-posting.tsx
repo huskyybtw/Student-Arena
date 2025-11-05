@@ -4,17 +4,24 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
 import { SearchBar } from "@/components/ui/search-bar";
+import { Pagination } from "@/components/ui/pagination";
 import { usePlayerPostingControllerPostings } from "@/lib/api/postings/postings";
 import { useCurrentUser } from "@/lib/providers/auth-provider";
 import { EditPostingDialog } from "@/components/posting/edit-posting-dialog";
 import { DeletePostingDialog } from "@/components/posting/delete-posting-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function PlayerPosting() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const { user } = useCurrentUser();
 
   const { data: postingsData, isLoading } = usePlayerPostingControllerPostings({
     search: searchTerm,
+    page: currentPage,
+    limit: itemsPerPage,
   });
 
   const playerPosts = postingsData?.data || [];
@@ -39,9 +46,38 @@ export function PlayerPosting() {
             Filtry
           </Button>
         </div>
-        <div className="text-center py-8 text-muted-foreground">
-          Ładowanie ogłoszeń...
-        </div>
+
+        {/* Loading skeletons */}
+        <Card className="bg-card border-border overflow-hidden">
+          <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-muted/30 text-xs font-medium text-muted-foreground border-b border-border">
+            <div className="col-span-3">Gracz</div>
+            <div className="col-span-3">Opis</div>
+            <div className="col-span-3">Zaktualizowano</div>
+            <div className="col-span-3 text-center">Akcja</div>
+          </div>
+          <CardContent className="p-0 divide-y divide-border">
+            {Array.from({ length: 5 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="grid grid-cols-12 gap-4 px-4 py-4 items-center"
+              >
+                <div className="col-span-3 space-y-2">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <div className="col-span-3">
+                  <Skeleton className="h-4 w-full" />
+                </div>
+                <div className="col-span-3">
+                  <Skeleton className="h-4 w-24" />
+                </div>
+                <div className="col-span-3 flex items-center justify-center gap-2">
+                  <Skeleton className="h-9 w-24" />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -51,7 +87,10 @@ export function PlayerPosting() {
       <div className="flex gap-3">
         <SearchBar
           value={searchTerm}
-          onChange={setSearchTerm}
+          onChange={(value) => {
+            setSearchTerm(value);
+            setCurrentPage(1);
+          }}
           placeholder="Szukaj ogłoszeń graczy..."
           icon={<Search className="h-4 w-4" />}
           className="flex-1"
@@ -132,6 +171,16 @@ export function PlayerPosting() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {!isLoading && filteredPosts.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredPosts.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

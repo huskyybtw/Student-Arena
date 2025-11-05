@@ -45,7 +45,9 @@ export class TeamService {
       where,
       skip: (params.page - 1) * params.limit,
       take: params.limit,
-      orderBy: { [String(params.sortBy || 'name')]: params.sortOrder || 'asc' },
+      orderBy: {
+        [String(params.sortBy || 'name')]: params.sortOrder || 'asc',
+      },
       include: { members: true },
     });
   }
