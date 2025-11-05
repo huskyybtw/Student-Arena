@@ -8,14 +8,14 @@ export function MyTeams() {
   const { user } = useCurrentUser();
 
   const { data: myTeamsData, isLoading } = useTeamControllerTeams(
-    user?.id
+    user?.playerAccount?.id
       ? {
-          ownerId: user.id,
+          members: [user.playerAccount.id],
         }
       : undefined,
     {
       query: {
-        enabled: !!user?.id,
+        enabled: !!user?.playerAccount?.id,
       },
     }
   );
@@ -37,7 +37,7 @@ export function MyTeams() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {teams.map((team) => {
-        const isOwner = team.ownerId === user?.id;
+        const isOwner = team.ownerId === user?.playerAccount?.id;
         return <TeamCard key={team.id} team={team} isOwner={isOwner} />;
       })}
     </div>
