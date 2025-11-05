@@ -1,16 +1,17 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { LoginFormData, loginSchema } from "@/app/auth/authSchema";
+import { LoginFormData, loginSchema } from "@/lib/validators/authSchema";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { Lock, Mail } from "lucide-react";
-import { useAuthControllerLogin } from "@/lib/auth/auth";
+import { useAuthControllerLogin } from "@/lib/api/auth/auth";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 interface LoginFormProps {
   onToggle: () => void;
 }
@@ -34,11 +35,12 @@ export function LoginForm({ onToggle }: LoginFormProps) {
       {
         onSuccess: (response) => {
           Cookies.set("accessToken", response.data.accessToken);
+          toast.success("Zalogowano pomyślnie!");
           reset();
           router.push("/settings");
         },
         onError: (error: any) => {
-          alert(error?.response?.data?.message || "Błąd logowania");
+          toast.error(error?.response?.data?.message || "Błąd logowania");
         },
       }
     );

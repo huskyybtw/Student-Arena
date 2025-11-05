@@ -9,15 +9,17 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { CurrentUser } from '../common/current-user.decorator';
+import { CurrentUser, UserWithPlayer } from '../common/current-user.decorator';
 import { User } from '@prisma/client';
 import { ApiTags, ApiBody, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import {
   AuthCredentialsDto,
   AuthResponseDto,
-  AuthUserDto,
+  AuthUserResponseDto,
 } from './dto/auth.dto';
 import { UserService } from '../user/user.service';
+import { PlayerService } from 'src/player/player.service';
+import { PlayerResponseDto } from 'src/player/dto/player-response.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -46,7 +48,7 @@ export class AuthController {
     type: AuthResponseDto,
   })
   @Post('register')
-  async register(@Body() body: AuthCredentialsDto){
+  async register(@Body() body: AuthCredentialsDto): Promise<AuthResponseDto> {
     return this.authService.register(body.email, body.password);
   }
 
@@ -54,27 +56,35 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Authenticated user',
-    type: AuthUserDto,
+    type: AuthUserResponseDto,
   })
   @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  async me(@CurrentUser() user: User) {
-    return { id: user.id, email: user.email };
+  async me(@CurrentUser() user: UserWithPlayer): Promise<AuthUserResponseDto> {
+    return {
+      id: user.id,
+      email: user.email,
+      playerAccount: user.playerAccount as PlayerResponseDto,
+    };
   }
 
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'Update Authenticated user',
-    type: AuthUserDto,
+    type: AuthUserResponseDto,
   })
   @UseGuards(AuthGuard('jwt'))
   @Patch('me')
-  async meUpdate(@CurrentUser() user: User, @Body() dto: AuthCredentialsDto) {
+  async meUpdate(
+    @CurrentUser() user: UserWithPlayer,
+    @Body() dto: AuthCredentialsDto,
+  ): Promise<AuthUserResponseDto> {
     const updatedUser = await this.userService.update(user.id, dto);
     return {
-      id : updatedUser.id,
-      email : updatedUser.email,
-    }
+      id: updatedUser.id,
+      email: updatedUser.email,
+      playerAccount: user.playerAccount as PlayerResponseDto,
+    };
   }
 }

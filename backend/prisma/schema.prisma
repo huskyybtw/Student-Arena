@@ -14,9 +14,99 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String   // hashed
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String // hashed
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  playerAccount PlayerAccount?
+}
+
+enum LeagueRole {
+  TOP
+  JUNGLE
+  MID
+  CARRY
+  SUPPORT
+}
+
+model PlayerAccount {
+  id            Int         @id @default(autoincrement())
+  userId        Int         @unique
+  description   String      @default("")
+  rating        Int         @default(1000)
+  primaryRole   LeagueRole?
+  secondaryRole LeagueRole?
+  gameName      String?
+  tagLine       String?
+  puuid         String?
+  profileIconId Int?
+  summonerLevel Int?
+
+  teams      Team[] @relation("TeamMembers")
+  ownedTeams Team[] @relation("TeamOwner")
+
+  user          User             @relation(fields: [userId], references: [id])
+  invitations   TeamInvitation[]
+  PlayerPosting PlayerPosting[]
+}
+
+model Team {
+  id          Int    @id @default(autoincrement())
+  ownerId     Int
+  name        String @unique
+  tag         String
+  description String @default("")
+  rating      Int    @default(0)
+
+  owner       PlayerAccount    @relation("TeamOwner", fields: [ownerId], references: [id])
+  members     PlayerAccount[]  @relation("TeamMembers")
+  invitations TeamInvitation[]
+  TeamPosting TeamPosting[]
+}
+
+enum InvitationStatus {
+  REQUESTED
+  PENDING
+}
+
+model TeamInvitation {
+  id        Int              @id @default(autoincrement())
+  teamId    Int
+  playerId  Int
+  createdAt DateTime         @default(now())
+  status    InvitationStatus
+
+  team   Team          @relation(fields: [teamId], references: [id])
+  player PlayerAccount @relation(fields: [playerId], references: [id])
+}
+
+enum PostingStatus {
+  OPEN
+  CLOSED
+}
+
+model TeamPosting {
+  id          Int           @id @default(autoincrement())
+  teamId      Int
+  title       String
+  rolesNeeded LeagueRole[]
+  status      PostingStatus @default(OPEN)
+  description String        @default("")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  team Team @relation(fields: [teamId], references: [id])
+}
+
+model PlayerPosting {
+  id          Int           @id @default(autoincrement())
+  playerId    Int
+  title       String
+  status      PostingStatus @default(OPEN)
+  description String        @default("")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  player PlayerAccount @relation(fields: [playerId], references: [id])
 }

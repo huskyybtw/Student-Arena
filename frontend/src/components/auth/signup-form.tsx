@@ -5,10 +5,11 @@ import { Label } from "@/components/ui/label";
 import { User, School, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { SignupFormData, signupSchema } from "@/app/auth/authSchema";
-import { useAuthControllerRegister } from "@/lib/auth/auth";
+import { SignupFormData, signupSchema } from "@/lib/validators/authSchema";
+import { useAuthControllerRegister } from "@/lib/api/auth/auth";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 interface RegisterFormProps {
   onToggle: () => void;
 }
@@ -37,11 +38,12 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
       {
         onSuccess: (response) => {
           Cookies.set("accessToken", response.data.accessToken);
+          toast.success("Konto utworzone pomyślnie!");
           reset();
           router.push("/settings");
         },
         onError: (error: any) => {
-          alert(error?.response?.data?.message || "Błąd logowania");
+          toast.error(error?.response?.data?.message || "Błąd rejestracji");
         },
       }
     );

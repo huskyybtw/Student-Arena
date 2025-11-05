@@ -1,0 +1,66 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { LeagueRole } from '@prisma/client';
+import {
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+
+export class TeamPostingCreateDto {
+  @ApiProperty({
+    example: 1,
+    description: 'ID of the team creating the posting',
+  })
+  @IsInt()
+  teamId: number;
+
+  @ApiProperty({
+    example: 'Looking for ADC and Support',
+    description: 'Title of the team posting',
+  })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty({
+    example: ['ADC', 'SUPPORT'],
+    description: 'Roles needed for the team',
+    enum: LeagueRole,
+    isArray: true,
+  })
+  @IsArray()
+  @IsEnum(LeagueRole, { each: true })
+  rolesNeeded: LeagueRole[];
+
+  @ApiPropertyOptional({
+    example: 'We are a competitive team looking for dedicated players',
+    description: 'Detailed description of the posting',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+export class PlayerPostingCreateDto {
+  @ApiProperty({
+    example: 'Experienced Mid Laner Looking for Team',
+    description: 'Title of the player posting',
+  })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiPropertyOptional({
+    example: 'Diamond player with 3 years of competitive experience',
+    description: 'Detailed description of the posting',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}

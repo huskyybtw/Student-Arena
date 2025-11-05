@@ -3,16 +3,29 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
-import { RiotApiModule } from './riot-api/riot-api.module';
 import { RiotModule } from './riot/riot.module';
+import { PlayerModule } from './player/player.module';
+import { TeamModule } from './team/team.module';
+import { RatingModule } from './rating/rating.module';
+import { PostingModule } from './posting/posting.module';
+import { TeamPostingController } from './posting/team-posting.controller';
 
 @Module({
-  imports: [ConfigModule.forRoot(), PrismaModule, AuthModule, UserModule, RiotApiModule, RiotModule],
-  controllers: [AppController, UserController],
-  providers: [AppService, UserService],
+  imports: [
+    ConfigModule.forRoot(),
+    PrismaModule,
+    AuthModule,
+    UserModule,
+    RiotModule,
+    PlayerModule,
+    TeamModule,
+    RatingModule,
+    PostingModule,
+  ],
+  controllers: [AppController, TeamPostingController],
+  providers: [AppService],
 })
 export class AppModule {}

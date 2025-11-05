@@ -6,7 +6,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
-import { AuthResponseDto, AuthUserDto } from './dto/auth.dto';
+import { AuthResponseDto, AuthUserResponseDto } from './dto/auth.dto';
+import { PlayerService } from '../player/player.service';
+import { PlayerResponseDto } from 'src/player/dto/player-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +20,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly playerService: PlayerService,
   ) {}
 
   /**
@@ -34,13 +37,16 @@ export class AuthService {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
+    const player = await this.playerService.findOne({ userId: user.id });
     const payload = { sub: user.id, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    const authUser: AuthUserDto = { id: user.id, email: user.email };
-
     return {
-      user: authUser,
+      user: {
+        id: user.id,
+        email: user.email,
+        playerAccount: player as PlayerResponseDto,
+      },
       accessToken,
     };
   }
@@ -57,14 +63,17 @@ export class AuthService {
     if (existing) throw new ConflictException('Email already in use');
 
     const user = await this.userService.create({ email, password });
+    const player = await this.playerService.preCreate(user.id);
 
     const payload = { sub: user.id, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    const authUser: AuthUserDto = { id: user.id, email: user.email };
-
     return {
-      user: authUser,
+      user: {
+        id: user.id,
+        email: user.email,
+        playerAccount: player as PlayerResponseDto,
+      },
       accessToken,
     };
   }
