@@ -23,6 +23,7 @@ import {
 import { PlayerResponseDtoPrimaryRole } from "@/lib/api/model/playerResponseDtoPrimaryRole";
 import { usePlayerControllerUpsert } from "@/lib/api/player/player";
 import { useQueryClient } from "@tanstack/react-query";
+import { RoleSelector } from "@/components/ui/role-selector";
 
 export function GameInfoCard({
   loading,
@@ -223,37 +224,30 @@ export function GameInfoCard({
           </div>
           <div className="space-y-3">
             <Label className="text-sm font-medium">Główna pozycja</Label>
-            <Controller
-              name="primaryRole"
-              control={control}
-              render={({ field }) => (
-                <div className="grid grid-cols-5 gap-2">
-                  {roles.map((role) =>
-                    loading ? (
-                      <Skeleton key={role} className="h-12 w-full rounded-xl" />
-                    ) : (
-                      <button
-                        key={role}
-                        type="button"
-                        className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
-                          field.value === role
-                            ? "border-primary bg-primary/10 text-primary shadow-md"
-                            : "border-border bg-background hover:border-primary/50 hover:bg-muted/50"
-                        }`}
-                        onClick={() => field.onChange(role)}
-                        disabled={secondaryRole === role}
-                      >
-                        <span className="text-2xl">{role}</span>
-                        <span className="text-xs font-medium">{role}</span>
-                        {field.value === role && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />
-                        )}
-                      </button>
-                    )
-                  )}
-                </div>
-              )}
-            />
+            {loading ? (
+              <div className="flex gap-3">
+                {roles.map((role) => (
+                  <Skeleton
+                    key={role}
+                    className="h-[68px] w-[68px] rounded-xl"
+                  />
+                ))}
+              </div>
+            ) : (
+              <Controller
+                name="primaryRole"
+                control={control}
+                render={({ field }) => (
+                  <RoleSelector
+                    roles={roles}
+                    selectedRoles={field.value ? [field.value] : []}
+                    onRoleToggle={(role) => field.onChange(role)}
+                    disabled={false}
+                    multiSelect={false}
+                  />
+                )}
+              />
+            )}
             {errors.primaryRole && (
               <p className="text-sm text-destructive mt-1">
                 {errors.primaryRole.message}
@@ -262,37 +256,30 @@ export function GameInfoCard({
           </div>
           <div className="space-y-3">
             <Label className="text-sm font-medium">Druga pozycja</Label>
-            <Controller
-              name="secondaryRole"
-              control={control}
-              render={({ field }) => (
-                <div className="grid grid-cols-5 gap-2">
-                  {roles.map((role) =>
-                    loading ? (
-                      <Skeleton key={role} className="h-12 w-full rounded-xl" />
-                    ) : (
-                      <button
-                        key={role}
-                        type="button"
-                        className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
-                          field.value === role
-                            ? "border-primary bg-primary/10 text-primary shadow-md"
-                            : "border-border bg-background hover:border-primary/50 hover:bg-muted/50"
-                        }`}
-                        onClick={() => field.onChange(role)}
-                        disabled={primaryRole === role}
-                      >
-                        <span className="text-2xl">{role}</span>
-                        <span className="text-xs font-medium">{role}</span>
-                        {field.value === role && (
-                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background" />
-                        )}
-                      </button>
-                    )
-                  )}
-                </div>
-              )}
-            />
+            {loading ? (
+              <div className="flex gap-3">
+                {roles.map((role) => (
+                  <Skeleton
+                    key={role}
+                    className="h-[68px] w-[68px] rounded-xl"
+                  />
+                ))}
+              </div>
+            ) : (
+              <Controller
+                name="secondaryRole"
+                control={control}
+                render={({ field }) => (
+                  <RoleSelector
+                    roles={roles}
+                    selectedRoles={field.value ? [field.value] : []}
+                    onRoleToggle={(role) => field.onChange(role)}
+                    disabled={false}
+                    multiSelect={false}
+                  />
+                )}
+              />
+            )}
             {errors.secondaryRole && (
               <p className="text-sm text-destructive mt-1">
                 {errors.secondaryRole.message}

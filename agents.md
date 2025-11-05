@@ -266,6 +266,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 - `variant="outline"` - Tertiary actions or cancel buttons
 - Avoid custom hover classes - use built-in variant hover states
 
+**UI Component Visibility (Concise UI Principle):**
+
+- Input fields and select components should NOT blend with the background
+- Use `bg-card/50` for inputs and selects to ensure visibility against page backgrounds
+- Standard styling for inputs: `bg-card/50 border-border`
+- Standard styling for selects: `bg-card/50` with `dark:hover:bg-card/70`
+- Avoid overly transparent backgrounds (`bg-transparent`, `dark:bg-input/30`) that make components hard to see
+- Keep UI clean and concise but ensure all interactive elements are clearly visible
+
 **Example:**
 
 ```typescript
@@ -276,6 +285,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 <Button variant="default">Primary Action</Button>
 <Button variant="secondary">Secondary Action</Button>
 <Button variant="outline">Cancel</Button>
+
+// Input with proper visibility
+<Input className="bg-card/50 border-border" />
+
+// Select with proper visibility (already applied in select.tsx component)
 ```
 
 ### Type Generation

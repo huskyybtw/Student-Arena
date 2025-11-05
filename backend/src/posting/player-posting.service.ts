@@ -13,7 +13,28 @@ export class PlayerPostingService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findMany(params: QueryParams) {
+    const where: Prisma.PlayerPostingWhereInput = {};
+
+    // Add search filter if search term is provided
+    if (params.search) {
+      where.OR = [
+        { title: { contains: params.search, mode: 'insensitive' } },
+        { description: { contains: params.search, mode: 'insensitive' } },
+        {
+          player: {
+            gameName: { contains: params.search, mode: 'insensitive' },
+          },
+        },
+        {
+          player: {
+            tagLine: { contains: params.search, mode: 'insensitive' },
+          },
+        },
+      ];
+    }
+
     return await this.prisma.playerPosting.findMany({
+      where,
       skip: (params.page - 1) * params.limit,
       take: params.limit,
       orderBy: {

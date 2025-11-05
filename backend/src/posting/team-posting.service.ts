@@ -6,13 +6,35 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QueryParams } from 'src/common/query-params.interface';
 import { TeamPostingCreateDto } from './dto/posting-create.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TeamPostingService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findMany(params: QueryParams) {
+    const where: Prisma.TeamPostingWhereInput = {};
+
+    // Add search filter if search term is provided
+    if (params.search) {
+      where.OR = [
+        { title: { contains: params.search, mode: 'insensitive' } },
+        { description: { contains: params.search, mode: 'insensitive' } },
+        {
+          team: {
+            name: { contains: params.search, mode: 'insensitive' },
+          },
+        },
+        {
+          team: {
+            tag: { contains: params.search, mode: 'insensitive' },
+          },
+        },
+      ];
+    }
+
     return await this.prisma.teamPosting.findMany({
+      where,
       skip: (params.page - 1) * params.limit,
       take: params.limit,
       orderBy: {

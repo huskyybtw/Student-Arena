@@ -11,12 +11,8 @@ import {
 } from "@/lib/api/model";
 import { TeamInviteDialog } from "./team-invite-dialog";
 import { TeamEditDialog } from "./team-edit-dialog";
-import {
-  useTeamInvitationsControllerGetTeamInvitations,
-  useTeamInvitationsControllerRequestInvitation,
-} from "@/lib/api/teams-invitations/teams-invitations";
-import { useCurrentUser } from "@/lib/providers/auth-provider";
-import { toast } from "sonner";
+import { useTeamInvitationsControllerGetTeamInvitations } from "@/lib/api/teams-invitations/teams-invitations";
+import { ApplyToTeamButton } from "./apply-to-team-button";
 
 interface TeamDetailsHeaderProps {
   team: TeamResponseDto;
@@ -31,7 +27,6 @@ export function TeamDetailsHeader({
 }: TeamDetailsHeaderProps) {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const { user } = useCurrentUser();
 
   // Fetch invitations count for the badge
   const { data: invitationsResponse } =
@@ -45,31 +40,6 @@ export function TeamDetailsHeader({
   const invitationsCount = invitations.filter(
     (inv) => inv.status === TeamInvitationResponseDtoStatus.REQUESTED
   ).length;
-
-  const requestInvitationMutation =
-    useTeamInvitationsControllerRequestInvitation({
-      mutation: {
-        onSuccess: () => {
-          toast.success("Prośba o dołączenie została wysłana");
-        },
-        onError: (error: any) => {
-          toast.error(
-            error?.response?.data?.message || "Błąd podczas wysyłania prośby"
-          );
-        },
-      },
-    });
-
-  const handleApply = () => {
-    if (!user?.playerAccount?.id) {
-      toast.error("Musisz być zalogowany");
-      return;
-    }
-    requestInvitationMutation.mutate({
-      teamId: team.id,
-      id: user.playerAccount.id,
-    });
-  };
 
   return (
     <>
@@ -112,17 +82,10 @@ export function TeamDetailsHeader({
               </div>
             )}
             {!isMember && !isOwner && (
-              <Button
-                size="sm"
-                className="gap-2"
-                onClick={handleApply}
-                disabled={requestInvitationMutation.isPending}
-              >
+              <ApplyToTeamButton teamId={team.id} size="sm" className="gap-2">
                 <UserPlus className="h-4 w-4" />
-                {requestInvitationMutation.isPending
-                  ? "Wysyłanie..."
-                  : "Aplikuj"}
-              </Button>
+                Aplikuj
+              </ApplyToTeamButton>
             )}
           </div>
         </CardContent>

@@ -4,9 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, Crown, Settings } from "lucide-react";
 import Link from "next/link";
 import { TeamResponseDto } from "@/lib/api/model";
-import { useTeamInvitationsControllerRequestInvitation } from "@/lib/api/teams-invitations/teams-invitations";
-import { useCurrentUser } from "@/lib/providers/auth-provider";
-import { toast } from "sonner";
+import { ApplyToTeamButton } from "./apply-to-team-button";
 
 interface TeamCardProps {
   team: TeamResponseDto;
@@ -22,33 +20,6 @@ export function TeamCard({
   variant = "grid",
 }: TeamCardProps) {
   const hasOpenSlots = team.members.length < 5;
-  const { user } = useCurrentUser();
-
-  const requestInvitationMutation =
-    useTeamInvitationsControllerRequestInvitation({
-      mutation: {
-        onSuccess: () => {
-          toast.success("Prośba o dołączenie została wysłana");
-        },
-        onError: (error: any) => {
-          toast.error(
-            error?.response?.data?.message || "Błąd podczas wysyłania prośby"
-          );
-        },
-      },
-    });
-
-  const handleApply = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!user?.playerAccount?.id) {
-      toast.error("Musisz być zalogowany");
-      return;
-    }
-    requestInvitationMutation.mutate({
-      teamId: team.id,
-      id: user.playerAccount.id,
-    });
-  };
 
   if (variant === "list") {
     return (
@@ -65,16 +36,11 @@ export function TeamCard({
                 />
               </div>
               {showRecruitingBadge && hasOpenSlots && (
-                <Button
+                <ApplyToTeamButton
+                  teamId={team.id}
                   variant="default"
                   size="sm"
-                  onClick={handleApply}
-                  disabled={requestInvitationMutation.isPending}
-                >
-                  {requestInvitationMutation.isPending
-                    ? "Wysyłanie..."
-                    : "Aplikuj"}
-                </Button>
+                />
               )}
             </div>
           </CardContent>

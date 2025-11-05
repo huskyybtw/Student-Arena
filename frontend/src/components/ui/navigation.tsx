@@ -30,7 +30,7 @@ export function Navigation() {
                 <Link href="/teams">Drużyny</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/bulletin">Tablica</Link>
+                <Link href="/posting">Tablica</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/rankings">Rankingi</Link>

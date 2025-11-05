@@ -58,9 +58,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         placeholder={placeholder}
         autoFocus={autoFocus}
         disabled={disabled}
-        className={`h-11 bg-background/50 border-border/50 focus:border-primary ${
-          icon ? "pl-10" : ""
-        }`}
+        className={`bg-card/50 border-border ${icon ? "pl-10" : ""}`}
       />
     </div>
   );

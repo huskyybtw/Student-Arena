@@ -22,24 +22,20 @@ export function FindTeams() {
 
   return (
     <div className="space-y-4">
-      <Card className="bg-card border-border">
-        <CardContent className="p-4">
-          <div className="flex gap-3">
-            <SearchBar
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="Szukaj drużyny po nazwie lub tagu..."
-              icon={<Search className="h-4 w-4" />}
-              className="flex-1"
-              debounce={300}
-            />
-            <Button variant="secondary" size="default" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filtry
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex gap-3">
+        <SearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Szukaj drużyny po nazwie lub tagu..."
+          icon={<Search className="h-4 w-4" />}
+          className="flex-1"
+          debounce={300}
+        />
+        <Button variant="secondary" size="default" className="gap-2">
+          <Filter className="h-4 w-4" />
+          Filtry
+        </Button>
+      </div>
 
       {teams.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
