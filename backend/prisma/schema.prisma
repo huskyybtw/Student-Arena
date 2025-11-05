@@ -49,6 +49,8 @@ model PlayerAccount {
   user          User             @relation(fields: [userId], references: [id])
   invitations   TeamInvitation[]
   PlayerPosting PlayerPosting[]
+  Lobby         Lobby[]
+  LobbyPlayer   LobbyPlayer[]
 }
 
 model Team {
@@ -109,4 +111,76 @@ model PlayerPosting {
   updatedAt   DateTime      @updatedAt
 
   player PlayerAccount @relation(fields: [playerId], references: [id])
+}
+
+enum MatchType {
+  Queue
+  Team
+}
+
+enum MatchStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+}
+
+model Lobby {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String      @default("")
+  ranked      Boolean     @default(false)
+  status      MatchStatus @default(SCHEDULED)
+  matchType   MatchType
+  date        DateTime
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
+  ownerId     Int
+
+  owner   PlayerAccount @relation(fields: [ownerId], references: [id])
+  players LobbyPlayer[]
+  match   Match?
+}
+
+model LobbyPlayer {
+  id       Int      @id @default(autoincrement())
+  lobbyId  Int
+  playerId Int
+  team     Int? // 1 or 2
+  ready    Boolean  @default(false)
+  joinedAt DateTime @default(now())
+
+  lobby            Lobby             @relation(fields: [lobbyId], references: [id])
+  player           PlayerAccount     @relation(fields: [playerId], references: [id])
+  matchParticipant MatchParticipant?
+}
+
+model Match {
+  id          Int      @id @default(autoincrement())
+  lobbyId     Int      @unique
+  matchId     String   @unique
+  createdAt   DateTime @default(now())
+  duration    Int?
+  winningTeam Int? // 1 or 2
+
+  lobby        Lobby              @relation(fields: [lobbyId], references: [id])
+  participants MatchParticipant[]
+}
+
+// DENORMALIZED FOR DISPLAYING IN HISTORY WITHOUT ASKING RIOT API
+model MatchParticipant {
+  id            Int        @id @default(autoincrement())
+  matchId       Int
+  lobbyPlayerId Int        @unique
+  championId    Int
+  kills         Int
+  deaths        Int
+  assists       Int
+  cs            Int
+  goldEarned    Int
+  items         Int[] // item IDs
+  spells        Int[] // summoner spells
+  role          LeagueRole
+
+  match       Match       @relation(fields: [matchId], references: [id])
+  lobbyPlayer LobbyPlayer @relation(fields: [lobbyPlayerId], references: [id])
 }
