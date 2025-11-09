@@ -46,18 +46,19 @@ model PlayerAccount {
   teams      Team[] @relation("TeamMembers")
   ownedTeams Team[] @relation("TeamOwner")
 
-  user          User             @relation(fields: [userId], references: [id])
-  invitations   TeamInvitation[]
-  PlayerPosting PlayerPosting[]
-  Lobby         Lobby[]
-  LobbyPlayer   LobbyPlayer[]
+  user              User               @relation(fields: [userId], references: [id])
+  invitations       TeamInvitation[]
+  PlayerPosting     PlayerPosting[]
+  Lobby             Lobby[]
+  LobbyPlayer       LobbyPlayer[]
+  matchParticipants MatchParticipant[]
 }
 
 model Team {
   id          Int    @id @default(autoincrement())
   ownerId     Int
   name        String @unique
-  tag         String
+  tag         String @unique
   description String @default("")
   rating      Int    @default(0)
 
@@ -134,9 +135,9 @@ model Lobby {
   date        DateTime
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @default(now())
-  ownerId     Int
+  ownerId     Int?
 
-  owner   PlayerAccount @relation(fields: [ownerId], references: [id])
+  owner   PlayerAccount? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   players LobbyPlayer[]
   match   Match?
 }
@@ -144,23 +145,23 @@ model Lobby {
 model LobbyPlayer {
   id       Int      @id @default(autoincrement())
   lobbyId  Int
-  playerId Int
-  team     Int? // 1 or 2
+  playerId Int?
+  team     Int // 1 or 2
   ready    Boolean  @default(false)
   joinedAt DateTime @default(now())
 
   lobby            Lobby             @relation(fields: [lobbyId], references: [id])
-  player           PlayerAccount     @relation(fields: [playerId], references: [id])
+  player           PlayerAccount?    @relation(fields: [playerId], references: [id], onDelete: SetNull)
   matchParticipant MatchParticipant?
 }
 
 model Match {
   id          Int      @id @default(autoincrement())
   lobbyId     Int      @unique
-  matchId     String   @unique
+  riotMatchId String   @unique
   createdAt   DateTime @default(now())
   duration    Int?
-  winningTeam Int? // 1 or 2
+  winningTeam Int? // 1 or 2 || 100 OR 200 - RIOT API response
 
   lobby        Lobby              @relation(fields: [lobbyId], references: [id])
   participants MatchParticipant[]
@@ -168,19 +169,25 @@ model Match {
 
 // DENORMALIZED FOR DISPLAYING IN HISTORY WITHOUT ASKING RIOT API
 model MatchParticipant {
-  id            Int        @id @default(autoincrement())
-  matchId       Int
-  lobbyPlayerId Int        @unique
-  championId    Int
-  kills         Int
-  deaths        Int
-  assists       Int
-  cs            Int
-  goldEarned    Int
-  items         Int[] // item IDs
-  spells        Int[] // summoner spells
-  role          LeagueRole
+  id         Int        @id @default(autoincrement())
+  championId Int
+  kills      Int
+  deaths     Int
+  assists    Int
+  cs         Int
+  goldEarned Int
+  items      Int[] // item IDs
+  spells     Int[] // summoner spells
+  role       LeagueRole
+  puuid      String
 
-  match       Match       @relation(fields: [matchId], references: [id])
-  lobbyPlayer LobbyPlayer @relation(fields: [lobbyPlayerId], references: [id])
+  // RELATIONS
+  matchId       Int
+  lobbyPlayerId Int  @unique
+  // DENORMALIZED FOR FAST LOOKUP'S
+  playerId      Int?
+
+  match       Match          @relation(fields: [matchId], references: [id])
+  lobbyPlayer LobbyPlayer    @relation(fields: [lobbyPlayerId], references: [id])
+  player      PlayerAccount? @relation(fields: [playerId], references: [id], onDelete: SetNull)
 }
