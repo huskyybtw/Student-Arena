@@ -3,8 +3,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Trophy } from "lucide-react";
 import Link from "next/link";
+import { useCurrentUser } from "@/lib/providers/auth-provider";
 
 export function Navigation() {
+  const { user } = useCurrentUser();
   return (
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-4 py-4">
@@ -24,7 +26,7 @@ export function Navigation() {
 
             <nav className="hidden md:flex items-center space-x-4">
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/play">Graj</Link>
+                <Link href="/matches">Graj</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/teams">Drużyny</Link>
@@ -51,14 +53,14 @@ export function Navigation() {
             <div className="flex items-center space-x-3">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-foreground">
-                  ProGamer2024
+                  {user?.playerAccount.gameName ?? "Unknown"}
                 </p>
                 <div className="flex items-center space-x-1">
                   <Badge variant="secondary" className="text-xs">
-                    Gold II
+                    RATING
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    1,247 LP
+                    {user?.playerAccount.rating ?? 1000}
                   </span>
                 </div>
               </div>

@@ -94,7 +94,9 @@ export class LobbyController {
     description: 'Lobbies successfully retrieved',
     type: [LobbyResponseDto],
   })
-  async findAll(@Query() params: LobbyQueryParams) {
+  async findAll(
+    @Query() params: LobbyQueryParams,
+  ): Promise<LobbyResponseDto[]> {
     return await this.lobbyService.findAll(params);
   }
 

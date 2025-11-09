@@ -30,7 +30,6 @@ import { QueryParams } from '../common/query-params.interface';
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
-  @ApiQuery({ type: QueryParams })
   @ApiResponse({
     status: 200,
     description: 'Retrieve a list of players based on query parameters',

@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MatchStatus, MatchType } from '@prisma/client';
+import { PlayerResponseDto } from '../../player/dto/player-response.dto';
+import { LobbyPlayerResponseDto } from './lobby-player-response.dto';
 
 export class LobbyResponseDto {
   @ApiProperty({
@@ -75,4 +77,18 @@ export class LobbyResponseDto {
     nullable: true,
   })
   ownerId?: number | null;
+
+  @ApiProperty({
+    description: 'Owner player account details',
+    type: PlayerResponseDto,
+    nullable: true,
+  })
+  owner?: PlayerResponseDto | null;
+
+  @ApiProperty({
+    description: 'Players in the lobby',
+    type: [LobbyPlayerResponseDto],
+    isArray: true,
+  })
+  players: LobbyPlayerResponseDto[];
 }

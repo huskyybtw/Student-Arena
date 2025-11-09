@@ -6,6 +6,17 @@ import Cookies from "js-cookie";
 import { useAuthControllerMe } from "../api/auth/auth";
 import { AuthUserResponseDto } from "../api/model/authUserResponseDto";
 
+// Set up axios interceptor globally (runs immediately on module load)
+axios.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("accessToken");
+    if (token && config.headers) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 interface AuthContextType {
   user: AuthUserResponseDto | null;
   isLoading: boolean;
@@ -35,18 +46,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setTokenState(newToken);
   };
-  
-  useEffect(() => {
-    const interceptorId = axios.interceptors.request.use((config) => {
-      if (token && config.headers) {
-        config.headers["Authorization"] = `Bearer ${token}`;
-      }
-      return config;
-    });
-    return () => {
-      axios.interceptors.request.eject(interceptorId);
-    };
-  }, [token]);
 
   const { data, isFetching, isError, error, refetch } = useAuthControllerMe({
     query: {

@@ -22,7 +22,6 @@ export class LobbyService {
     private readonly prisma: PrismaService,
     private readonly teamService: TeamService,
     private readonly matchTrackingService: MatchTrackingService,
-    private readonly riotService: RiotService,
     private readonly sseService: SseService,
   ) {}
 
@@ -137,35 +136,22 @@ export class LobbyService {
       }
     }
 
-    const [data, total] = await Promise.all([
-      this.prisma.lobby.findMany({
-        where,
-        skip: ((params.page || 1) - 1) * (params.limit || 10),
-        take: params.limit || 10,
-        orderBy: {
-          [params.sortBy || 'createdAt']: params.sortOrder || 'desc',
-        },
-        include: {
-          owner: true,
-          players: {
-            include: {
-              player: true,
-            },
+    return this.prisma.lobby.findMany({
+      where,
+      skip: ((params.page || 1) - 1) * (params.limit || 10),
+      take: params.limit || 10,
+      orderBy: {
+        [params.sortBy || 'createdAt']: params.sortOrder || 'desc',
+      },
+      include: {
+        owner: true,
+        players: {
+          include: {
+            player: true,
           },
         },
-      }),
-      this.prisma.lobby.count({ where }),
-    ]);
-
-    return {
-      data,
-      meta: {
-        total,
-        page: params.page || 1,
-        limit: params.limit || 10,
-        totalPages: Math.ceil(total / (params.limit || 10)),
       },
-    };
+    });
   }
 
   /**

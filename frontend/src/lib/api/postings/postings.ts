@@ -44,253 +44,7 @@ import type {
 
 
 
-export const teamPostingControllerPostings = (
-    params?: TeamPostingControllerPostingsParams, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TeamPostingResponseDto[]>> => {
-    
-    
-    return axios.get(
-      `http://localhost:3001/posting/team`,{
-    ...options,
-        params: {...params, ...options?.params},}
-    );
-  }
-
-
-export const getTeamPostingControllerPostingsQueryKey = (params?: TeamPostingControllerPostingsParams,) => {
-    return [`http://localhost:3001/posting/team`, ...(params ? [params]: [])] as const;
-    }
-
-    
-export const getTeamPostingControllerPostingsQueryOptions = <TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getTeamPostingControllerPostingsQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof teamPostingControllerPostings>>> = ({ signal }) => teamPostingControllerPostings(params, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type TeamPostingControllerPostingsQueryResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerPostings>>>
-export type TeamPostingControllerPostingsQueryError = AxiosError<unknown>
-
-
-export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
- params: undefined |  TeamPostingControllerPostingsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof teamPostingControllerPostings>>,
-          TError,
-          Awaited<ReturnType<typeof teamPostingControllerPostings>>
-        > , 'initialData'
-      >, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
- params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof teamPostingControllerPostings>>,
-          TError,
-          Awaited<ReturnType<typeof teamPostingControllerPostings>>
-        > , 'initialData'
-      >, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
- params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-
-export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
- params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getTeamPostingControllerPostingsQueryOptions(params,options)
-
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-export const teamPostingControllerCreate = (
-    teamPostingCreateDto: TeamPostingCreateDto, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TeamPostingResponseDto>> => {
-    
-    
-    return axios.post(
-      `http://localhost:3001/posting/team`,
-      teamPostingCreateDto,options
-    );
-  }
-
-
-
-export const getTeamPostingControllerCreateMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerCreate>>, TError,{data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerCreate>>, TError,{data: TeamPostingCreateDto}, TContext> => {
-
-const mutationKey = ['teamPostingControllerCreate'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof teamPostingControllerCreate>>, {data: TeamPostingCreateDto}> = (props) => {
-          const {data} = props ?? {};
-
-          return  teamPostingControllerCreate(data,axiosOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type TeamPostingControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerCreate>>>
-    export type TeamPostingControllerCreateMutationBody = TeamPostingCreateDto
-    export type TeamPostingControllerCreateMutationError = AxiosError<unknown>
-
-    export const useTeamPostingControllerCreate = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerCreate>>, TError,{data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof teamPostingControllerCreate>>,
-        TError,
-        {data: TeamPostingCreateDto},
-        TContext
-      > => {
-
-      const mutationOptions = getTeamPostingControllerCreateMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    export const teamPostingControllerUpdate = (
-    id: number,
-    teamPostingCreateDto: TeamPostingCreateDto, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TeamPostingResponseDto>> => {
-    
-    
-    return axios.patch(
-      `http://localhost:3001/posting/team/${id}`,
-      teamPostingCreateDto,options
-    );
-  }
-
-
-
-export const getTeamPostingControllerUpdateMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, TError,{id: number;data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, TError,{id: number;data: TeamPostingCreateDto}, TContext> => {
-
-const mutationKey = ['teamPostingControllerUpdate'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, {id: number;data: TeamPostingCreateDto}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  teamPostingControllerUpdate(id,data,axiosOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type TeamPostingControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerUpdate>>>
-    export type TeamPostingControllerUpdateMutationBody = TeamPostingCreateDto
-    export type TeamPostingControllerUpdateMutationError = AxiosError<unknown>
-
-    export const useTeamPostingControllerUpdate = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, TError,{id: number;data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof teamPostingControllerUpdate>>,
-        TError,
-        {id: number;data: TeamPostingCreateDto},
-        TContext
-      > => {
-
-      const mutationOptions = getTeamPostingControllerUpdateMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    export const teamPostingControllerDelete = (
-    id: number, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<TeamPostingResponseDto>> => {
-    
-    
-    return axios.delete(
-      `http://localhost:3001/posting/team/${id}`,options
-    );
-  }
-
-
-
-export const getTeamPostingControllerDeleteMutationOptions = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerDelete>>, TError,{id: number}, TContext>, axios?: AxiosRequestConfig}
-): UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerDelete>>, TError,{id: number}, TContext> => {
-
-const mutationKey = ['teamPostingControllerDelete'];
-const {mutation: mutationOptions, axios: axiosOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, axios: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof teamPostingControllerDelete>>, {id: number}> = (props) => {
-          const {id} = props ?? {};
-
-          return  teamPostingControllerDelete(id,axiosOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type TeamPostingControllerDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerDelete>>>
-    
-    export type TeamPostingControllerDeleteMutationError = AxiosError<unknown>
-
-    export const useTeamPostingControllerDelete = <TError = AxiosError<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerDelete>>, TError,{id: number}, TContext>, axios?: AxiosRequestConfig}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof teamPostingControllerDelete>>,
-        TError,
-        {id: number},
-        TContext
-      > => {
-
-      const mutationOptions = getTeamPostingControllerDeleteMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    export const playerPostingControllerPostings = (
+export const playerPostingControllerPostings = (
     params?: PlayerPostingControllerPostingsParams, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<PlayerPostingResponseDto[]>> => {
     
@@ -533,6 +287,252 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
       > => {
 
       const mutationOptions = getPlayerPostingControllerDeleteMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    export const teamPostingControllerPostings = (
+    params?: TeamPostingControllerPostingsParams, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<TeamPostingResponseDto[]>> => {
+    
+    
+    return axios.get(
+      `http://localhost:3001/posting/team`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+
+export const getTeamPostingControllerPostingsQueryKey = (params?: TeamPostingControllerPostingsParams,) => {
+    return [`http://localhost:3001/posting/team`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getTeamPostingControllerPostingsQueryOptions = <TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>>, axios?: AxiosRequestConfig}
+) => {
+
+const {query: queryOptions, axios: axiosOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getTeamPostingControllerPostingsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof teamPostingControllerPostings>>> = ({ signal }) => teamPostingControllerPostings(params, { signal, ...axiosOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type TeamPostingControllerPostingsQueryResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerPostings>>>
+export type TeamPostingControllerPostingsQueryError = AxiosError<unknown>
+
+
+export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
+ params: undefined |  TeamPostingControllerPostingsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof teamPostingControllerPostings>>,
+          TError,
+          Awaited<ReturnType<typeof teamPostingControllerPostings>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
+ params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof teamPostingControllerPostings>>,
+          TError,
+          Awaited<ReturnType<typeof teamPostingControllerPostings>>
+        > , 'initialData'
+      >, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
+ params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useTeamPostingControllerPostings<TData = Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError = AxiosError<unknown>>(
+ params?: TeamPostingControllerPostingsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof teamPostingControllerPostings>>, TError, TData>>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getTeamPostingControllerPostingsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+export const teamPostingControllerCreate = (
+    teamPostingCreateDto: TeamPostingCreateDto, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<TeamPostingResponseDto>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3001/posting/team`,
+      teamPostingCreateDto,options
+    );
+  }
+
+
+
+export const getTeamPostingControllerCreateMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerCreate>>, TError,{data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerCreate>>, TError,{data: TeamPostingCreateDto}, TContext> => {
+
+const mutationKey = ['teamPostingControllerCreate'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof teamPostingControllerCreate>>, {data: TeamPostingCreateDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  teamPostingControllerCreate(data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TeamPostingControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerCreate>>>
+    export type TeamPostingControllerCreateMutationBody = TeamPostingCreateDto
+    export type TeamPostingControllerCreateMutationError = AxiosError<unknown>
+
+    export const useTeamPostingControllerCreate = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerCreate>>, TError,{data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof teamPostingControllerCreate>>,
+        TError,
+        {data: TeamPostingCreateDto},
+        TContext
+      > => {
+
+      const mutationOptions = getTeamPostingControllerCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    export const teamPostingControllerUpdate = (
+    id: number,
+    teamPostingCreateDto: TeamPostingCreateDto, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<TeamPostingResponseDto>> => {
+    
+    
+    return axios.patch(
+      `http://localhost:3001/posting/team/${id}`,
+      teamPostingCreateDto,options
+    );
+  }
+
+
+
+export const getTeamPostingControllerUpdateMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, TError,{id: number;data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, TError,{id: number;data: TeamPostingCreateDto}, TContext> => {
+
+const mutationKey = ['teamPostingControllerUpdate'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, {id: number;data: TeamPostingCreateDto}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  teamPostingControllerUpdate(id,data,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TeamPostingControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerUpdate>>>
+    export type TeamPostingControllerUpdateMutationBody = TeamPostingCreateDto
+    export type TeamPostingControllerUpdateMutationError = AxiosError<unknown>
+
+    export const useTeamPostingControllerUpdate = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerUpdate>>, TError,{id: number;data: TeamPostingCreateDto}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof teamPostingControllerUpdate>>,
+        TError,
+        {id: number;data: TeamPostingCreateDto},
+        TContext
+      > => {
+
+      const mutationOptions = getTeamPostingControllerUpdateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    export const teamPostingControllerDelete = (
+    id: number, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<TeamPostingResponseDto>> => {
+    
+    
+    return axios.delete(
+      `http://localhost:3001/posting/team/${id}`,options
+    );
+  }
+
+
+
+export const getTeamPostingControllerDeleteMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerDelete>>, TError,{id: number}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerDelete>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['teamPostingControllerDelete'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof teamPostingControllerDelete>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  teamPostingControllerDelete(id,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TeamPostingControllerDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof teamPostingControllerDelete>>>
+    
+    export type TeamPostingControllerDeleteMutationError = AxiosError<unknown>
+
+    export const useTeamPostingControllerDelete = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof teamPostingControllerDelete>>, TError,{id: number}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof teamPostingControllerDelete>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+
+      const mutationOptions = getTeamPostingControllerDeleteMutationOptions(options);
 
       return useMutation(mutationOptions , queryClient);
     }

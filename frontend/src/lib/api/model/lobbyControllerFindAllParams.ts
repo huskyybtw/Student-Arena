@@ -5,9 +5,9 @@
  * API Documentation
  * OpenAPI spec version: 1.0
  */
-import type { PlayerControllerPlayersSortOrder } from './playerControllerPlayersSortOrder';
+import type { LobbyControllerFindAllSortOrder } from './lobbyControllerFindAllSortOrder';
 
-export type PlayerControllerPlayersParams = {
+export type LobbyControllerFindAllParams = {
 /**
  * Page number (starts from 1)
  */
@@ -31,5 +31,5 @@ sortBy?: string;
 /**
  * Sort order
  */
-sortOrder?: PlayerControllerPlayersSortOrder;
+sortOrder?: LobbyControllerFindAllSortOrder;
 };
