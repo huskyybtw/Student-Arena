@@ -163,4 +163,42 @@ export class RiotService {
     ]);
     return { account, summoner };
   }
+
+  /**
+   * Fetches match data by match ID from Riot API.
+   *
+   * @param matchId - The Riot match ID (e.g., 'EUW1_1234567890')
+   * @returns Match data from Riot API
+   * @throws NotFoundException - If the match is not found
+   * @throws BadRequestException - If the request is invalid (400)
+   * @throws BadGatewayException - For other errors from Riot API
+   */
+  async getMatchById(matchId: string): Promise<any> {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`/lol/match/v5/matches/${matchId}`, {
+          baseURL: this.baseUrl,
+          headers: {
+            'X-Riot-Token': this.apiKey,
+            'Content-Type': 'application/json',
+          },
+        }),
+      );
+      return response.data;
+    } catch (error: any) {
+      const baseMessage = 'Failed to retrieve match data from Riot API: ';
+      const message = error?.response?.data?.status?.message ?? '';
+      const status = error?.response?.data?.status?.status_code;
+      if (status === 404) {
+        throw new NotFoundException(baseMessage + message);
+      }
+      if (status === 400) {
+        throw new BadRequestException(baseMessage + message);
+      }
+      if (status == null) {
+        throw new NotFoundException(baseMessage + message);
+      }
+      throw new BadGatewayException(baseMessage + message);
+    }
+  }
 }

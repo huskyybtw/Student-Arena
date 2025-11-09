@@ -1,18 +1,35 @@
-import { Controller } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { MatchService } from '../services/match.service';
+import { MatchResponseDto } from '../dto/match-response.dto';
+import { MatchQueryDto } from '../interfaces/match-query.dto';
 
-@ApiTags('matches')
+@ApiTags('match')
 @Controller('match')
 export class MatchController {
   constructor(private readonly matchService: MatchService) {}
 
-  /**
-   * GET /match/lobby/:lobbyId - Get match by lobby
-   */
-  // @Get('lobby/:lobbyId')
-  async findByLobby() {
-    // TODO: Implement
+  @Get()
+  @ApiOperation({
+    summary: 'Find match by Riot match ID or lobby ID',
+    description:
+      'Retrieves match details including all participants and stats. Provide either riotMatchId or lobbyId query parameter.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Match found and returned',
+    type: MatchResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - neither or both parameters provided',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Match not found',
+  })
+  async findMatch(@Query() query: MatchQueryDto): Promise<MatchResponseDto> {
+    return this.matchService.findMatch(query);
   }
 
   /**
@@ -28,14 +45,6 @@ export class MatchController {
    */
   // @Get('player/:playerId/stats')
   async getPlayerStats() {
-    // TODO: Implement
-  }
-
-  /**
-   * POST /match/webhook - Handle match status webhook
-   */
-  // @Post('webhook')
-  async handleWebhook() {
     // TODO: Implement
   }
 }

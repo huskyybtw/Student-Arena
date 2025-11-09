@@ -7,17 +7,23 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LobbyCreateDTO } from '../dto/lobby-create.dto';
 import { LobbyUpdateDTO } from '../dto/lobby-update.dto';
-import { Lobby, MatchStatus, Prisma } from '@prisma/client';
+import { WebhookMatchDTO } from '../dto/webhook-match.dto';
+import { Lobby, MatchStatus, Prisma, Match } from '@prisma/client';
 import { UserWithPlayer } from 'src/common/current-user.decorator';
 import { TeamService } from 'src/team/team.service';
 import { LobbyQueryParams } from '../interfaces/lobby-filter.params';
-import { MATCHES } from 'class-validator';
+import { RiotService } from 'src/riot/riot.service';
+import { MatchTrackingService } from './match-tracking.service';
+import { SseService } from '../sse/sse.service';
 
 @Injectable()
 export class LobbyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly teamService: TeamService,
+    private readonly matchTrackingService: MatchTrackingService,
+    private readonly riotService: RiotService,
+    private readonly sseService: SseService,
   ) {}
 
   /**
@@ -328,9 +334,24 @@ export class LobbyService {
       throw new BadRequestException('Match has already been started');
     }
 
-    // TODO: SEND WEBHOOK TO THE SERVICE TO START SEARCHING FOR STARTED MATCH
+    // Extract PUUIDs from all players
+    const puuids = lobby.players
+      .map((lp) => lp.player?.puuid)
+      .filter(
+        (puuid): puuid is string => puuid !== null && puuid !== undefined,
+      );
 
-    return await this.prisma.lobby.update({
+    if (puuids.length !== 10) {
+      throw new BadRequestException(
+        'Cannot start match - not all players have valid PUUIDs',
+      );
+    }
+
+    // Send tracking request to tracking service
+    await this.matchTrackingService.trackMatch(lobbyId, puuids);
+
+    // Update lobby status and emit SSE event
+    const updatedLobby = await this.prisma.lobby.update({
       where: { id: lobbyId },
       data: {
         status: MatchStatus.ONGOING,
@@ -344,26 +365,20 @@ export class LobbyService {
         },
       },
     });
+
+    // Emit SSE event to all clients watching this lobby
+    this.sseService.emitToLobby(lobbyId, 'lobby:status-changed', {
+      lobbyId,
+      status: MatchStatus.ONGOING,
+    });
+
+    return updatedLobby;
   }
 
   /**
    * Cancel match
    */
   async cancelMatch() {
-    // TODO: Implement
-  }
-
-  /**
-   * Handle match started webhook
-   */
-  async handleMatchStarted() {
-    // TODO: Implement
-  }
-
-  /**
-   * Handle match completed webhook
-   */
-  async handleMatchCompleted() {
     // TODO: Implement
   }
 }

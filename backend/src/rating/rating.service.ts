@@ -213,4 +213,26 @@ export class RatingService {
   async recalculateTeamRatingOnMemberChange(teamId: number) {
     return this.updateTeamRating(teamId);
   }
+
+  /**
+   * Updates player and/or team ratings after a match completes.
+   * Should only be called for ranked matches.
+   *
+   * @param matchId - The match ID
+   * @param lobbyId - The lobby ID
+   * @param matchType - The type of match (Queue or Team)
+   * @throws Error if ranked rating system is not yet implemented
+   */
+  async updateRatingsForMatch(
+    matchId: number,
+    lobbyId: number,
+    matchType: string,
+  ): Promise<void> {
+    throw new Error('Ranked match rating update not yet implemented');
+
+    // When implementing ranked:
+    // - Fetch match participants and determine winners/losers by team
+    // - If matchType === 'Queue': call updateIndividualMatchRatings()
+    // - If matchType === 'Team': call updateTeamMatchRatings()
+  }
 }
