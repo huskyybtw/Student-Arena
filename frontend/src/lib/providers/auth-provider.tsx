@@ -3,10 +3,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { toast } from "sonner";
 import { useAuthControllerMe } from "../api/auth/auth";
 import { AuthUserResponseDto } from "../api/model/authUserResponseDto";
 
-// Set up axios interceptor globally (runs immediately on module load)
 axios.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = Cookies.get("accessToken");
@@ -23,6 +23,7 @@ interface AuthContextType {
   error: string | null;
   token: string | null;
   setToken: (token: string | null) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,6 +46,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       Cookies.remove("accessToken");
     }
     setTokenState(newToken);
+  };
+
+  const logout = () => {
+    Cookies.remove("accessToken");
+    setTokenState(null);
+    toast.success("Wylogowano pomyślnie");
+    setTimeout(() => router.push("/auth"), 200);
   };
 
   const { data, isFetching, isError, error, refetch } = useAuthControllerMe({
@@ -75,6 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         error: isError ? error?.message ?? "Authentication error" : null,
         token,
         setToken,
+        logout,
       }}
     >
       {children}
@@ -110,4 +119,12 @@ export const useSetAuthToken = () => {
     throw new Error("useSetAuthToken must be used within an AuthProvider");
   }
   return context.setToken;
+};
+
+export const useLogout = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useLogout must be used within an AuthProvider");
+  }
+  return context.logout;
 };
