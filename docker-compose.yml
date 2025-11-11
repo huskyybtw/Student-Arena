@@ -31,7 +31,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
-      - RIOT_API_KEY=${RIOT_API_KEY:-your_riot_api_key_here}
+      - RIOT_API_KEY=${RIOT_API_KEY}
       - RATE_LIMIT=10
     depends_on:
       - redis

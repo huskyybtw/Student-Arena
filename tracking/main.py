@@ -5,7 +5,19 @@ import requests
 import time
 import json
 import os
+import logging
 from typing import Optional
+
+# -------------------------------
+# LOGGING CONFIGURATION
+# -------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - [%(funcName)s:%(lineno)d] - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="LoL Match Tracker", version="1.0.0")
 
@@ -26,6 +38,10 @@ RIOT_MATCH_DETAIL_URL = (
 
 RATE_LIMIT = int(os.getenv("RATE_LIMIT", 10))  # max requests per second
 
+logger.info(
+    f"Configuration loaded - Redis: {REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}, Rate limit: {RATE_LIMIT}/s"
+)
+
 # -------------------------------
 # REDIS SETUP
 # -------------------------------
@@ -34,6 +50,7 @@ redis = Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=Tr
 # Queues
 UNSTARTED_QUEUE = "queue:unstarted"
 ONGOING_QUEUE = "queue:ongoing"
+TRACKING_SET = "set:tracking_lobbies"  # Set of lobby IDs currently being tracked
 
 
 # -------------------------------
@@ -60,6 +77,21 @@ class HealthResponse(BaseModel):
 # -------------------------------
 # HELPER FUNCTIONS
 # -------------------------------
+def is_lobby_tracked(lobby_id: int) -> bool:
+    """Check if lobby is already being tracked"""
+    return redis.sismember(TRACKING_SET, str(lobby_id))
+
+
+def add_lobby_to_tracking(lobby_id: int):
+    """Mark lobby as being tracked"""
+    redis.sadd(TRACKING_SET, str(lobby_id))
+
+
+def remove_lobby_from_tracking(lobby_id: int):
+    """Remove lobby from tracking set"""
+    redis.srem(TRACKING_SET, str(lobby_id))
+
+
 def push_unstarted(match_data: dict):
     """Add match to unstarted queue"""
     redis.rpush(UNSTARTED_QUEUE, json.dumps(match_data))
@@ -92,10 +124,12 @@ def send_webhook(webhook_url: str, payload: dict) -> bool:
     try:
         resp = requests.post(webhook_url, json=payload, timeout=10)
         resp.raise_for_status()
-        print(f"Webhook sent successfully: {payload}")
+        logger.info(
+            f"Webhook sent successfully - Lobby {payload.get('lobbyId')}, Match {payload.get('riotMatchId')}"
+        )
         return True
     except Exception as e:
-        print(f"Webhook failed for {webhook_url}: {e}")
+        logger.error(f"Webhook failed for {webhook_url}: {e}")
         return False
 
 
@@ -111,13 +145,17 @@ def get_latest_match(puuid: str) -> Optional[str]:
             matches = resp.json()
             return matches[0] if matches else None
         elif resp.status_code == 429:
-            print(f"Rate limited by Riot API")
+            logger.warning(
+                f"Rate limited by Riot API while fetching match for PUUID {puuid[:8]}..."
+            )
             return None
         else:
-            print(f"Riot API error {resp.status_code}: {resp.text}")
+            logger.error(
+                f"Riot API error {resp.status_code} for PUUID {puuid[:8]}...: {resp.text}"
+            )
             return None
     except Exception as e:
-        print(f"Error fetching match for {puuid}: {e}")
+        logger.error(f"Error fetching match for PUUID {puuid[:8]}...: {e}")
         return None
 
 
@@ -138,15 +176,16 @@ def check_match_status(match_id: str) -> Optional[dict]:
             }
         elif resp.status_code == 404:
             # Match not found yet, still ongoing
+            logger.debug(f"Match {match_id} not found (404), still ongoing")
             return {"ended": False}
         elif resp.status_code == 429:
-            print(f"Rate limited checking match {match_id}")
+            logger.warning(f"Rate limited checking match {match_id}")
             return None
         else:
-            print(f"Error checking match {match_id}: {resp.status_code}")
+            logger.error(f"Error checking match {match_id}: {resp.status_code}")
             return None
     except Exception as e:
-        print(f"Exception checking match {match_id}: {e}")
+        logger.error(f"Exception checking match {match_id}: {e}")
         return None
 
 
@@ -161,14 +200,14 @@ def process_matches():
     - Notify backend via webhook at each stage
     """
     last_request_time = 0
-    print("Match tracking loop started")
+    logger.info("Match tracking loop started")
 
     while True:
         try:
             # Process unstarted queue
             match = pop_unstarted()
             if match:
-                print(f"Processing unstarted match for lobby {match['lobby_id']}")
+                logger.info(f"Processing unstarted match for lobby {match['lobby_id']}")
                 any_started = False
                 latest_match_id = None
 
@@ -183,7 +222,7 @@ def process_matches():
                     if match_id:
                         latest_match_id = match_id
                         any_started = True
-                        print(
+                        logger.info(
                             f"Match started for lobby {match['lobby_id']}: {match_id}"
                         )
                         break  # Found a match, no need to check other PUUIDs
@@ -198,7 +237,7 @@ def process_matches():
                         "riotMatchId": latest_match_id,
                     }
                     if not send_webhook(match["webhook_started"], payload):
-                        print(
+                        logger.warning(
                             f"Webhook failed for lobby {match['lobby_id']}, will retry"
                         )
                 else:
@@ -210,8 +249,8 @@ def process_matches():
             if ongoing:
                 match_id = ongoing.get("match_id")
                 if not match_id:
-                    print(
-                        f"Warning: ongoing match for lobby {ongoing['lobby_id']} has no match_id"
+                    logger.warning(
+                        f"Ongoing match for lobby {ongoing['lobby_id']} has no match_id"
                     )
                     continue
 
@@ -228,11 +267,21 @@ def process_matches():
                     push_ongoing(ongoing)
                 elif match_status.get("ended"):
                     # Match has ended
-                    print(f"Match ended for lobby {ongoing['lobby_id']}: {match_id}")
+                    logger.info(
+                        f"Match ended for lobby {ongoing['lobby_id']}: {match_id}"
+                    )
                     payload = {"lobbyId": ongoing["lobby_id"], "riotMatchId": match_id}
                     if not send_webhook(ongoing["webhook_completed"], payload):
-                        print(f"Webhook failed for completed match, will retry")
+                        logger.warning(
+                            f"Webhook failed for completed match, will retry"
+                        )
                         push_ongoing(ongoing)
+                    else:
+                        # Successfully completed, remove from tracking set
+                        remove_lobby_from_tracking(ongoing["lobby_id"])
+                        logger.info(
+                            f"Lobby {ongoing['lobby_id']} removed from tracking"
+                        )
                 else:
                     # Still ongoing, push back
                     push_ongoing(ongoing)
@@ -244,7 +293,7 @@ def process_matches():
                 time.sleep(0.5)  # Have work, sleep shorter
 
         except Exception as e:
-            print(f"Error in tracking loop: {e}")
+            logger.error(f"Error in tracking loop: {e}")
             time.sleep(5)  # Sleep on error to prevent spam
 
 
@@ -284,10 +333,21 @@ def track_match(req: TrackMatchRequest):
     - **lobbyId**: Lobby identifier for tracking
     """
     if not req.puuids or not req.webhooks:
+        logger.warning(
+            f"Invalid track_match request: missing puuids or webhooks for lobby {req.lobbyId}"
+        )
         raise HTTPException(status_code=400, detail="puuids and webhooks required")
 
     if not RIOT_API_KEY:
+        logger.error("Riot API key not configured")
         raise HTTPException(status_code=500, detail="Riot API key not configured")
+
+    # Check if lobby is already being tracked
+    if is_lobby_tracked(req.lobbyId):
+        logger.warning(f"Lobby {req.lobbyId} is already being tracked")
+        raise HTTPException(
+            status_code=409, detail=f"Lobby {req.lobbyId} is already being tracked"
+        )
 
     match_data = {
         "puuids": req.puuids,
@@ -299,6 +359,10 @@ def track_match(req: TrackMatchRequest):
     }
 
     push_unstarted(match_data)
+    add_lobby_to_tracking(req.lobbyId)
+    logger.info(
+        f"Match tracking queued for lobby {req.lobbyId} with {len(req.puuids)} players"
+    )
 
     return {
         "status": "queued",
@@ -311,10 +375,25 @@ def clear_queues():
     """Clear all queues (for testing/debugging)"""
     unstarted_count = redis.delete(UNSTARTED_QUEUE)
     ongoing_count = redis.delete(ONGOING_QUEUE)
+    tracking_count = redis.delete(TRACKING_SET)
+    logger.info(
+        f"Queues cleared - Unstarted: {unstarted_count}, Ongoing: {ongoing_count}, Tracking: {tracking_count}"
+    )
     return {
         "message": "Queues cleared",
         "unstarted_cleared": unstarted_count,
         "ongoing_cleared": ongoing_count,
+        "tracking_cleared": tracking_count,
+    }
+
+
+@app.get("/is_tracking/{lobby_id}")
+def check_tracking(lobby_id: int):
+    """Check if a lobby is currently being tracked"""
+    is_tracked = is_lobby_tracked(lobby_id)
+    return {
+        "lobby_id": lobby_id,
+        "is_tracked": is_tracked,
     }
 
 
@@ -326,4 +405,4 @@ import threading
 tracking_thread = threading.Thread(target=process_matches, daemon=True)
 tracking_thread.start()
 
-print("FastAPI Match Tracker started")
+logger.info("FastAPI Match Tracker started successfully")
