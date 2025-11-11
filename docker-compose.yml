@@ -31,6 +31,9 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/student-arena
       - JWT_SECRET=${JWT_SECRET:-sdfhertgyhjetyjrytujr}
       - RIOT_API_KEY=${RIOT_API_KEY}
+      # Service hostnames for inter-container communication
+      - TRACKING_SERVICE_URL=http://match-tracker:8000
+      - BACKEND_URL=http://backend:3001
     depends_on:
       - postgres
     volumes:
@@ -66,6 +69,10 @@ services:
       - RATE_LIMIT=10
     depends_on:
       - redis
+    volumes:
+      - ./tracking:/app
+      - /app/__pycache__
+
 
 volumes:
   postgres_data:
