@@ -197,7 +197,7 @@ export class LobbyController {
   /**
    * POST /lobby/:id/join - Join lobby
    */
-  // @Post(':id/join')
+  @Post(':id/join')
   async join() {
     // TODO: GRACZ DOLACZA DO LOBBY DO KTOREJS Z DRUZYN
     // JESLI MATCH TYPE === TEAM MUSI DOLACZYC PELNA DRUZYNA
@@ -206,7 +206,7 @@ export class LobbyController {
   /**
    * POST /lobby/:id/leave - Leave lobby
    */
-  // @Post(':id/leave')
+  @Post(':id/leave')
   async leave() {
     // TODO: GRACZ OPUSZCZA LOBBY ALBO JEST Z NIEGO WYRZUCANY
     // JESLI MATCH TYPE === TEAM MUSI WYJSC PELNA DRUZYNA
