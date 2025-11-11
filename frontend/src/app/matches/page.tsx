@@ -16,10 +16,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DatePicker } from "@/components/ui/date-range-picker";
 import { useLobbyControllerFindAll } from "@/lib/api/lobby/lobby";
 import type { LobbyControllerFindAllParams } from "@/lib/api/model";
+import { LobbyFiltersStatus } from "@/lib/api/model/lobbyFiltersStatus";
+import { LobbyFiltersMatchType } from "@/lib/api/model/lobbyFiltersMatchType";
 import {
   LobbyListItem,
   LobbyListItemSkeleton,
 } from "@/components/matches/lobby-list-item";
+import { CreateLobbyDialog } from "@/components/matches/create-lobby-dialog";
 import { Filter, X } from "lucide-react";
 
 function MatchmakingPageSkeleton() {
@@ -63,33 +66,30 @@ function MatchmakingPageSkeleton() {
 
 export default function MatchmakingPage() {
   const [rankedFilter, setRankedFilter] = useState(false);
-  const [matchTypeFilter, setMatchTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [matchTypeFilter, setMatchTypeFilter] = useState<
+    LobbyFiltersMatchType | undefined
+  >(undefined);
+  const [statusFilter, setStatusFilter] = useState<
+    LobbyFiltersStatus | undefined
+  >(undefined);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  // Build query params with backend filters
   const queryParams: LobbyControllerFindAllParams = {
     page: 1,
     limit: 50,
-    filters: {
-      ranked: rankedFilter || undefined,
-      matchType:
-        matchTypeFilter !== "all" ? (matchTypeFilter as any) : undefined,
-      status: statusFilter !== "all" ? (statusFilter as any) : undefined,
-      dateFrom: startDate?.toISOString(),
-      dateTo: endDate?.toISOString(),
-    },
+    ranked: rankedFilter ? true : undefined,
+    matchType: matchTypeFilter,
+    status: statusFilter,
+    dateFrom: startDate?.toISOString(),
+    dateTo: endDate?.toISOString(),
   };
 
-  // Fetch lobbies using Orval hook with backend filtering
   const { data, isLoading } = useLobbyControllerFindAll(queryParams);
-
-  // Backend returns array directly, axios wraps it in data
   const lobbies = Array.isArray(data?.data) ? data.data : [];
-
-  // Separate user's ongoing games
-  const userLobbies = lobbies.filter((lobby) => lobby.status === "ONGOING");
+  const userLobbies = lobbies.filter(
+    (lobby) => lobby.status === LobbyFiltersStatus.ONGOING
+  );
 
   if (isLoading) {
     return <MatchmakingPageSkeleton />;
@@ -99,8 +99,12 @@ export default function MatchmakingPage() {
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto space-y-8">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Gry Dobierane</h1>
+            <CreateLobbyDialog />
+          </div>
+
           <div>
-            <h1 className="text-2xl font-bold mb-6">Gry Dobierane</h1>
             <div className="space-y-4 mb-6">
               <p className="text-sm text-muted-foreground">
                 Filtruj gry po typie (Dobierane/Zespołowe), statusie
@@ -108,27 +112,50 @@ export default function MatchmakingPage() {
               </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <Select
-                  value={matchTypeFilter}
-                  onValueChange={setMatchTypeFilter}
+                  value={matchTypeFilter ?? "all"}
+                  onValueChange={(value) =>
+                    setMatchTypeFilter(
+                      value === "all"
+                        ? undefined
+                        : (value as LobbyFiltersMatchType)
+                    )
+                  }
                 >
                   <SelectTrigger className="w-40 h-9">
                     <SelectValue placeholder="Typ" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Wszystkie typy</SelectItem>
-                    <SelectItem value="Queue">Dobierane</SelectItem>
-                    <SelectItem value="Team">Zespołowe</SelectItem>
+                    <SelectItem value={LobbyFiltersMatchType.Queue}>
+                      Dobierane
+                    </SelectItem>
+                    <SelectItem value={LobbyFiltersMatchType.Team}>
+                      Zespołowe
+                    </SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select
+                  value={statusFilter ?? "all"}
+                  onValueChange={(value) =>
+                    setStatusFilter(
+                      value === "all"
+                        ? undefined
+                        : (value as LobbyFiltersStatus)
+                    )
+                  }
+                >
                   <SelectTrigger className="w-40 h-9">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Wszystkie statusy</SelectItem>
-                    <SelectItem value="SCHEDULED">Zaplanowane</SelectItem>
-                    <SelectItem value="ONGOING">W trakcie</SelectItem>
+                    <SelectItem value={LobbyFiltersStatus.SCHEDULED}>
+                      Zaplanowane
+                    </SelectItem>
+                    <SelectItem value={LobbyFiltersStatus.ONGOING}>
+                      W trakcie
+                    </SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -167,8 +194,8 @@ export default function MatchmakingPage() {
                 {(startDate ||
                   endDate ||
                   rankedFilter ||
-                  matchTypeFilter !== "all" ||
-                  statusFilter !== "all") && (
+                  matchTypeFilter ||
+                  statusFilter) && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -176,8 +203,8 @@ export default function MatchmakingPage() {
                       setStartDate(undefined);
                       setEndDate(undefined);
                       setRankedFilter(false);
-                      setMatchTypeFilter("all");
-                      setStatusFilter("all");
+                      setMatchTypeFilter(undefined);
+                      setStatusFilter(undefined);
                     }}
                     className="h-9 gap-2"
                   >

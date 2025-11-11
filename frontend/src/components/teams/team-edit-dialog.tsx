@@ -119,16 +119,20 @@ export function TeamEditDialog({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="team-name">Nazwa drużyny</Label>
-              <Input id="team-name" {...register("name")} className="h-11" />
+              <Label htmlFor="edit-team-name">Nazwa drużyny</Label>
+              <Input
+                id="edit-team-name"
+                {...register("name")}
+                className="h-11"
+              />
               {errors.name && (
                 <p className="text-xs text-red-500">{errors.name.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="team-tag">Tag drużyny</Label>
+              <Label htmlFor="edit-team-tag">Tag drużyny</Label>
               <Input
-                id="team-tag"
+                id="edit-team-tag"
                 {...register("tag")}
                 className="h-11"
                 maxLength={5}
@@ -138,9 +142,9 @@ export function TeamEditDialog({
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="team-description">Opis</Label>
+              <Label htmlFor="edit-team-description">Opis</Label>
               <Textarea
-                id="team-description"
+                id="edit-team-description"
                 {...register("description")}
                 className="min-h-32"
                 placeholder="Opis drużyny..."
@@ -152,14 +156,17 @@ export function TeamEditDialog({
               )}
             </div>
             <div className="space-y-2 pt-4 border-t border-destructive/20">
-              <Label htmlFor="transfer-owner" className="text-destructive">
+              <Label
+                htmlFor="edit-team-transfer-owner"
+                className="text-destructive"
+              >
                 Przekaż Właściciela
               </Label>
               <Select
                 value={transferOwnerId}
                 onValueChange={setTransferOwnerId}
               >
-                <SelectTrigger id="transfer-owner" className="h-11">
+                <SelectTrigger id="edit-team-transfer-owner" className="h-11">
                   <SelectValue placeholder="Wybierz nowego właściciela" />
                 </SelectTrigger>
                 <SelectContent>

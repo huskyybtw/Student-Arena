@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,63 +12,50 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil } from "lucide-react";
 import {
-  useLobbyControllerUpdate,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus } from "lucide-react";
+import {
+  useLobbyControllerCreate,
   getLobbyControllerFindAllQueryKey,
-  getLobbyControllerFindOneQueryKey,
 } from "@/lib/api/lobby/lobby";
+import { LobbyCreateDTOMatchType } from "@/lib/api/model/lobbyCreateDTOMatchType";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatePicker } from "@/components/ui/date-range-picker";
 
-interface EditLobbyDialogProps {
-  lobbyId: number;
-  initialTitle: string;
-  initialDescription?: string;
-  initialRanked: boolean;
-  initialDate: Date;
-}
-
-export function EditLobbyDialog({
-  lobbyId,
-  initialTitle,
-  initialDescription,
-  initialRanked,
-  initialDate,
-}: EditLobbyDialogProps) {
+export function CreateLobbyDialog() {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState(initialTitle);
-  const [description, setDescription] = useState(initialDescription || "");
-  const [ranked, setRanked] = useState(initialRanked);
-  const [date, setDate] = useState<Date | undefined>(new Date(initialDate));
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [ranked, setRanked] = useState(false);
+  const [matchType, setMatchType] = useState<string>("");
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (open) {
-      setTitle(initialTitle);
-      setDescription(initialDescription || "");
-      setRanked(initialRanked);
-      setDate(new Date(initialDate));
-    }
-  }, [open, initialTitle, initialDescription, initialRanked, initialDate]);
-
-  const updateLobbyMutation = useLobbyControllerUpdate({
+  const createLobbyMutation = useLobbyControllerCreate({
     mutation: {
       onSuccess: () => {
-        toast.success("Lobby zostało zaktualizowane");
+        toast.success("Lobby zostało utworzone");
         queryClient.invalidateQueries({
           queryKey: getLobbyControllerFindAllQueryKey(),
         });
-        queryClient.invalidateQueries({
-          queryKey: getLobbyControllerFindOneQueryKey(lobbyId),
-        });
         setOpen(false);
+        setTitle("");
+        setDescription("");
+        setRanked(false);
+        setMatchType("");
+        setDate(undefined);
       },
       onError: (error: any) => {
         toast.error(
-          error?.response?.data?.message || "Błąd podczas aktualizacji lobby"
+          error?.response?.data?.message || "Błąd podczas tworzenia lobby"
         );
       },
     },
@@ -82,57 +69,85 @@ export function EditLobbyDialog({
       return;
     }
 
+    if (!matchType) {
+      toast.error("Typ meczu jest wymagany");
+      return;
+    }
+
     if (!date) {
       toast.error("Data meczu jest wymagana");
       return;
     }
 
-    updateLobbyMutation.mutate({
-      id: lobbyId,
+    if (date < new Date()) {
+      toast.error("Data meczu musi być w przyszłości");
+      return;
+    }
+
+    createLobbyMutation.mutate({
       data: {
         title,
-        description: description || undefined,
+        description,
         ranked,
-        date: date?.toISOString() || new Date().toISOString(),
+        matchType: matchType as LobbyCreateDTOMatchType,
+        date: date.toISOString(),
       },
     });
   };
 
   return (
     <>
-      <Button variant="secondary" size="default" onClick={() => setOpen(true)}>
-        <Pencil className="h-4 w-4 mr-2" />
-        Edytuj
+      <Button variant="default" size="default" onClick={() => setOpen(true)}>
+        <Plus className="h-4 w-4 mr-2" />
+        Utwórz Lobby
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edytuj Lobby</DialogTitle>
+            <DialogTitle>Utwórz Nowe Lobby</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-lobby-title">Tytuł *</Label>
+              <Label htmlFor="create-lobby-title">Tytuł *</Label>
               <Input
-                id="edit-lobby-title"
+                id="create-lobby-title"
                 placeholder="np. Rankingowe 5v5"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                className="bg-card/50 border-border"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-lobby-description">Opis</Label>
+              <Label htmlFor="create-lobby-description">Opis</Label>
               <Textarea
-                id="edit-lobby-description"
+                id="create-lobby-description"
                 placeholder="Opisz szczegóły meczu..."
-                className="min-h-24 resize-none"
+                className="min-h-24 resize-none bg-card/50 border-border"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-lobby-date">Data meczu *</Label>
+              <Label htmlFor="create-lobby-matchType">Typ meczu *</Label>
+              <Select value={matchType} onValueChange={setMatchType}>
+                <SelectTrigger className="bg-card/50 border-border">
+                  <SelectValue placeholder="Wybierz typ meczu" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={LobbyCreateDTOMatchType.Queue}>
+                    Dobierane
+                  </SelectItem>
+                  <SelectItem value={LobbyCreateDTOMatchType.Team}>
+                    Zespołowe
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="create-lobby-date">Data meczu *</Label>
               <DatePicker
                 date={date}
                 onDateChange={setDate}
@@ -144,12 +159,12 @@ export function EditLobbyDialog({
 
             <div className="flex items-center gap-2">
               <Checkbox
-                id="edit-lobby-ranked"
+                id="create-lobby-ranked"
                 checked={ranked}
                 onCheckedChange={(checked) => setRanked(checked === true)}
               />
               <Label
-                htmlFor="edit-lobby-ranked"
+                htmlFor="create-lobby-ranked"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Mecz rankingowy
@@ -160,9 +175,9 @@ export function EditLobbyDialog({
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={updateLobbyMutation.isPending}
+                disabled={createLobbyMutation.isPending}
               >
-                {updateLobbyMutation.isPending ? "Zapisywanie..." : "Zapisz"}
+                {createLobbyMutation.isPending ? "Tworzenie..." : "Utwórz"}
               </Button>
               <Button
                 type="button"

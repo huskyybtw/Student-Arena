@@ -6,7 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { LobbyControllerFindAllSortOrder } from './lobbyControllerFindAllSortOrder';
-import type { LobbyFilters } from './lobbyFilters';
+import type { LobbyControllerFindAllStatus } from './lobbyControllerFindAllStatus';
+import type { LobbyControllerFindAllMatchType } from './lobbyControllerFindAllMatchType';
 
 export type LobbyControllerFindAllParams = {
 /**
@@ -34,7 +35,23 @@ sortBy?: string;
  */
 sortOrder?: LobbyControllerFindAllSortOrder;
 /**
- * Filters for lobbies
+ * Filter lobbies by status
  */
-filters?: LobbyFilters;
+status?: LobbyControllerFindAllStatus;
+/**
+ * Filter lobbies by match type
+ */
+matchType?: LobbyControllerFindAllMatchType;
+/**
+ * Filter lobbies by ranked status
+ */
+ranked?: boolean;
+/**
+ * Filter lobbies with date greater than or equal to this date
+ */
+dateFrom?: string;
+/**
+ * Filter lobbies with date less than or equal to this date
+ */
+dateTo?: string;
 };

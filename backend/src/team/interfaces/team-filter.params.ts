@@ -1,11 +1,10 @@
-import { Type } from 'class-transformer';
-import { IsOptional, ValidateNested } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { QueryParams } from 'src/common/query-params.interface';
 
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsArray, ArrayNotEmpty, ArrayUnique } from 'class-validator';
 
-export class TeamFilters {
+export class TeamQueryParams extends QueryParams {
   /**
    * Filter teams by owner user ID
    */
@@ -31,11 +30,4 @@ export class TeamFilters {
   @ArrayUnique()
   @IsInt({ each: true })
   members?: number[];
-}
-
-export class TeamQueryParams extends QueryParams {
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => TeamFilters)
-  filters?: TeamFilters;
 }

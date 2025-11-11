@@ -1,11 +1,10 @@
-import { Type } from 'class-transformer';
-import { IsOptional, ValidateNested } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { QueryParams } from 'src/common/query-params.interface';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsBoolean, IsDateString } from 'class-validator';
 import { MatchStatus, MatchType } from '@prisma/client';
 
-export class LobbyFilters {
+export class LobbyQueryParams extends QueryParams {
   /**
    * Filter lobbies by status
    */
@@ -67,15 +66,4 @@ export class LobbyFilters {
   @IsOptional()
   @IsDateString()
   dateTo?: string;
-}
-
-export class LobbyQueryParams extends QueryParams {
-  @ApiPropertyOptional({
-    description: 'Filters for lobbies',
-    type: LobbyFilters,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => LobbyFilters)
-  filters?: LobbyFilters;
 }

@@ -22,6 +22,7 @@ import {
 } from "@/lib/validators/gameInfoSchema";
 import { PlayerResponseDtoPrimaryRole } from "@/lib/api/model/playerResponseDtoPrimaryRole";
 import { usePlayerControllerUpsert } from "@/lib/api/player/player";
+import { getAuthControllerMeQueryKey } from "@/lib/api/auth/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { RoleSelector } from "@/components/ui/role-selector";
 
@@ -38,7 +39,9 @@ export function GameInfoCard({
   const upsertMutation = usePlayerControllerUpsert({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["authControllerMe"] });
+        queryClient.invalidateQueries({
+          queryKey: getAuthControllerMeQueryKey(),
+        });
         toast.success("Dane gracza zaktualizowane");
       },
       onError: (error: any) => {
@@ -84,7 +87,6 @@ export function GameInfoCard({
   }, [user, reset]);
 
   const onSubmit = (data: GameInfoFormData) => {
-    // Validate that all required fields are present
     if (
       !data.summonerName ||
       !data.tagLine ||

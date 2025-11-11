@@ -29,7 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { TeamResponseDto } from './dto/team-response.dto';
-import { TeamFilters, TeamQueryParams } from './interfaces/team-filter.params';
+import { TeamQueryParams } from './interfaces/team-filter.params';
 import { TeamUpdateDto } from './dto/team-update.dto';
 
 @ApiTags('teams')
@@ -38,7 +38,6 @@ import { TeamUpdateDto } from './dto/team-update.dto';
 @UseGuards(AuthGuard('jwt'))
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}
-  @ApiQuery({ type: TeamFilters })
   @ApiResponse({
     status: 200,
     description: 'Retrieve a list of teams based on query parameters',

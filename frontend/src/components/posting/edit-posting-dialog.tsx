@@ -151,9 +151,9 @@ export function EditPostingDialog({
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Tytuł *</Label>
+              <Label htmlFor="edit-posting-title">Tytuł *</Label>
               <Input
-                id="title"
+                id="edit-posting-title"
                 placeholder={
                   type === "team"
                     ? "np. Szukamy ADC i Supporta"
@@ -166,7 +166,9 @@ export function EditPostingDialog({
 
             {type === "team" && (
               <div className="space-y-2">
-                <Label htmlFor="roles">Poszukiwane pozycje *</Label>
+                <Label htmlFor="edit-posting-roles">
+                  Poszukiwane pozycje *
+                </Label>
                 <RoleSelector
                   roles={roles}
                   selectedRoles={rolesNeeded}
@@ -177,9 +179,9 @@ export function EditPostingDialog({
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="description">Opis</Label>
+              <Label htmlFor="edit-posting-description">Opis</Label>
               <Textarea
-                id="description"
+                id="edit-posting-description"
                 placeholder={
                   type === "team"
                     ? "Opisz wymagania i oczekiwania..."

@@ -15,7 +15,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
-import { useTeamControllerCreate } from "@/lib/api/teams/teams";
+import {
+  useTeamControllerCreate,
+  getTeamControllerTeamsQueryKey,
+} from "@/lib/api/teams/teams";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -32,7 +35,9 @@ export function CreateTeamDialog() {
   const createTeamMutation = useTeamControllerCreate({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["teams"] });
+        queryClient.invalidateQueries({
+          queryKey: getTeamControllerTeamsQueryKey(),
+        });
         toast.success("Drużyna została utworzona");
         setIsOpen(false);
         reset();
@@ -81,9 +86,9 @@ export function CreateTeamDialog() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="team-name">Nazwa Drużyny</Label>
+              <Label htmlFor="create-team-name">Nazwa Drużyny</Label>
               <Input
-                id="team-name"
+                id="create-team-name"
                 placeholder="np. Akademickie Legendy"
                 {...register("name")}
                 className="h-11"
@@ -93,9 +98,9 @@ export function CreateTeamDialog() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="team-tag">Tag Drużyny</Label>
+              <Label htmlFor="create-team-tag">Tag Drużyny</Label>
               <Input
-                id="team-tag"
+                id="create-team-tag"
                 placeholder="np. AKL"
                 {...register("tag")}
                 className="h-11"
@@ -106,9 +111,9 @@ export function CreateTeamDialog() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="team-description">Opis</Label>
+              <Label htmlFor="create-team-description">Opis</Label>
               <Textarea
-                id="team-description"
+                id="create-team-description"
                 placeholder="Opisz swoją drużynę..."
                 {...register("description")}
                 className="min-h-24"

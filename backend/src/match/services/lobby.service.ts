@@ -115,25 +115,25 @@ export class LobbyService {
   async findAll(params: LobbyQueryParams) {
     const where: Prisma.LobbyWhereInput = {};
 
-    if (params.filters?.status) {
-      where.status = params.filters.status;
+    if (params.status) {
+      where.status = params.status;
     }
 
-    if (params.filters?.matchType) {
-      where.matchType = params.filters.matchType;
+    if (params.matchType) {
+      where.matchType = params.matchType;
     }
 
-    if (params.filters?.ranked !== undefined) {
-      where.ranked = params.filters.ranked;
+    if (params.ranked !== undefined) {
+      where.ranked = params.ranked;
     }
 
-    if (params.filters?.dateFrom || params.filters?.dateTo) {
+    if (params.dateFrom || params.dateTo) {
       where.date = {};
-      if (params.filters.dateFrom) {
-        where.date.gte = new Date(params.filters.dateFrom);
+      if (params.dateFrom) {
+        where.date.gte = new Date(params.dateFrom);
       }
-      if (params.filters.dateTo) {
-        where.date.lte = new Date(params.filters.dateTo);
+      if (params.dateTo) {
+        where.date.lte = new Date(params.dateTo);
       }
     }
 

@@ -17,7 +17,10 @@ import { AuthUserResponseDto } from "@/lib/api/model";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { profileSchema, ProfileFormData } from "@/lib/validators/profileSchema";
-import { useAuthControllerMeUpdate } from "@/lib/api/auth/auth";
+import {
+  useAuthControllerMeUpdate,
+  getAuthControllerMeQueryKey,
+} from "@/lib/api/auth/auth";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function ProfileCard({
@@ -31,7 +34,9 @@ export function ProfileCard({
   const updateMutation = useAuthControllerMeUpdate({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["authControllerMe"] });
+        queryClient.invalidateQueries({
+          queryKey: getAuthControllerMeQueryKey(),
+        });
         toast.success("Profil zaktualizowany");
         reset({
           email: user?.email ?? "",

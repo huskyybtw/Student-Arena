@@ -25,18 +25,17 @@ export class TeamService {
    * @returns Array of teams with their members
    */
   async findMany(params: TeamQueryParams): Promise<Array<TeamWithRelations>> {
-    const { filters } = params;
     const where: Prisma.TeamWhereInput = {};
     if (params.search) {
       where.name = { contains: params.search, mode: 'insensitive' };
     }
-    if (filters?.ownerId) {
-      where.ownerId = filters.ownerId;
+    if (params.ownerId) {
+      where.ownerId = params.ownerId;
     }
-    if (filters?.members && filters.members.length > 0) {
+    if (params.members && params.members.length > 0) {
       where.members = {
         some: {
-          id: { in: filters.members },
+          id: { in: params.members },
         },
       };
     }

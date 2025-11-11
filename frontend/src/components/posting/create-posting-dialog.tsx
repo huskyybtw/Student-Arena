@@ -154,7 +154,7 @@ export function CreatePostingDialog({ type }: CreatePostingDialogProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {type === "team" && (
             <div className="space-y-2">
-              <Label htmlFor="team">Drużyna *</Label>
+              <Label htmlFor="create-posting-team">Drużyna *</Label>
               <Select value={teamId} onValueChange={setTeamId}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Wybierz drużynę" />
@@ -171,9 +171,9 @@ export function CreatePostingDialog({ type }: CreatePostingDialogProps) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="title">Tytuł *</Label>
+            <Label htmlFor="create-posting-title">Tytuł *</Label>
             <Input
-              id="title"
+              id="create-posting-title"
               placeholder={
                 type === "team"
                   ? "np. Szukamy ADC i Supporta"
@@ -186,7 +186,9 @@ export function CreatePostingDialog({ type }: CreatePostingDialogProps) {
 
           {type === "team" && (
             <div className="space-y-2">
-              <Label htmlFor="roles">Poszukiwane pozycje *</Label>
+              <Label htmlFor="create-posting-roles">
+                Poszukiwane pozycje *
+              </Label>
               <RoleSelector
                 roles={roles}
                 selectedRoles={rolesNeeded}
@@ -197,9 +199,9 @@ export function CreatePostingDialog({ type }: CreatePostingDialogProps) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="description">Opis</Label>
+            <Label htmlFor="create-posting-description">Opis</Label>
             <Textarea
-              id="description"
+              id="create-posting-description"
               placeholder={
                 type === "team"
                   ? "Opisz wymagania i oczekiwania..."
