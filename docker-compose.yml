@@ -4,7 +4,7 @@ services:
     container_name: student-arena-postgres
     restart: always
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: student-arena
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -20,6 +20,37 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+
+  backend:
+    build: ./backend
+    container_name: student-arena-backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/student-arena
+      - JWT_SECRET=${JWT_SECRET:-sdfhertgyhjetyjrytujr}
+      - RIOT_API_KEY=${RIOT_API_KEY}
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: student-arena-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
 
   match-tracker:
     build: ./tracking

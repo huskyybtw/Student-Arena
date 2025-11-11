@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+dist
+build
+
+# Testing
+coverage
+*.log
+
+# Environment
+.env
+.env.*
+
+# Prisma
+prisma/migrations
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.swp
+*.swo
+*~
