@@ -80,7 +80,7 @@ export default function MatchDetailsPage({
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto space-y-6">
           <LobbyHeader lobby={lobby} />
