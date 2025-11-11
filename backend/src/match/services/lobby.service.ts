@@ -15,6 +15,7 @@ import { LobbyQueryParams } from '../interfaces/lobby-filter.params';
 import { RiotService } from 'src/riot/riot.service';
 import { MatchTrackingService } from './match-tracking.service';
 import { SseService } from '../sse/sse.service';
+import { LobbyWithRelations } from '../types/lobby-included.type';
 
 @Injectable()
 export class LobbyService {
@@ -44,7 +45,7 @@ export class LobbyService {
     user: UserWithPlayer,
     input: LobbyCreateDTO,
     teamId?: number,
-  ): Promise<Lobby> {
+  ): Promise<LobbyWithRelations> {
     let playersData;
 
     if (teamId) {
@@ -163,7 +164,7 @@ export class LobbyService {
    * @param id - The unique identifier of the lobby
    * @returns Lobby with owner and players included, or null if not found
    */
-  async findOne(id: number): Promise<Lobby | null> {
+  async findOne(id: number): Promise<LobbyWithRelations | null> {
     return await this.prisma.lobby.findUnique({
       where: { id },
       include: {
@@ -195,7 +196,7 @@ export class LobbyService {
     id: number,
     userId: number,
     input: LobbyUpdateDTO,
-  ): Promise<Lobby> {
+  ): Promise<LobbyWithRelations> {
     const lobby = await this.prisma.lobby.findUnique({
       where: { id },
     });
@@ -237,7 +238,7 @@ export class LobbyService {
    * @param userId - The ID of the user attempting to delete the lobby
    * @throws Error if lobby not found, user is not the owner, or match has already started
    */
-  async delete(id: number, userId: number): Promise<Lobby> {
+  async delete(id: number, userId: number): Promise<LobbyWithRelations> {
     const lobby = await this.prisma.lobby.findUnique({
       where: { id },
     });
@@ -256,7 +257,17 @@ export class LobbyService {
       );
     }
 
-    return await this.prisma.lobby.delete({ where: { id } });
+    return await this.prisma.lobby.delete({
+      where: { id },
+      include: {
+        owner: true,
+        players: {
+          include: {
+            player: true,
+          },
+        },
+      },
+    });
   }
 
   /**
@@ -275,7 +286,10 @@ export class LobbyService {
    * @throws BadRequestException if conditions are not met
    * @returns Updated lobby with match started
    */
-  async startMatch(lobbyId: number, userId: number): Promise<Lobby> {
+  async startMatch(
+    lobbyId: number,
+    userId: number,
+  ): Promise<LobbyWithRelations> {
     const lobby = await this.prisma.lobby.findUnique({
       where: { id: lobbyId },
       include: {

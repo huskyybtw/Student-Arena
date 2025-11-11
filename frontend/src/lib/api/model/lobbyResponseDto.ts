@@ -7,6 +7,8 @@
  */
 import type { LobbyResponseDtoStatus } from './lobbyResponseDtoStatus';
 import type { LobbyResponseDtoMatchType } from './lobbyResponseDtoMatchType';
+import type { LobbyResponseDtoOwner } from './lobbyResponseDtoOwner';
+import type { LobbyPlayerResponseDto } from './lobbyPlayerResponseDto';
 
 export interface LobbyResponseDto {
   /** Unique identifier of the lobby */
@@ -32,4 +34,11 @@ export interface LobbyResponseDto {
    * @nullable
    */
   ownerId: number | null;
+  /**
+   * Owner player account details
+   * @nullable
+   */
+  owner: LobbyResponseDtoOwner;
+  /** Players in the lobby */
+  players: LobbyPlayerResponseDto[];
 }

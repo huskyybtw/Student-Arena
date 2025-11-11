@@ -88,7 +88,6 @@ export class LobbyResponseDto {
   @ApiProperty({
     description: 'Players in the lobby',
     type: [LobbyPlayerResponseDto],
-    isArray: true,
   })
   players: LobbyPlayerResponseDto[];
 }

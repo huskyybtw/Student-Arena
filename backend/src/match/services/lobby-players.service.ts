@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Lobby, MatchStatus } from '@prisma/client';
+import { LobbyWithRelations } from '../types/lobby-included.type';
 
 @Injectable()
 export class LobbyPlayersService {
@@ -37,7 +38,7 @@ export class LobbyPlayersService {
    * @throws NotFoundException if lobby or player not found in lobby
    * @throws BadRequestException if match has already started
    */
-  async toggleReady(lobbyId: number, playerId: number): Promise<Lobby> {
+  async toggleReady(lobbyId: number, playerId: number): Promise<LobbyWithRelations> {
     const lobbyPlayer = await this.prisma.lobbyPlayer.findFirst({
       where: {
         lobbyId,
