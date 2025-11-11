@@ -70,6 +70,10 @@ export class LobbyFilters {
 }
 
 export class LobbyQueryParams extends QueryParams {
+  @ApiPropertyOptional({
+    description: 'Filters for lobbies',
+    type: LobbyFilters,
+  })
   @IsOptional()
   @ValidateNested()
   @Type(() => LobbyFilters)

@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { LobbyControllerFindAllSortOrder } from './lobbyControllerFindAllSortOrder';
+import type { LobbyFilters } from './lobbyFilters';
 
 export type LobbyControllerFindAllParams = {
 /**
@@ -32,4 +33,8 @@ sortBy?: string;
  * Sort order
  */
 sortOrder?: LobbyControllerFindAllSortOrder;
+/**
+ * Filters for lobbies
+ */
+filters?: LobbyFilters;
 };

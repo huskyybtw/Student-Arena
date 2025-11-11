@@ -376,6 +376,114 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?
 
       return useMutation(mutationOptions , queryClient);
     }
+    export const lobbyControllerJoin = (
+    id: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<null>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3001/lobby/${id}/join`,undefined,options
+    );
+  }
+
+
+
+export const getLobbyControllerJoinMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lobbyControllerJoin>>, TError,{id: string}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof lobbyControllerJoin>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['lobbyControllerJoin'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof lobbyControllerJoin>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  lobbyControllerJoin(id,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LobbyControllerJoinMutationResult = NonNullable<Awaited<ReturnType<typeof lobbyControllerJoin>>>
+    
+    export type LobbyControllerJoinMutationError = AxiosError<unknown>
+
+    export const useLobbyControllerJoin = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lobbyControllerJoin>>, TError,{id: string}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof lobbyControllerJoin>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+
+      const mutationOptions = getLobbyControllerJoinMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    export const lobbyControllerLeave = (
+    id: string, options?: AxiosRequestConfig
+ ): Promise<AxiosResponse<null>> => {
+    
+    
+    return axios.post(
+      `http://localhost:3001/lobby/${id}/leave`,undefined,options
+    );
+  }
+
+
+
+export const getLobbyControllerLeaveMutationOptions = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lobbyControllerLeave>>, TError,{id: string}, TContext>, axios?: AxiosRequestConfig}
+): UseMutationOptions<Awaited<ReturnType<typeof lobbyControllerLeave>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['lobbyControllerLeave'];
+const {mutation: mutationOptions, axios: axiosOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, axios: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof lobbyControllerLeave>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  lobbyControllerLeave(id,axiosOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LobbyControllerLeaveMutationResult = NonNullable<Awaited<ReturnType<typeof lobbyControllerLeave>>>
+    
+    export type LobbyControllerLeaveMutationError = AxiosError<unknown>
+
+    export const useLobbyControllerLeave = <TError = AxiosError<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof lobbyControllerLeave>>, TError,{id: string}, TContext>, axios?: AxiosRequestConfig}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof lobbyControllerLeave>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+
+      const mutationOptions = getLobbyControllerLeaveMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
     /**
  * Toggles the ready status of the player in the lobby. Cannot be changed after match starts.
  */

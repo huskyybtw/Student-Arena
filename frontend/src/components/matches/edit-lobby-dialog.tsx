@@ -16,6 +16,7 @@ import { Pencil } from "lucide-react";
 import { useLobbyControllerUpdate } from "@/lib/api/lobby/lobby";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { DatePicker } from "@/components/ui/date-range-picker";
 
 interface EditLobbyDialogProps {
   lobbyId: number;
@@ -36,9 +37,7 @@ export function EditLobbyDialog({
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription || "");
   const [ranked, setRanked] = useState(initialRanked);
-  const [date, setDate] = useState(
-    new Date(initialDate).toISOString().slice(0, 16)
-  );
+  const [date, setDate] = useState<Date | undefined>(new Date(initialDate));
 
   const queryClient = useQueryClient();
 
@@ -47,7 +46,7 @@ export function EditLobbyDialog({
       setTitle(initialTitle);
       setDescription(initialDescription || "");
       setRanked(initialRanked);
-      setDate(new Date(initialDate).toISOString().slice(0, 16));
+      setDate(new Date(initialDate));
     }
   }, [open, initialTitle, initialDescription, initialRanked, initialDate]);
 
@@ -88,7 +87,7 @@ export function EditLobbyDialog({
         title,
         description: description || undefined,
         ranked,
-        date: new Date(date).toISOString(),
+        date: date?.toISOString() || new Date().toISOString(),
       },
     });
   };
@@ -128,11 +127,12 @@ export function EditLobbyDialog({
 
             <div className="space-y-2">
               <Label htmlFor="date">Data meczu *</Label>
-              <Input
-                id="date"
-                type="datetime-local"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
+              <DatePicker
+                date={date}
+                onDateChange={setDate}
+                placeholder="Wybierz datę i godzinę"
+                className="w-full"
+                showTime
               />
             </div>
 

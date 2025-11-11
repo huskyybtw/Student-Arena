@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -11,42 +13,51 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DatePicker } from "@/components/ui/date-range-picker";
 import { useLobbyControllerFindAll } from "@/lib/api/lobby/lobby";
 import type { LobbyControllerFindAllParams } from "@/lib/api/model";
 import {
   LobbyListItem,
   LobbyListItemSkeleton,
 } from "@/components/matches/lobby-list-item";
+import { Filter, X } from "lucide-react";
 
 function MatchmakingPageSkeleton() {
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div>
-            <Skeleton className="h-8 w-48 mb-6" />
+    <main className="container mx-auto px-4 py-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <Skeleton className="h-8 w-48" />
 
-            <div className="space-y-4 mb-6">
-              <Skeleton className="h-4 w-full max-w-2xl" />
+        <Card className="bg-card border-border">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Skeleton className="h-5 w-20" />
+              </div>
               <div className="flex items-center gap-3 flex-wrap">
                 <Skeleton className="h-9 w-40" />
                 <Skeleton className="h-9 w-40" />
-                <Skeleton className="h-9 w-64" />
+                <Skeleton className="h-9 w-[200px]" />
+                <Skeleton className="h-9 w-[200px]" />
                 <Skeleton className="h-9 w-32" />
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <Skeleton className="h-6 w-32 mb-4" />
-
-            <div className="space-y-3 border border-border rounded-lg divide-y">
+        <div>
+          <Skeleton className="h-6 w-32 mb-4" />
+          <Card className="bg-card border-border">
+            <div className="divide-y divide-border">
               {[...Array(5)].map((_, i) => (
                 <LobbyListItemSkeleton key={i} />
               ))}
             </div>
-          </div>
+          </Card>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
 
@@ -54,53 +65,31 @@ export default function MatchmakingPage() {
   const [rankedFilter, setRankedFilter] = useState(false);
   const [matchTypeFilter, setMatchTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [timeframeFilter, setTimeframeFilter] = useState("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  // Build query params
+  // Build query params with backend filters
   const queryParams: LobbyControllerFindAllParams = {
     page: 1,
     limit: 50,
+    filters: {
+      ranked: rankedFilter || undefined,
+      matchType:
+        matchTypeFilter !== "all" ? (matchTypeFilter as any) : undefined,
+      status: statusFilter !== "all" ? (statusFilter as any) : undefined,
+      dateFrom: startDate?.toISOString(),
+      dateTo: endDate?.toISOString(),
+    },
   };
 
-  // Fetch lobbies using Orval hook
+  // Fetch lobbies using Orval hook with backend filtering
   const { data, isLoading } = useLobbyControllerFindAll(queryParams);
 
   // Backend returns array directly, axios wraps it in data
   const lobbies = Array.isArray(data?.data) ? data.data : [];
 
-  // Client-side filtering
-  const filteredLobbies = lobbies.filter((lobby) => {
-    const matchesRanked = !rankedFilter || lobby.ranked;
-    const matchesType =
-      matchTypeFilter === "all" || lobby.matchType === matchTypeFilter;
-    const matchesStatus =
-      statusFilter === "all" || lobby.status === statusFilter;
-
-    let matchesTimeframe = true;
-    if (startDate || endDate) {
-      const lobbyDate = new Date(lobby.date);
-      if (startDate && new Date(startDate) > lobbyDate)
-        matchesTimeframe = false;
-      if (endDate && new Date(endDate) < lobbyDate) matchesTimeframe = false;
-    } else if (timeframeFilter !== "all") {
-      const now = new Date();
-      const lobbyDate = new Date(lobby.date);
-      const diffMs = lobbyDate.getTime() - now.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-
-      if (timeframeFilter === "15" && diffMins > 15) matchesTimeframe = false;
-      if (timeframeFilter === "30" && diffMins > 30) matchesTimeframe = false;
-      if (timeframeFilter === "60" && diffMins > 60) matchesTimeframe = false;
-    }
-
-    return matchesRanked && matchesType && matchesStatus && matchesTimeframe;
-  });
-
-  const userLobbies = filteredLobbies.filter(
-    (lobby) => lobby.status === "ONGOING"
-  );
+  // Separate user's ongoing games
+  const userLobbies = lobbies.filter((lobby) => lobby.status === "ONGOING");
 
   if (isLoading) {
     return <MatchmakingPageSkeleton />;
@@ -144,22 +133,22 @@ export default function MatchmakingPage() {
                 </Select>
 
                 <div className="flex gap-2 items-center">
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
+                  <DatePicker
+                    date={startDate}
+                    onDateChange={setStartDate}
+                    placeholder="Data od"
                   />
+
                   <span className="text-muted-foreground">-</span>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2 border border-border rounded-md text-sm bg-background text-foreground"
+
+                  <DatePicker
+                    date={endDate}
+                    onDateChange={setEndDate}
+                    placeholder="Data do"
                   />
                 </div>
 
-                <div className="flex items-center gap-2 px-3 py-2 border border-border rounded-md h-9">
+                <div className="flex items-center gap-2 px-3 py-2 border border-border rounded-md h-9 bg-card/50">
                   <Checkbox
                     id="ranked"
                     checked={rankedFilter}
@@ -174,32 +163,60 @@ export default function MatchmakingPage() {
                     Tylko Ranked
                   </label>
                 </div>
+
+                {(startDate ||
+                  endDate ||
+                  rankedFilter ||
+                  matchTypeFilter !== "all" ||
+                  statusFilter !== "all") && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setStartDate(undefined);
+                      setEndDate(undefined);
+                      setRankedFilter(false);
+                      setMatchTypeFilter("all");
+                      setStatusFilter("all");
+                    }}
+                    className="h-9 gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Wyczyść filtry
+                  </Button>
+                )}
               </div>
             </div>
-            {userLobbies.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4">Twoje gry</h2>
-                <div className="space-y-3 border border-border rounded-lg divide-y">
+          </div>
+
+          {userLobbies.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Twoje gry</h2>
+              <Card className="bg-card border-border">
+                <div className="divide-y divide-border">
                   {userLobbies.map((lobby) => (
                     <LobbyListItem key={lobby.id} lobby={lobby} />
                   ))}
                 </div>
-              </div>
-            )}
+              </Card>
+            </div>
+          )}
 
+          <div>
             <h2 className="text-lg font-semibold mb-4">Dostępne gry</h2>
-
-            <div className="space-y-3 border border-border rounded-lg divide-y">
-              {filteredLobbies.length > 0 ? (
-                filteredLobbies.map((lobby) => (
-                  <LobbyListItem key={lobby.id} lobby={lobby} />
-                ))
+            <Card className="bg-card border-border">
+              {lobbies.length > 0 ? (
+                <div className="divide-y divide-border">
+                  {lobbies.map((lobby) => (
+                    <LobbyListItem key={lobby.id} lobby={lobby} />
+                  ))}
+                </div>
               ) : (
                 <div className="px-4 py-8 text-center text-muted-foreground">
                   Brak gier spełniających kryteria wyszukiwania
                 </div>
               )}
-            </div>
+            </Card>
           </div>
         </div>
       </main>
