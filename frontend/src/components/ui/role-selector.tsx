@@ -1,3 +1,5 @@
+import { RoleIcon } from "@/components/ui/role-icon";
+
 interface RoleSelectorProps {
   roles: string[];
   selectedRoles: string[];
@@ -6,12 +8,12 @@ interface RoleSelectorProps {
   multiSelect?: boolean;
 }
 
-const roleIcons: Record<string, { name: string; icon: string }> = {
-  TOP: { name: "Top", icon: "🗡️" },
-  JUNGLE: { name: "Jungle", icon: "🌿" },
-  MID: { name: "Mid", icon: "⚡" },
-  CARRY: { name: "ADC", icon: "🏹" },
-  SUPPORT: { name: "Support", icon: "🛡️" },
+const roleNames: Record<string, string> = {
+  TOP: "Top",
+  JUNGLE: "Jungle",
+  MID: "Mid",
+  CARRY: "ADC",
+  SUPPORT: "Support",
 };
 
 export function RoleSelector({
@@ -19,13 +21,12 @@ export function RoleSelector({
   selectedRoles,
   onRoleToggle,
   disabled = false,
-  multiSelect = true,
 }: RoleSelectorProps) {
   return (
     <div className="grid grid-cols-5 gap-2">
       {roles.map((role) => {
         const isSelected = selectedRoles.includes(role);
-        const data = roleIcons[role] || { name: role, icon: "🎮" };
+        const roleName = roleNames[role] || role;
 
         return (
           <button
@@ -42,14 +43,14 @@ export function RoleSelector({
             }`}
           >
             <div
-              className={`text-xl transition-transform duration-200 ${
+              className={`transition-transform duration-200 ${
                 isSelected ? "scale-110" : "group-hover:scale-105"
               }`}
             >
-              {data.icon}
+              <RoleIcon role={role} size={24} />
             </div>
             <span className="text-[10px] font-medium leading-tight">
-              {data.name}
+              {roleName}
             </span>
             {isSelected && !disabled && (
               <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background" />

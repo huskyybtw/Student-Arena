@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -12,6 +11,7 @@ import {
 import { Settings, Trophy, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useCurrentUser, useLogout } from "@/lib/providers/auth-provider";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 export function Navigation() {
   const { user } = useCurrentUser();
@@ -68,10 +68,7 @@ export function Navigation() {
                       </span>
                     </div>
                   </div>
-                  <Avatar>
-                    <AvatarImage src="/generic-fantasy-champion.png" />
-                    <AvatarFallback>PG</AvatarFallback>
-                  </Avatar>
+                  <UserAvatar />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end">

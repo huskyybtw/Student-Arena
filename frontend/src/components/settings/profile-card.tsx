@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User, Mail, Lock, Save, RotateCcw } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -22,6 +21,7 @@ import {
   getAuthControllerMeQueryKey,
 } from "@/lib/api/auth/auth";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 export function ProfileCard({
   loading,
@@ -135,16 +135,10 @@ export function ProfileCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-col items-center gap-3 pb-4 border-b">
-          {loading ? (
-            <Skeleton className="h-20 w-20 rounded-full" />
-          ) : (
-            <Avatar className="h-20 w-20 border-2 border-border">
-              <AvatarImage src="/generic-fantasy-champion.png" />
-              <AvatarFallback className="text-lg font-semibold">
-                PG
-              </AvatarFallback>
-            </Avatar>
-          )}
+          <UserAvatar
+            className="h-20 w-20 border-2 border-border"
+            fallbackClassName="text-lg font-semibold"
+          />
           <Button variant="outline" size="sm">
             Zmień zdjęcie
           </Button>

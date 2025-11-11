@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Crown, Users } from "lucide-react";
 import { PlayerResponseDto, TeamResponseDto } from "@/lib/api/model";
 import { Badge } from "@/components/ui/badge";
+import { RoleIcon } from "@/components/ui/role-icon";
 
 interface RankingRowProps {
   type: "player" | "team";
@@ -84,16 +85,28 @@ export function RankingRow({ type, data, rank }: RankingRowProps) {
       {/* Roles or Members */}
       <div className="col-span-3">
         {type === "player" ? (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-2">
             {(data as PlayerResponseDto).primaryRole && (
-              <Badge variant="secondary" className="text-xs">
-                {(data as PlayerResponseDto).primaryRole}
-              </Badge>
+              <div className="flex items-center gap-1">
+                <RoleIcon
+                  role={(data as PlayerResponseDto).primaryRole!}
+                  size={16}
+                />
+                <span className="text-xs">
+                  {(data as PlayerResponseDto).primaryRole}
+                </span>
+              </div>
             )}
             {(data as PlayerResponseDto).secondaryRole && (
-              <Badge variant="secondary" className="text-xs">
-                {(data as PlayerResponseDto).secondaryRole}
-              </Badge>
+              <div className="flex items-center gap-1">
+                <RoleIcon
+                  role={(data as PlayerResponseDto).secondaryRole!}
+                  size={16}
+                />
+                <span className="text-xs">
+                  {(data as PlayerResponseDto).secondaryRole}
+                </span>
+              </div>
             )}
             {!(data as PlayerResponseDto).primaryRole &&
               !(data as PlayerResponseDto).secondaryRole && (

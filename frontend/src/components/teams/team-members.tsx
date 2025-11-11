@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useTeamInvitationsControllerRemoveMember } from "@/lib/api/teams-invitations/teams-invitations";
 import { useQueryClient } from "@tanstack/react-query";
 import { getTeamControllerTeamQueryKey } from "@/lib/api/teams/teams";
+import { RoleIcon } from "@/components/ui/role-icon";
 
 interface TeamMembersProps {
   team: TeamResponseDto;
@@ -77,17 +78,16 @@ export function TeamMembers({ team, isOwner }: TeamMembersProps) {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     {member.primaryRole && (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs px-1.5 py-0"
-                      >
-                        {member.primaryRole}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <RoleIcon role={member.primaryRole} size={16} />
+                        <span className="text-xs">{member.primaryRole}</span>
+                      </div>
                     )}
                     {member.secondaryRole && (
-                      <Badge variant="outline" className="text-xs px-1.5 py-0">
-                        {member.secondaryRole}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <RoleIcon role={member.secondaryRole} size={16} />
+                        <span className="text-xs">{member.secondaryRole}</span>
+                      </div>
                     )}
                     <span>{member.rating}</span>
                   </div>

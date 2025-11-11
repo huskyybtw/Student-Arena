@@ -1,16 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Check, X } from "lucide-react";
-import { useLobbyControllerFindOne } from "@/lib/api/lobby/lobby";
+import { Plus, Check, X, Play } from "lucide-react";
+import {
+  useLobbyControllerFindOne,
+  useLobbyControllerStart,
+  getLobbyControllerFindOneQueryKey,
+  getLobbyControllerFindAllQueryKey,
+} from "@/lib/api/lobby/lobby";
 import { useCurrentUser } from "@/lib/providers/auth-provider";
 import { LobbyResponseDtoStatus } from "@/lib/api/model/lobbyResponseDtoStatus";
 import { LobbyResponseDtoMatchType } from "@/lib/api/model/lobbyResponseDtoMatchType";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   LobbyTeams,
   LobbyTeamsSkeleton,
@@ -53,15 +59,60 @@ export default function MatchDetailsPage({
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const { user } = useCurrentUser();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const lobbyId = Number.parseInt(params.id);
   const { data: lobbyData, isLoading } = useLobbyControllerFindOne(lobbyId);
+
+  const startMatchMutation = useLobbyControllerStart({
+    mutation: {
+      onSuccess: () => {
+        toast.success("Mecz został rozpoczęty!");
+        queryClient.invalidateQueries({
+          queryKey: getLobbyControllerFindOneQueryKey(lobbyId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: getLobbyControllerFindAllQueryKey(),
+        });
+      },
+      onError: (error: any) => {
+        toast.error(
+          error?.response?.data?.message || "Błąd podczas rozpoczynania meczu"
+        );
+      },
+    },
+  });
 
   const lobby = lobbyData?.data;
   const isOwner = user?.playerAccount?.id === lobby?.owner?.id;
   const isUserInLobby = lobby?.players?.some(
     (p) => p.player?.id === user?.playerAccount?.id
   );
+
+  // Check if match date has passed
+  const canStartMatch = isOwner && lobby && new Date(lobby.date) <= new Date();
+
+  // Auto-refresh when match start time is reached
+  useEffect(() => {
+    if (!lobby) return;
+
+    const matchDate = new Date(lobby.date);
+    const now = new Date();
+
+    if (matchDate > now) {
+      const timeUntilMatch = matchDate.getTime() - now.getTime();
+
+      if (timeUntilMatch < 24 * 60 * 60 * 1000) {
+        const timeoutId = setTimeout(() => {
+          queryClient.invalidateQueries({
+            queryKey: getLobbyControllerFindOneQueryKey(lobbyId),
+          });
+        }, timeUntilMatch);
+
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [lobby, lobbyId, queryClient]);
 
   if (isLoading || !lobby) {
     return <MatchDetailsPageSkeleton />;
@@ -140,6 +191,28 @@ export default function MatchDetailsPage({
                 onClick={() => setLeaveDialogOpen(true)}
               >
                 <X className="h-5 w-5" />
+              </Button>
+            )}
+
+            {/* Start Match Button - Always visible, enabled only for owner when date passed */}
+            {lobby.status === LobbyResponseDtoStatus.SCHEDULED && (
+              <Button
+                size="lg"
+                onClick={() => startMatchMutation.mutate({ id: lobbyId })}
+                disabled={!canStartMatch || startMatchMutation.isPending}
+                className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed px-6"
+                title={
+                  !isOwner
+                    ? "Tylko właściciel może rozpocząć mecz"
+                    : !canStartMatch
+                    ? "Mecz można rozpocząć dopiero po zaplanowanej dacie"
+                    : "Rozpocznij mecz"
+                }
+              >
+                <Play className="h-5 w-5 mr-2" />
+                {startMatchMutation.isPending
+                  ? "Rozpoczynanie..."
+                  : "Rozpocznij mecz"}
               </Button>
             )}
           </div>

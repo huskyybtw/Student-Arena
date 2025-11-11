@@ -15,6 +15,7 @@ import { DeletePostingDialog } from "@/components/posting/delete-posting-dialog"
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { RoleIcon } from "@/components/ui/role-icon";
 
 export function TeamPosting() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -155,11 +156,12 @@ export function TeamPosting() {
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <div className="flex gap-1 flex-wrap">
+                  <div className="flex gap-1 flex-wrap items-center">
                     {post.rolesNeeded?.map((role: string) => (
-                      <Badge key={role} variant="secondary" className="text-xs">
-                        {role}
-                      </Badge>
+                      <div key={role} className="flex items-center gap-1">
+                        <RoleIcon role={role} size={14} />
+                        <span className="text-xs">{role}</span>
+                      </div>
                     ))}
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getRoleLabel } from "@/lib/utils/role-labels";
 import { LobbyResponseDtoStatus } from "@/lib/api/model/lobbyResponseDtoStatus";
 import type { LobbyResponseDto } from "@/lib/api/model/lobbyResponseDto";
+import { RoleIcon } from "@/components/ui/role-icon";
 
 interface LobbyTeamsProps {
   lobby: LobbyResponseDto;
@@ -105,11 +106,17 @@ export function LobbyTeams({ lobby }: LobbyTeamsProps) {
                       </>
                     )}
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 items-center">
                     {lobbyPlayer.player?.primaryRole && (
-                      <Badge variant="outline" className="text-xs">
-                        {getRoleLabel(lobbyPlayer.player.primaryRole)}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <RoleIcon
+                          role={lobbyPlayer.player.primaryRole}
+                          size={14}
+                        />
+                        <span className="text-xs">
+                          {getRoleLabel(lobbyPlayer.player.primaryRole)}
+                        </span>
+                      </div>
                     )}
                   </div>
                 </div>
