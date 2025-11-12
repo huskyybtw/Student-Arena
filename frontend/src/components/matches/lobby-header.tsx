@@ -29,6 +29,8 @@ export function LobbyHeader({ lobby }: LobbyHeaderProps) {
     switch (lobby.status) {
       case LobbyResponseDtoStatus.SCHEDULED:
         return "bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border-blue-500/50 animate-pulse";
+      case LobbyResponseDtoStatus.STARTING:
+        return "bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border-yellow-500/50 animate-pulse";
       case LobbyResponseDtoStatus.ONGOING:
         return "bg-gradient-to-r from-green-600/20 to-emerald-600/20 border-green-500/50 animate-pulse";
       case LobbyResponseDtoStatus.COMPLETED:
@@ -42,6 +44,8 @@ export function LobbyHeader({ lobby }: LobbyHeaderProps) {
     switch (lobby.status) {
       case LobbyResponseDtoStatus.SCHEDULED:
         return { text: "Zaplanowana", color: "bg-blue-600" };
+      case LobbyResponseDtoStatus.STARTING:
+        return { text: "Rozpoczynanie...", color: "bg-yellow-600" };
       case LobbyResponseDtoStatus.ONGOING:
         return { text: "W trakcie", color: "bg-green-600" };
       case LobbyResponseDtoStatus.COMPLETED:

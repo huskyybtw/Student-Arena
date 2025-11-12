@@ -1,4 +1,8 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  BadGatewayException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -28,7 +32,8 @@ export class MatchTrackingService {
    *
    * @param lobbyId - The lobby ID to track
    * @param puuids - Array of player PUUIDs to track
-   * @throws HttpException if tracking service request fails
+   * @throws BadGatewayException (502) if tracking service returns an error
+   * @throws ServiceUnavailableException (503) if tracking service is unreachable
    */
   async trackMatch(lobbyId: number, puuids: string[]): Promise<void> {
     const payload = {
@@ -48,16 +53,19 @@ export class MatchTrackingService {
         ),
       );
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new HttpException(
-          error.response?.data?.message || 'Failed to start match tracking',
-          error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      if (axios.isAxiosError(error) && !error.response) {
+        throw new ServiceUnavailableException(
+          'Match tracking service is currently unavailable',
         );
       }
-      throw new HttpException(
-        'Failed to communicate with tracking service',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message ||
+          error.response?.data?.detail ||
+          error.message
+        : 'Failed to communicate with tracking service';
+
+      throw new BadGatewayException(`Tracking service error: ${message}`);
     }
   }
 }

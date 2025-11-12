@@ -30,13 +30,19 @@ REDIS_DB = int(os.getenv("REDIS_DB", 0))
 
 RIOT_API_KEY = os.getenv("RIOT_API_KEY", "")
 RIOT_MATCH_URL = (
-    "https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
+    "https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
 )
 RIOT_MATCH_DETAIL_URL = (
-    "https://americas.api.riotgames.com/lol/match/v5/matches/{match_id}"
+    "https://europe.api.riotgames.com/lol/match/v5/matches/{match_id}"
 )
 
-RATE_LIMIT = int(os.getenv("RATE_LIMIT", 10))  # max requests per second
+PLATFORM = os.getenv("RIOT_PLATFORM", "eun1")
+SUMMONER_BY_PUUID_URL_TEMPLATE = (
+    "https://{platform}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+)
+SPECTATOR_ACTIVE_URL_TEMPLATE = "https://{platform}.api.riotgames.com/lol/spectator/v5/active-games/by-summoner/{summoner_id}"
+
+RATE_LIMIT = int(os.getenv("RATE_LIMIT", 1))  # max requests per second
 
 logger.info(
     f"Configuration loaded - Redis: {REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}, Rate limit: {RATE_LIMIT}/s"
@@ -159,6 +165,61 @@ def get_latest_match(puuid: str) -> Optional[str]:
         return None
 
 
+def get_summoner_by_puuid(puuid: str) -> Optional[dict]:
+    """Lookup summoner object (contains encrypted summoner id) by PUUID on PLATFORM"""
+    url = SUMMONER_BY_PUUID_URL_TEMPLATE.format(platform=PLATFORM, puuid=puuid)
+    headers = {"X-Riot-Token": RIOT_API_KEY}
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            return resp.json()
+        elif resp.status_code == 429:
+            logger.warning(f"Rate limited fetching summoner for PUUID {puuid[:8]}...")
+            return None
+        else:
+            logger.debug(
+                f"Summoner lookup returned {resp.status_code} for PUUID {puuid[:8]}: {resp.text}"
+            )
+            return None
+    except Exception as e:
+        logger.error(f"Error fetching summoner for PUUID {puuid[:8]}: {e}")
+        return None
+
+
+def get_active_game_for_puuid(puuid: str) -> Optional[dict]:
+    """Call Spectator active-game endpoint for the given PUUID on PLATFORM.
+    Returns the spectator JSON if the PUUID is in an active game, None if not or on error.
+    """
+    url = SPECTATOR_ACTIVE_URL_TEMPLATE.format(platform=PLATFORM, summoner_id=puuid)
+    headers = {"X-Riot-Token": RIOT_API_KEY}
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            return resp.json()
+        elif resp.status_code == 404:
+            # Not in an active game
+            logger.debug(f"PUUID {puuid[:8]} not in active game (404)")
+            return None
+        elif resp.status_code == 429:
+            logger.warning(f"Rate limited checking active game for {puuid[:8]}")
+            return None
+        else:
+            logger.error(f"Error from spectator API {resp.status_code}: {resp.text}")
+            return None
+    except Exception as e:
+        logger.error(f"Exception calling spectator API for {puuid[:8]}: {e}")
+        return None
+
+
+def get_active_match_by_puuid(puuid: str) -> Optional[str]:
+    """High-level helper: given a PUUID, call Spectator v5 directly and return the spectator gameId as string when active, otherwise None."""
+    active = get_active_game_for_puuid(puuid)
+    if active:
+        game_id = active.get("gameId")
+        return str(game_id) if game_id else None
+    return None
+
+
 def check_match_status(match_id: str) -> Optional[dict]:
     """Check if match has ended by fetching match details"""
     url = RIOT_MATCH_DETAIL_URL.format(match_id=match_id)
@@ -218,20 +279,31 @@ def process_matches():
                         time.sleep((1 / RATE_LIMIT) - elapsed)
                     last_request_time = time.time()
 
-                    match_id = get_latest_match(puuid)
-                    if match_id:
-                        latest_match_id = match_id
+                    # Check if player is currently in an active game via Spectator v5 (EUN1)
+                    spectator_game_id = get_active_match_by_puuid(puuid)
+                    if spectator_game_id:
+                        # Normalize spectator game id to the match-v5 format with region prefix
+                        region_prefixed = f"{PLATFORM.upper()}_{spectator_game_id}"
+                        latest_match_id = region_prefixed
                         any_started = True
                         logger.info(
-                            f"Match started for lobby {match['lobby_id']}: {match_id}"
+                            f"Spectator active game detected for lobby {match['lobby_id']}: {region_prefixed}"
                         )
-                        break  # Found a match, no need to check other PUUIDs
+                        break  # Found an active game, no need to check other PUUIDs
 
                 if any_started and latest_match_id:
-                    match["match_id"] = latest_match_id
+                    # We detected an active game via Spectator. The official match-v5 id
+                    # may not be available until the game ends and is processed by Riot.
+                    # Store spectator id and mark started_by_spectator so we can resolve
+                    # the final match-v5 id later.
+                    match["match_id"] = None
                     match["started_at"] = time.time()
+                    match["started_by_spectator"] = True
+                    match["spectator_game_id"] = spectator_game_id
+                    match["riot_match_id"] = latest_match_id
                     push_ongoing(match)
 
+                    # Notify backend immediately with the spectator game id
                     payload = {
                         "lobbyId": match["lobby_id"],
                         "riotMatchId": latest_match_id,
@@ -247,12 +319,44 @@ def process_matches():
             # Process ongoing queue
             ongoing = pop_ongoing()
             if ongoing:
-                match_id = ongoing.get("match_id")
+                # Prefer explicit riot_match_id (may be a region-prefixed spectator id)
+                match_id = ongoing.get("riot_match_id") or ongoing.get("match_id")
+
                 if not match_id:
-                    logger.warning(
-                        f"Ongoing match for lobby {ongoing['lobby_id']} has no match_id"
-                    )
-                    continue
+                    # If the match was started by spectator we expect a region-prefixed
+                    # riot_match_id to be present (we stored it when detecting via spectator).
+                    # If it's not available yet, just requeue and retry later.
+                    if ongoing.get("started_by_spectator"):
+                        logger.info(
+                            f"Lobby {ongoing['lobby_id']} started by spectator but no riot_match_id yet; retrying later"
+                        )
+                        push_ongoing(ongoing)
+                        continue
+
+                    # Fallback: try to resolve final match-v5 id by querying recent matches
+                    resolved = None
+                    for puuid in ongoing["puuids"]:
+                        # Rate limiting
+                        elapsed = time.time() - last_request_time
+                        if elapsed < 1 / RATE_LIMIT:
+                            time.sleep((1 / RATE_LIMIT) - elapsed)
+                        last_request_time = time.time()
+
+                        candidate = get_latest_match(puuid)
+                        if candidate:
+                            resolved = candidate
+                            break
+
+                    if resolved:
+                        ongoing["match_id"] = resolved
+                        match_id = resolved
+                        logger.info(
+                            f"Resolved match-v5 id for lobby {ongoing['lobby_id']}: {resolved}"
+                        )
+                    else:
+                        # Not yet available via match-v5, retry later
+                        push_ongoing(ongoing)
+                        continue
 
                 # Rate limiting
                 elapsed = time.time() - last_request_time

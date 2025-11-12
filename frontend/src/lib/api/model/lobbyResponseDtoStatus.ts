@@ -15,6 +15,7 @@ export type LobbyResponseDtoStatus = typeof LobbyResponseDtoStatus[keyof typeof 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LobbyResponseDtoStatus = {
   SCHEDULED: 'SCHEDULED',
+  STARTING: 'STARTING',
   ONGOING: 'ONGOING',
   COMPLETED: 'COMPLETED',
 } as const;

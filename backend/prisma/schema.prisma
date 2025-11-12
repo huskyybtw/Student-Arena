@@ -121,6 +121,7 @@ enum MatchType {
 
 enum MatchStatus {
   SCHEDULED
+  STARTING
   ONGOING
   COMPLETED
 }

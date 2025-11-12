@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { use, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Check, X, Play } from "lucide-react";
@@ -26,6 +26,7 @@ import {
   LobbyHeaderSkeleton,
 } from "@/components/matches/lobby-header";
 import { LobbyInfo, LobbyInfoSkeleton } from "@/components/matches/lobby-info";
+import { useLobbySSE } from "@/lib/hooks/use-lobby-sse";
 
 function MatchDetailsPageSkeleton() {
   return (
@@ -53,7 +54,7 @@ function MatchDetailsPageSkeleton() {
 export default function MatchDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const [userReady, setUserReady] = useState(false);
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
@@ -61,8 +62,23 @@ export default function MatchDetailsPage({
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const lobbyId = Number.parseInt(params.id);
+  const resolvedParams = use(params);
+  const lobbyId = Number.parseInt(resolvedParams.id);
   const { data: lobbyData, isLoading } = useLobbyControllerFindOne(lobbyId);
+
+  // Set up SSE connection for real-time updates
+  useLobbySSE({
+    lobbyId,
+    onStatusChange: (status) => {
+      console.log("Status changed to:", status);
+    },
+    onMatchStarted: (data) => {
+      console.log("Match started:", data);
+    },
+    onMatchCompleted: (data) => {
+      console.log("Match completed:", data);
+    },
+  });
 
   const startMatchMutation = useLobbyControllerStart({
     mutation: {

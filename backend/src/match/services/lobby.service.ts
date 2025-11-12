@@ -310,11 +310,11 @@ export class LobbyService {
       throw new ForbiddenException('Only the lobby owner can start the match');
     }
 
-    if (lobby.players.length !== 10) {
-      throw new BadRequestException(
-        `Cannot start match - need 10 players, currently have ${lobby.players.length}`,
-      );
-    }
+    // if (lobby.players.length !== 10) {
+    //   throw new BadRequestException(
+    //     `Cannot start match - need 10 players, currently have ${lobby.players.length}`,
+    //   );
+    // }
 
     const now = new Date();
     if (now < lobby.date) {
@@ -323,12 +323,12 @@ export class LobbyService {
       );
     }
 
-    const allPlayersReady = lobby.players.every((player) => player.ready);
-    if (!allPlayersReady) {
-      throw new BadRequestException(
-        'Cannot start match - not all players are ready',
-      );
-    }
+    // const allPlayersReady = lobby.players.every((player) => player.ready);
+    // if (!allPlayersReady) {
+    //   throw new BadRequestException(
+    //     'Cannot start match - not all players are ready',
+    //   );
+    // }
 
     if (lobby.status !== MatchStatus.SCHEDULED) {
       throw new BadRequestException('Match has already been started');
@@ -341,20 +341,19 @@ export class LobbyService {
         (puuid): puuid is string => puuid !== null && puuid !== undefined,
       );
 
-    if (puuids.length !== 10) {
-      throw new BadRequestException(
-        'Cannot start match - not all players have valid PUUIDs',
-      );
-    }
+    // if (puuids.length !== 10) {
+    //   throw new BadRequestException(
+    //     'Cannot start match - not all players have valid PUUIDs',
+    //   );
+    // }
 
     // Send tracking request to tracking service
     await this.matchTrackingService.trackMatch(lobbyId, puuids);
-
     // Update lobby status and emit SSE event
     const updatedLobby = await this.prisma.lobby.update({
       where: { id: lobbyId },
       data: {
-        status: MatchStatus.ONGOING,
+        status: MatchStatus.STARTING,
       },
       include: {
         owner: true,
@@ -369,7 +368,7 @@ export class LobbyService {
     // Emit SSE event to all clients watching this lobby
     this.sseService.emitToLobby(lobbyId, 'lobby:status-changed', {
       lobbyId,
-      status: MatchStatus.ONGOING,
+      status: MatchStatus.STARTING,
     });
 
     return updatedLobby;

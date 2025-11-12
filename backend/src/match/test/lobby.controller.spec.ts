@@ -123,6 +123,10 @@ describe('LobbyController (e2e)', () => {
     it('should throw 403 if not owner');
 
     it('should throw 400 if not all ready');
+
+    it('should throw 502 if tracking service returns an error');
+
+    it('should throw 503 if tracking service is unavailable');
   });
 
   describe('/lobby/:id/cancel (POST)', () => {

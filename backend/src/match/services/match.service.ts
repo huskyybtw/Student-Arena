@@ -51,6 +51,21 @@ export class MatchService {
       );
     }
 
+    const updatedLobby = await this.prisma.lobby.update({
+      where: { id: lobby.id },
+      data: {
+        status: MatchStatus.ONGOING,
+      },
+      include: {
+        owner: true,
+        players: {
+          include: {
+            player: true,
+          },
+        },
+      },
+    });
+
     const match = await this.prisma.match.create({
       data: {
         lobbyId: data.lobbyId,
@@ -58,7 +73,12 @@ export class MatchService {
       },
     });
 
-    // Emit SSE event to clients watching this lobby
+    // Emit SSE events to clients watching this lobby
+    this.sseService.emitToLobby(data.lobbyId, 'lobby:status-changed', {
+      lobbyId: data.lobbyId,
+      status: MatchStatus.ONGOING,
+    });
+
     this.sseService.emitToLobby(data.lobbyId, 'match:started', {
       lobbyId: data.lobbyId,
       matchId: match.id,
@@ -101,12 +121,6 @@ export class MatchService {
       );
     }
 
-    if (match.duration !== null) {
-      throw new BadRequestException(
-        `Match ${data.riotMatchId} has already been completed`,
-      );
-    }
-
     const matchData = await this.riotService.getMatchById(data.riotMatchId);
 
     // Parse match info
@@ -116,7 +130,6 @@ export class MatchService {
     // Determine winning team (100 or 200)
     const winningTeam = participants.find((p: any) => p.win)?.teamId;
 
-    // Update match with completion data
     await this.prisma.match.update({
       where: { id: match.id },
       data: {
@@ -149,7 +162,12 @@ export class MatchService {
       data: { status: MatchStatus.COMPLETED },
     });
 
-    // Emit SSE event to clients watching this lobby
+    // Emit SSE events to clients watching this lobby
+    this.sseService.emitToLobby(match.lobbyId, 'lobby:status-changed', {
+      lobbyId: match.lobbyId,
+      status: MatchStatus.COMPLETED,
+    });
+
     this.sseService.emitToLobby(match.lobbyId, 'match:completed', {
       lobbyId: match.lobbyId,
       matchId: match.id,
@@ -157,11 +175,11 @@ export class MatchService {
     });
 
     if (match.lobby.ranked) {
-      await this.ratingService.updateRatingsForMatch(
-        match.id,
-        match.lobbyId,
-        match.lobby.matchType,
-      );
+      // await this.ratingService.updateRatingsForMatch(
+      //   match.id,
+      //   match.lobbyId,
+      //   match.lobby.matchType,
+      // );
     }
 
     return match;

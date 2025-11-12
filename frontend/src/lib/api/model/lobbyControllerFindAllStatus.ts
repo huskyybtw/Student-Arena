@@ -12,6 +12,7 @@ export type LobbyControllerFindAllStatus = typeof LobbyControllerFindAllStatus[k
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const LobbyControllerFindAllStatus = {
   SCHEDULED: 'SCHEDULED',
+  STARTING: 'STARTING',
   ONGOING: 'ONGOING',
   COMPLETED: 'COMPLETED',
 } as const;
