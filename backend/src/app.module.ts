@@ -13,6 +13,8 @@ import { RatingModule } from './rating/rating.module';
 import { PostingModule } from './posting/posting.module';
 import { TeamPostingController } from './posting/team-posting.controller';
 import { MatchModule } from './match/match.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { TournamentsModule } from './tournaments/tournaments.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { MatchModule } from './match/match.module';
     RatingModule,
     PostingModule,
     MatchModule,
+    OrganizationsModule,
+    TournamentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

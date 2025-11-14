@@ -20,6 +20,7 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   playerAccount PlayerAccount?
+  organizations Organization?
 }
 
 enum LeagueRole {
@@ -135,12 +136,13 @@ model Lobby {
   matchType   MatchType
   date        DateTime
   createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   ownerId     Int?
 
-  owner   PlayerAccount? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-  players LobbyPlayer[]
-  match   Match?
+  owner      PlayerAccount?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  players    LobbyPlayer[]
+  match      Match?
+  tournament TournamentLobby?
 }
 
 model LobbyPlayer {
@@ -191,4 +193,39 @@ model MatchParticipant {
   match       Match          @relation(fields: [matchId], references: [id])
   lobbyPlayer LobbyPlayer    @relation(fields: [lobbyPlayerId], references: [id])
   player      PlayerAccount? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+}
+
+model Organization {
+  id      Int    @id @default(autoincrement())
+  name    String @unique
+  ownerId Int    @unique
+
+  owner       User         @relation(fields: [ownerId], references: [id])
+  tournaments Tournament[]
+}
+
+// OPEN ONLY TOURNAMENTS FOR EASE OF IMPLEMENTATION
+model Tournament {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String   @default("")
+  organizationId Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  startsAt       DateTime
+  teamLimit      Int
+
+  organization Organization      @relation(fields: [organizationId], references: [id])
+  lobbies      TournamentLobby[]
+}
+
+// JUNKTION TABLE 
+// TOURNAMENTS CAN HAVE LOBBIES BUT IT IS KEPT IN JUNCTION TABLE TO ALLOW EXTENSIBILITY
+model TournamentLobby {
+  id           Int @id @default(autoincrement())
+  tournamentId Int
+  lobbyId      Int @unique
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id])
+  lobby      Lobby      @relation(fields: [lobbyId], references: [id])
 }
