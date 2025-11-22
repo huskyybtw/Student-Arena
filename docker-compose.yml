@@ -28,7 +28,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/student-arena
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres
       - JWT_SECRET=${JWT_SECRET:-sdfhertgyhjetyjrytujr}
       - RIOT_API_KEY=${RIOT_API_KEY}
       # Service hostnames for inter-container communication
