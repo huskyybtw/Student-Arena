@@ -28,15 +28,12 @@ import { LobbyCreateDTOMatchType } from "@/lib/api/model/lobbyCreateDTOMatchType
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatePicker } from "@/components/ui/date-range-picker";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { lobbySchema, LobbyFormData } from "@/lib/validators/lobbySchema";
 
 export function CreateLobbyDialog() {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [ranked, setRanked] = useState(false);
-  const [matchType, setMatchType] = useState<string>("");
-  const [date, setDate] = useState<Date | undefined>(undefined);
-
   const queryClient = useQueryClient();
 
   const createLobbyMutation = useLobbyControllerCreate({
@@ -47,11 +44,7 @@ export function CreateLobbyDialog() {
           queryKey: getLobbyControllerFindAllQueryKey(),
         });
         setOpen(false);
-        setTitle("");
-        setDescription("");
-        setRanked(false);
-        setMatchType("");
-        setDate(undefined);
+        reset();
       },
       onError: (error: any) => {
         toast.error(
@@ -61,36 +54,29 @@ export function CreateLobbyDialog() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<LobbyFormData>({
+    resolver: yupResolver(lobbySchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      ranked: false,
+      matchType: "",
+      date: undefined,
+    },
+  });
 
-    if (!title) {
-      toast.error("Tytuł jest wymagany");
-      return;
-    }
-
-    if (!matchType) {
-      toast.error("Typ meczu jest wymagany");
-      return;
-    }
-
-    if (!date) {
-      toast.error("Data meczu jest wymagana");
-      return;
-    }
-
-    if (date < new Date()) {
-      toast.error("Data meczu musi być w przyszłości");
-      return;
-    }
-
+  const onSubmit = (data: LobbyFormData) => {
     createLobbyMutation.mutate({
       data: {
-        title,
-        description,
-        ranked,
-        matchType: matchType as LobbyCreateDTOMatchType,
-        date: date.toISOString(),
+        ...data,
+        matchType: data.matchType as LobbyCreateDTOMatchType,
+        date: data.date.toISOString(),
       },
     });
   };
@@ -106,16 +92,18 @@ export function CreateLobbyDialog() {
           <DialogHeader>
             <DialogTitle>Utwórz Nowe Lobby</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="create-lobby-title">Tytuł *</Label>
               <Input
                 id="create-lobby-title"
                 placeholder="np. Rankingowe 5v5"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register("title")}
                 className="bg-card/50 border-border"
               />
+              {errors.title && (
+                <p className="text-xs text-red-500">{errors.title.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -124,44 +112,74 @@ export function CreateLobbyDialog() {
                 id="create-lobby-description"
                 placeholder="Opisz szczegóły meczu..."
                 className="min-h-24 resize-none bg-card/50 border-border"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                {...register("description")}
               />
+              {errors.description && (
+                <p className="text-xs text-red-500">
+                  {errors.description.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="create-lobby-matchType">Typ meczu *</Label>
-              <Select value={matchType} onValueChange={setMatchType}>
-                <SelectTrigger className="bg-card/50 border-border">
-                  <SelectValue placeholder="Wybierz typ meczu" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={LobbyCreateDTOMatchType.Queue}>
-                    Dobierane
-                  </SelectItem>
-                  <SelectItem value={LobbyCreateDTOMatchType.Team}>
-                    Zespołowe
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="matchType"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="bg-card/50 border-border">
+                      <SelectValue placeholder="Wybierz typ meczu" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={LobbyCreateDTOMatchType.Queue}>
+                        Dobierane
+                      </SelectItem>
+                      <SelectItem value={LobbyCreateDTOMatchType.Team}>
+                        Zespołowe
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.matchType && (
+                <p className="text-xs text-red-500">
+                  {errors.matchType.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="create-lobby-date">Data meczu *</Label>
-              <DatePicker
-                date={date}
-                onDateChange={setDate}
-                placeholder="Wybierz datę i godzinę"
-                className="w-full"
-                showTime
+              <Controller
+                name="date"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    date={field.value}
+                    onDateChange={field.onChange}
+                    placeholder="Wybierz datę i godzinę"
+                    className="w-full"
+                    showTime
+                  />
+                )}
               />
+              {errors.date && (
+                <p className="text-xs text-red-500">{errors.date.message}</p>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
-              <Checkbox
-                id="create-lobby-ranked"
-                checked={ranked}
-                onCheckedChange={(checked) => setRanked(checked === true)}
+              <Controller
+                name="ranked"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    id="create-lobby-ranked"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
               />
               <Label
                 htmlFor="create-lobby-ranked"
@@ -175,7 +193,7 @@ export function CreateLobbyDialog() {
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={createLobbyMutation.isPending}
+                disabled={isSubmitting || createLobbyMutation.isPending}
               >
                 {createLobbyMutation.isPending ? "Tworzenie..." : "Utwórz"}
               </Button>

@@ -47,9 +47,14 @@ export default function RootLayout({
   const [queryClient] = useState(() => new QueryClient());
   return (
     <html
-      lang="en"
+      lang="pl"
       className={`${geist.variable} ${manrope.variable} antialiased dark`}
     >
+      <head>
+        <title>Student Arena - Platforma E-sportowa dla Studentów</title>
+        <meta name="description" content="Platforma do organizacji rozgrywek League of Legends dla środowiska akademickiego" />
+      </head>
+      
       <body className="bg-background text-foreground">
         <QueryClientProvider client={queryClient}>
           <LayoutContent>{children}</LayoutContent>

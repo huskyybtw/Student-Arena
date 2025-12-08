@@ -123,11 +123,9 @@ export class MatchService {
 
     const matchData = await this.riotService.getMatchById(data.riotMatchId);
 
-    // Parse match info
     const gameDuration = matchData.info.gameDuration; // in seconds
     const participants = matchData.info.participants;
 
-    // Determine winning team (100 or 200)
     const winningTeam = participants.find((p: any) => p.win)?.teamId;
 
     await this.prisma.match.update({
@@ -139,7 +137,6 @@ export class MatchService {
     });
 
     for (const participant of participants) {
-      // Find the lobby player by puuid
       const lobbyPlayer = match.lobby.players.find(
         (lp) => lp.player?.puuid === participant.puuid,
       );

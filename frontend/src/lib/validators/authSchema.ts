@@ -12,14 +12,6 @@ export const loginSchema = yup.object({
 });
 
 export const signupSchema = yup.object({
-  username: yup
-    .string()
-    .min(3, "Nazwa użytkownika musi mieć co najmniej 3 znaki")
-    .required("Nazwa użytkownika jest wymagana"),
-  university: yup
-    .string()
-    .min(2, "Nazwa uczelni jest za krótka")
-    .required("Uczelnia jest wymagana"),
   email: yup
     .string()
     .email("Nieprawidłowy email")

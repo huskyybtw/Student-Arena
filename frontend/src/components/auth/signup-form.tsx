@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, School, Lock, Mail } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SignupFormData, signupSchema } from "@/lib/validators/authSchema";
@@ -23,8 +23,6 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
   } = useForm<SignupFormData>({
     resolver: yupResolver(signupSchema),
     defaultValues: {
-      username: "",
-      university: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -52,46 +50,6 @@ export function RegisterForm({ onToggle }: RegisterFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <CardContent className="space-y-3 px-6 pb-6">
-        <div className="space-y-1">
-          <Label htmlFor="username" className="text-sm font-medium">
-            Nazwa użytkownika
-          </Label>
-          <div className="relative">
-            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="username"
-              placeholder="Twoja nazwa gracza"
-              className="pl-10 h-11 bg-background border-2 border-border focus:border-primary"
-              autoComplete="username"
-              {...register("username")}
-            />
-          </div>
-          {touchedFields?.username && errors.username && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.username.message}
-            </p>
-          )}
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="university" className="text-sm font-medium">
-            Uczelnia
-          </Label>
-          <div className="relative">
-            <School className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="university"
-              placeholder="Nazwa twojej uczelni"
-              className="pl-10 h-11 bg-background border-2 border-border focus:border-primary"
-              autoComplete="organization"
-              {...register("university")}
-            />
-          </div>
-          {touchedFields?.university && errors.university && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.university.message}
-            </p>
-          )}
-        </div>
         <div className="space-y-1">
           <Label htmlFor="email" className="text-sm font-medium">
             Email

@@ -23,12 +23,15 @@ import { Plus } from "lucide-react";
 import {
   useTeamPostingControllerCreate,
   usePlayerPostingControllerCreate,
+  getTeamPostingControllerPostingsQueryKey,
+  getPlayerPostingControllerPostingsQueryKey,
 } from "@/lib/api/postings/postings";
 import { useTeamControllerTeams } from "@/lib/api/teams/teams";
 import { useCurrentUser } from "@/lib/providers/auth-provider";
 import { toast } from "sonner";
 import { TeamPostingCreateDtoRolesNeededItem } from "@/lib/api/model";
 import { RoleSelector } from "@/components/ui/role-selector";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CreatePostingDialogProps {
   type: "team" | "player";
@@ -44,6 +47,7 @@ export function CreatePostingDialog({ type }: CreatePostingDialogProps) {
   >([]);
 
   const { user } = useCurrentUser();
+  const queryClient = useQueryClient();
   const { data: teamsData } = useTeamControllerTeams(
     type === "team" && user?.playerAccount?.id
       ? { members: [user.playerAccount.id] }
@@ -54,6 +58,9 @@ export function CreatePostingDialog({ type }: CreatePostingDialogProps) {
     mutation: {
       onSuccess: () => {
         toast.success("Ogłoszenie zostało utworzone");
+        queryClient.invalidateQueries({
+          queryKey: getTeamPostingControllerPostingsQueryKey(),
+        });
         setOpen(false);
         resetForm();
       },
@@ -69,6 +76,9 @@ export function CreatePostingDialog({ type }: CreatePostingDialogProps) {
     mutation: {
       onSuccess: () => {
         toast.success("Ogłoszenie zostało utworzone");
+        queryClient.invalidateQueries({
+          queryKey: getPlayerPostingControllerPostingsQueryKey(),
+        });
         setOpen(false);
         resetForm();
       },

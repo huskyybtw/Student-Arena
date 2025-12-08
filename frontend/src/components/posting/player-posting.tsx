@@ -28,7 +28,6 @@ export function PlayerPosting() {
 
   const playerPosts = postingsData?.data || [];
 
-  // Only show OPEN postings
   const filteredPosts = playerPosts.filter((post) => post.status === "OPEN");
 
   if (isLoading) {
